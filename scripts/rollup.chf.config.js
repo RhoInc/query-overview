@@ -6,5 +6,5 @@ module.exports = {
     d3: 'd3',
     react: 'React'
   },
-  moduleName: 'yourModuleName'
+  moduleName: 'query-overview'
 }; 
