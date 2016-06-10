@@ -11,11 +11,11 @@ function describeCode(props) {
   const code =
 `// uses d3 v.${d3Version}
 // uses webcharts v.${wcVersion}
-// uses your-library-name v.1.1.0
+// uses your-library-name v.1.0.0
 
 var settings = ${JSON.stringify(settings, null, 2)};
 
-var myChart = yourRendererName(dataElement, settings);
+var myChart = queryOverview(dataElement, settings);
 
 d3.csv(dataPath, function(error, csv) {
   myChart.init(csv);

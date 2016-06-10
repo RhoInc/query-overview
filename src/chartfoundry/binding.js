@@ -1,6 +1,24 @@
 
 export default {
 	dataMappings : [
+		//Custom data mappings//
+		{
+			source:"form_col",
+			target:"form_col"
+		},		
+		{
+			source:"field_col",
+			target:"field_col"
+		},		
+		{
+			source:"status_col",
+			target:"status_col"
+		},		
+		{
+			source:"filter_cols",
+			target:"filter_cols"
+		},
+		//Standard Webcharts settings//
 		{
 			source:"x",
 			target:"x.column"
@@ -63,6 +81,24 @@ export default {
 		}
 	],
 	chartProperties: [
+		//Custom chart properties
+  		{
+			source:"cutoff",
+			target:"cutoff"
+		},
+		{
+			source:"alphabetize",
+			target:"alphabetize"
+		},
+		{
+			source:"groupBy",
+			target:"groupBy"
+		},
+		{
+			source:"alphabetize",
+			target:"alphabetize"
+		},
+		//Standard webcharts chart properties
 		{
 			source:"date_format",
 			target:"date_format"

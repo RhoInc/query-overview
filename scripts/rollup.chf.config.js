@@ -8,5 +8,11 @@ module.exports = {
     d3: 'd3',
     react: 'React'
   },
-  moduleName: 'queryOverview'
+  moduleName: 'queryOverview',
+  plugins: [
+    babel({
+      exclude: 'node_modules/**',
+      presets: ['es2015-rollup']
+    })
+  ]
 }; 
