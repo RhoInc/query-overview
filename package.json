@@ -1,5 +1,5 @@
 {
-  "name": "queryOverview",
+  "name": "query-overview",
   "version": "0.1.0",
   "description": "Interactive Bar chart for explorer query data from clinical trials.",
   "main": ".build/queryOverview-chf.js",
