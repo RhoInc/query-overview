@@ -2,7 +2,7 @@ export default function onLayout(){
  var chart = this
   this.controls.wrap
   .selectAll(".control-group")
-  .filter(function(d){return d.label=="Group By"})
+  .filter(function(d){return d.label=="Group By: "})
   .selectAll("select")
   .on("change", function(){
     var value = d3.select(this).property("value");

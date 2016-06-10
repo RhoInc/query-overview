@@ -127,7 +127,7 @@ var queryOverview = (function (webcharts) {
 	function onLayout() {
 		var chart = this;
 		this.controls.wrap.selectAll(".control-group").filter(function (d) {
-			return d.label == "Group By";
+			return d.label == "Group By: ";
 		}).selectAll("select").on("change", function () {
 			var value = d3.select(this).property("value");
 			chart.config.marks[0].per[0] = value;
