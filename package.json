@@ -1,0 +1,21 @@
+{
+  "name": "queryExplorer",
+  "version": "0.1.0",
+  "description": "Interactive Bar chart for explorer query data from clinical trials.",
+  "main": ".build/queryExplorer-chf.js",
+  "scripts": {
+    "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/queryExplorer.js",
+    "build-chf": "rollup -c ./scripts/rollup.chf.config.js  > ./build/queryExplorer-chf.js"
+  },
+  "author": "Rho, Inc.",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^3.5.14",
+    "react": "^0.14.7",
+    "webcharts": "^1.3.2"
+  },
+  "devDependencies": {
+    "babel": "^5.8.35",
+    "rollup": "^0.25.1"
+  }
+}
