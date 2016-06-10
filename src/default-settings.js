@@ -1,7 +1,7 @@
 const settings = {
   //Addition settings for this template
   cutoff:10,
-  alphabetize:false   
+  alphabetize:false,   
   form_col:"form",
   field_col:"field",
   status_col:"status",

@@ -1,3 +1,5 @@
+import babel from 'rollup-plugin-babel';
+
 module.exports = {
   entry: './src/chartfoundry/util/Renderer.js',
   format: 'umd',
@@ -6,5 +8,5 @@ module.exports = {
     d3: 'd3',
     react: 'React'
   },
-  moduleName: 'query-overview'
+  moduleName: 'queryOverview'
 }; 
