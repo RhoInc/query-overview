@@ -5,7 +5,7 @@ const settings = {
   form_col:"form",
   field_col:"field",
   status_col:"status",
-  filters:["markGroup","site"],
+  filter_cols:["markGroup","site"],
   filter_labels:["Marking Group: ","Site: "],
   groupBy:[null],
 
@@ -13,7 +13,7 @@ const settings = {
   "max_width":"1000",
   "y":{
     "type":"ordinal",
-    "column":"Form",
+    "column":null,
     "label":" ",
     "sort":"total-descending",
   },
@@ -46,6 +46,7 @@ const settings = {
 
 // Replicate settings in multiple places in the settings object
 export function syncSettings(settings){
+	settings.y.column = settings.form_col;
 	settings.marks[0].per[0] = settings.form_col;
 	settings.marks[1].per[0] = settings.form_col;
 	settings.marks[0].tooltip = settings.status_col ? "["+settings.status_col+"] - $x queries" : "$x queries";
@@ -53,10 +54,11 @@ export function syncSettings(settings){
 	settings.groupBy[1] = settings.form_col
 	if(settings.status_col){
 		settings.marks[0].split = settings.status_col
+		settings.color_by = settings.status_col
 		settings.groupBy.push(settings.status_col)
 	}
-	if(settings.filters){
-		settings.filters.forEach(function(d){
+	if(settings.filter_cols){
+		settings.filter_cols.forEach(function(d){
 			settings.groupBy.push(d)
 		})
 	}
@@ -100,14 +102,16 @@ export function syncControlInputs(controlInputs, settings){
   	}
   	controlInputs.push(statusControl)
   }
-  if(settings.filter){
-  	settings.filter.forEach(function(d,i){
-  		thisFilter = {
+
+  if(settings.filter_cols){
+	settings.filter_cols.forEach(function(d,i){
+  		var thisFilter = {
   			type:"subsetter", 
   			value_col:d, 
   			multiple:true
   		}
   		thisFilter.label = settings.filter_labels[i] ? settings.filter_labels[i] : null
+  		console.log(thisFilter)
   		controlInputs.push(thisFilter)
   	})
   }
