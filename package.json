@@ -1,8 +1,8 @@
 {
   "name": "query-overview",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Interactive Bar chart for explorer query data from clinical trials.",
-  "main": ".build/queryOverview-chf.js",
+  "main": "./build/queryOverview-chf.js",
   "scripts": {
     "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/queryOverview.js",
     "build-chf": "rollup -c ./scripts/rollup.chf.config.js  > ./build/queryOverview-chf.js"
