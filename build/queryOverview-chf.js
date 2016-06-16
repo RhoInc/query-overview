@@ -291,11 +291,15 @@
       if (settings.status_col) {
         settings.marks[0].split = settings.status_col;
         settings.color_by = settings.status_col;
-        settings.groupBy.push(settings.status_col);
+        if (settings.groupBy.indexOf(settings.status_col) == -1) {
+          settings.groupBy.push(settings.status_col);
+        }
       }
       if (settings.filter_cols) {
         settings.filter_cols.forEach(function (d) {
-          settings.groupBy.push(d);
+          if (settings.groupBy.indexOf(d) == -1) {
+            settings.groupBy.push(d);
+          }
         });
       }
       return settings;
@@ -334,7 +338,12 @@
           label: "Status: ",
           multiple: true
         };
-        controlInputs.push(statusControl);
+        var filter_vars = controlInputs.map(function (d) {
+          return d.value_col;
+        });
+        if (filter_vars.indexOf(statusControl.value_col) == -1) {
+          controlInputs.push(statusControl);
+        }
       }
 
       if (settings.filter_cols) {
@@ -345,8 +354,12 @@
             multiple: true
           };
           thisFilter.label = settings.filter_labels[i] ? settings.filter_labels[i] : null;
-          console.log(thisFilter);
-          controlInputs.push(thisFilter);
+          var filter_vars = controlInputs.map(function (d) {
+            return d.value_col;
+          });
+          if (filter_vars.indexOf(thisFilter.value_col) == -1) {
+            controlInputs.push(thisFilter);
+          }
         });
       }
       return controlInputs;
@@ -354,7 +367,7 @@
 
     function onInit() {
       this.raw_data.forEach(function (d) {
-        d.FormField = d.Form + ": " + d.Field;
+        d.FormField = d[this.config.form_col] + ": " + d[this.config.field_col];
       });
     };
 

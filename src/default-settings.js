@@ -91,17 +91,6 @@ export const controlInputs = [
 
 // Map values from settings to control inputs
 export function syncControlInputs(controlInputs, settings){
-  function containsObject(obj, list) {
-    var i;
-    for (i = 0; i < list.length; i++) {
-        if (list[i] === obj) {
-            return true;
-        }
-    }
-
-    return false;
-  }
-
   var formControl = controlInputs.filter(function(d){return d.label=="Form: "})[0] 
   formControl.value_col = settings.form_col; 
 
@@ -115,10 +104,10 @@ export function syncControlInputs(controlInputs, settings){
       label: "Status: ",
       multiple:true
     }
-    if(containsObject(statusControl,controlInputs)==false){
-      controlInputs.push(statusControl)  
-    }
-    
+    var filter_vars = controlInputs.map(function(d){return d.value_col})
+    if (filter_vars.indexOf(statusControl.value_col)== -1) {
+     controlInputs.push(statusControl);
+    } 
   }
 
   if(settings.filter_cols){
@@ -129,9 +118,10 @@ export function syncControlInputs(controlInputs, settings){
         multiple:true
       }
       thisFilter.label = settings.filter_labels[i] ? settings.filter_labels[i] : null
-      if(containsObject(thisFilter,controlInputs)==false){
-        controlInputs.push(thisFilter)  
-      }
+      var filter_vars = controlInputs.map(function(d){return d.value_col})
+      if (filter_vars.indexOf(thisFilter.value_col)== -1) {
+        controlInputs.push(thisFilter);
+      } 
     })
   }
   return controlInputs
