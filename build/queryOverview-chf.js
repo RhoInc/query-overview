@@ -366,8 +366,9 @@
     }
 
     function onInit() {
+      var chart = this;
       this.raw_data.forEach(function (d) {
-        d.FormField = d[this.config.form_col] + ": " + d[this.config.field_col];
+        d.FormField = d[chart.config.form_col] + ": " + d[chart.config.field_col];
       });
     };
 
@@ -587,7 +588,7 @@
 
     function describeCode(props) {
       var settings = this.createSettings(props);
-      var code = '// uses d3 v.' + d3$1.version + '\n// uses webcharts v.' + webcharts.version + '\n// uses query-overview v.0.1.2\n\nvar settings = ' + JSON.stringify(settings, null, 2) + ';\n\nvar myChart = queryOverview(dataElement, settings);\n\nd3.csv(dataPath, function(error, csv) {\n  myChart.init(csv);\n});\n';
+      var code = '// uses d3 v.' + d3$1.version + '\n// uses webcharts v.' + webcharts.version + '\n// uses query-overview v.0.1.3\n\nvar settings = ' + JSON.stringify(settings, null, 2) + ';\n\nvar myChart = queryOverview(dataElement, settings);\n\nd3.csv(dataPath, function(error, csv) {\n  myChart.init(csv);\n});\n';
       return code;
     }
 
