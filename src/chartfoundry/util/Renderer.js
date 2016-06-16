@@ -11,7 +11,7 @@ function describeCode(props) {
   const code =
 `// uses d3 v.${d3Version}
 // uses webcharts v.${wcVersion}
-// uses query-overview v.0.1.1
+// uses query-overview v.0.1.2
 
 var settings = ${JSON.stringify(settings, null, 2)};
 
