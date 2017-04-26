@@ -1,3 +1,3 @@
-export default function onDataTransform(){
-
+export default function onDataTransform() {
+    var chart = this;
 }

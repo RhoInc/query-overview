@@ -1,4 +1,4 @@
-const settings = {
+export default {
   //Addition settings for this template
   cutoff:10,
   alphabetize:false,   
@@ -126,5 +126,3 @@ export function syncControlInputs(controlInputs, settings){
   }
   return controlInputs
 }
-
-export default settings
