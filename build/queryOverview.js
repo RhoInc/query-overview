@@ -26,170 +26,190 @@ if (typeof Object.assign != 'function') {
   })();
 }
 
-var defaultSettings = {
-  //Addition settings for this template
-  cutoff: 10,
-  alphabetize: false,
-  form_col: "form",
-  field_col: "field",
-  status_col: "status",
-  filter_cols: ["markGroup", "site"],
-  filter_labels: ["Marking Group: ", "Site: "],
-  groupBy: [null],
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
 
-  //Standard webcharts settings
-  "max_width": "1000",
-  "y": {
-    "type": "ordinal",
-    "column": null,
-    "label": " ",
-    "sort": "total-descending"
-  },
-  "x": {
-    "label": "# of Queries",
-    "behavior": "flex"
-  },
-  "marks": [{
-    "type": "bar",
-    "per": [null],
-    "split": null,
-    "arrange": "stacked",
-    "summarizeX": "count",
-    "tooltip": null
-  }, {
-    "type": "text",
-    "per": [null],
-    "summarizeX": "count",
-    "text": "$x",
-    "attributes": { "dx": '0.25em', "dy": ".25em" }
-  }],
-  color_by: null,
-  range_band: 15,
-  margin: { "right": "50" },
-  legend: { location: "top" }
+function clone(obj) {
+    var copy = void 0;
+
+    //boolean, number, string, null, undefined
+    if ('object' != (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) || null == obj) return obj;
+
+    //date
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+
+    //array
+    if (obj instanceof Array) {
+        copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
+        }
+        return copy;
+    }
+
+    //object
+    if (obj instanceof Object) {
+        copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error('Unable to copy [obj]! Its type is not supported.');
+}
+
+var defaultSettings = {
+    //custom settings
+    form_col: 'Form',
+    field_col: 'Field',
+    status_col: 'Status',
+    filters: null,
+    groups: null,
+    cutoff: 10,
+    alphabetize: false,
+
+    //webcharts settings
+    'x': {
+        'label': '# of Queries',
+        'behavior': 'flex'
+    },
+    'y': {
+        'type': 'ordinal',
+        'column': null,
+        'label': 'Form',
+        'sort': 'total-descending'
+    },
+    'marks': [{
+        'type': 'bar',
+        'per': [null],
+        'split': null,
+        'arrange': 'stacked',
+        'summarizeX': 'count',
+        'tooltip': null
+    }, {
+        'type': 'text',
+        'per': [null],
+        'summarizeX': 'count',
+        'text': '$x',
+        'attributes': { 'dx': '0.25em', 'dy': '.25em' }
+    }],
+    color_by: null,
+    legend: { location: 'top' },
+    range_band: 15,
+    margin: { 'right': '50' } // room for count annotation
 };
 
 // Replicate settings in multiple places in the settings object
 function syncSettings(settings) {
-  settings.y.column = settings.form_col;
-  settings.marks[0].per[0] = settings.form_col;
-  settings.marks[1].per[0] = settings.form_col;
-  settings.marks[0].tooltip = settings.status_col ? "[" + settings.status_col + "] - $x queries" : "$x queries";
-  settings.groupBy[0] = "FormField"; //hard-coded variable derived in .on("init")
-  settings.groupBy[1] = settings.form_col;
-  if (settings.status_col) {
-    settings.marks[0].split = settings.status_col;
-    settings.color_by = settings.status_col;
-    if (settings.groupBy.indexOf(settings.status_col) == -1) {
-      settings.groupBy.push(settings.status_col);
-    }
-  }
-  if (settings.filter_cols) {
-    settings.filter_cols.forEach(function (d) {
-      if (settings.groupBy.indexOf(d) == -1) {
-        settings.groupBy.push(d);
-      }
-    });
-  }
-  return settings;
+    var syncedSettings = clone(settings);
+
+    syncedSettings.y.column = syncedSettings.form_col;
+    syncedSettings.marks[0].per[0] = syncedSettings.form_col;
+    syncedSettings.marks[0].split = syncedSettings.status_col;
+    syncedSettings.marks[0].tooltip = syncedSettings.status_col ? '[' + syncedSettings.status_col + '] - $x queries' : '$x queries';
+    syncedSettings.marks[1].per[0] = syncedSettings.form_col;
+    syncedSettings.color_by = syncedSettings.status_col;
+
+    return syncedSettings;
 }
 
 // Default Control objects
-var controlInputs = [{ type: "subsetter", value_col: null, label: "Form: " }, {
-  type: "dropdown",
-  option: "y.column",
-  label: "Group By: ",
-  values: [null],
-  require: true
-}, {
-  type: "radio",
-  option: "cutoff",
-  label: "Show first N results",
-  values: ["10", "25", "All"]
-}, { type: "checkbox", option: 'alphabetize', label: 'Alphabetical? ' }];
+var controlInputs = [{ type: 'subsetter',
+    value_col: null,
+    label: 'Form',
+    description: 'filter' }, { type: 'subsetter',
+    value_col: null,
+    label: 'Status',
+    description: 'filter',
+    multiple: true }, { type: 'dropdown',
+    options: ['y.column', 'marks.0.per.0', 'marks.1.per.0'],
+    label: 'Group by',
+    description: 'variable toggle',
+    values: null,
+    require: true }, { type: 'radio',
+    option: 'cutoff',
+    label: 'Show first N groups',
+    values: ['10', '25', 'All'] }, { type: 'checkbox',
+    option: 'alphabetize',
+    label: 'Alphabetical?' }];
 
 // Map values from settings to control inputs
 function syncControlInputs(controlInputs, settings) {
-  var formControl = controlInputs.filter(function (d) {
-    return d.label == "Form: ";
-  })[0];
-  formControl.value_col = settings.form_col;
+    var syncedControlInputs = clone(controlInputs);
 
-  var yColControl = controlInputs.filter(function (d) {
-    return d.label == "Group By: ";
-  })[0];
-  yColControl.values = settings.groupBy;
+    syncedControlInputs.filter(function (controlInput) {
+        return controlInput.label === 'Form';
+    })[0].value_col = settings.form_col;
+    syncedControlInputs.filter(function (controlInput) {
+        return controlInput.label === 'Status';
+    })[0].value_col = settings.status_col;
 
-  if (settings.status_col) {
-    var statusControl = {
-      type: "subsetter",
-      value_col: settings.status_col,
-      label: "Status: ",
-      multiple: true
-    };
-    var filter_vars = controlInputs.map(function (d) {
-      return d.value_col;
-    });
-    if (filter_vars.indexOf(statusControl.value_col) == -1) {
-      controlInputs.push(statusControl);
+    var groupByControl = syncedControlInputs.filter(function (controlInput) {
+        return controlInput.label === 'Group by';
+    })[0];
+    groupByControl.values = [settings.form_col, settings.field_col, settings.status_col, 'Form: Field'];
+    groupByControl.relabels = ['Form', 'Field', 'Status', 'Form: Field'];
+
+    //Add filters to control inputs and group-by control values.
+    if (settings.filters) {
+        var filters = clone(settings.filters);
+        filters.reverse().forEach(function (filter) {
+            //Define filter and add to control inputs.
+            filter.type = 'subsetter';
+            filter.value_col = filter.value_col || filter;
+            filter.label = filter.label || filter;
+            filter.description = 'filter';
+            syncedControlInputs.splice(1, 0, filter);
+
+            //Add filter variable to group-by control values.
+            groupByControl.values.push(filter.value_col || filter);
+            groupByControl.relabels.push(filter.label || filter);
+        });
     }
-  }
 
-  if (settings.filter_cols) {
-    settings.filter_cols.forEach(function (d, i) {
-      var thisFilter = {
-        type: "subsetter",
-        value_col: d,
-        multiple: true
-      };
-      thisFilter.label = settings.filter_labels[i] ? settings.filter_labels[i] : null;
-      var filter_vars = controlInputs.map(function (d) {
-        return d.value_col;
-      });
-      if (filter_vars.indexOf(thisFilter.value_col) == -1) {
-        controlInputs.push(thisFilter);
-      }
+    //Add groups to group-by control values.
+    if (settings.groups) settings.groups.forEach(function (group) {
+        groupByControl.values.push(group.value_col || group);
+        groupByControl.relabels.push(group.label || group);
     });
-  }
-  return controlInputs;
+
+    return syncedControlInputs;
 }
 
 function onInit() {
     var chart = this;
     this.raw_data.forEach(function (d) {
-        d.FormField = d[chart.config.form_col] + ": " + d[chart.config.field_col];
+        d['Form: Field'] = d[chart.config.form_col] + ": " + d[chart.config.field_col];
+        if (chart.config.groups) chart.config.groups.forEach(function (group) {
+            return d[group.label] = d[group.value_col];
+        });
     });
 }
 
 function onLayout() {
-            var chart = this;
-            this.controls.wrap.selectAll(".control-group").filter(function (d) {
-                        return d.label == "Group By: ";
-            }).selectAll("select").on("change", function () {
-                        var value = d3.select(this).property("value");
-                        chart.config.marks[0].per[0] = value;
-                        chart.config.marks[1].per[0] = value;
-                        chart.config.y.column = value;
-                        chart.draw();
-            });
+    var chart = this;
 
-            var groupToggles = this.controls.wrap.selectAll(".control-group").filter(function (d) {
-                        return d.label == "Show first N results";
-            }).selectAll('input[type="radio"]');
-
-            groupToggles.property('checked', function (d, i) {
-                        return d == 10;
-            });
-
-            groupToggles.on('change', function () {
-
-                        var value = groupToggles.filter(function (f) {
-                                    return d3.select(this).property('checked');
-                        }).property('value');
-                        console.log(value);
-                        chart.config.cutoff = value == "All" ? chart.raw_data.length : +value;
-                        chart.draw();
-            });
+    var groupToggles = this.controls.wrap.selectAll(".control-group").filter(function (d) {
+        return d.label == "Show first N groups";
+    }).selectAll('input[type="radio"]');
+    groupToggles.property('checked', function (d, i) {
+        return d == 10;
+    });
+    groupToggles.on('change', function () {
+        var value = groupToggles.filter(function (f) {
+            return d3.select(this).property('checked');
+        }).property('value');
+        chart.config.cutoff = value == "All" ? chart.raw_data.length : +value;
+        chart.draw();
+    });
 }
 
 function onDataTransform() {

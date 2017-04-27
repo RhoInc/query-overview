@@ -1,128 +1,144 @@
-export default {
-  //Addition settings for this template
-  cutoff:10,
-  alphabetize:false,   
-  form_col:"form",
-  field_col:"field",
-  status_col:"status",
-  filter_cols:["markGroup","site"],
-  filter_labels:["Marking Group: ","Site: "],
-  groupBy:[null],
+import clone from './util/clone';
 
-  //Standard webcharts settings
-  "max_width":"1000",
-  "y":{
-    "type":"ordinal",
-    "column":null,
-    "label":" ",
-    "sort":"total-descending",
-  },
-  "x":{
-    "label":"# of Queries",
-    "behavior":"flex"
+export default {
+  //custom settings
+  form_col: 'Form',
+  field_col: 'Field',
+  status_col: 'Status',
+  filters: null,
+  groups: null,
+  cutoff: 10,
+  alphabetize: false,   
+
+  //webcharts settings
+  'x': {
+    'label': '# of Queries',
+    'behavior': 'flex'
   } ,
-  "marks":[
+  'y': {
+    'type': 'ordinal',
+    'column': null,
+    'label': 'Form',
+    'sort': 'total-descending',
+  },
+  'marks': [
     {
-      "type":"bar",
-      "per":[null],
-      "split":null,
-      "arrange":"stacked",
-      "summarizeX":"count",
-      "tooltip":null
+      'type': 'bar',
+      'per': [null],
+      'split': null,
+      'arrange': 'stacked',
+      'summarizeX': 'count',
+      'tooltip': null
     },
     {      
-      "type":"text",
-      "per":[null],
-      "summarizeX":"count",
-      "text":"$x",
-      "attributes": {"dx": '0.25em', "dy":".25em"}
+      'type': 'text',
+      'per': [null],
+      'summarizeX': 'count',
+      'text': '$x',
+      'attributes': {'dx': '0.25em', 'dy': '.25em'}
     }
   ],
-  color_by:null,
-  range_band:15,
-  margin:{"right":"50"},
-  legend:{location:"top"}
+  color_by: null,
+  legend: {location: 'top'},
+  range_band: 15,
+  margin: {'right': '50'} // room for count annotation
 };
 
 // Replicate settings in multiple places in the settings object
-export function syncSettings(settings){
-  settings.y.column = settings.form_col;
-  settings.marks[0].per[0] = settings.form_col;
-  settings.marks[1].per[0] = settings.form_col;
-  settings.marks[0].tooltip = settings.status_col ? "["+settings.status_col+"] - $x queries" : "$x queries";
-  settings.groupBy[0] = "FormField" //hard-coded variable derived in .on("init")
-  settings.groupBy[1] = settings.form_col
-  if(settings.status_col){
-    settings.marks[0].split = settings.status_col
-    settings.color_by = settings.status_col
-    if(settings.groupBy.indexOf(settings.status_col)==-1){
-      settings.groupBy.push(settings.status_col);
-    } 
-  }
-  if(settings.filter_cols){
-    settings.filter_cols.forEach(function(d){
-      if(settings.groupBy.indexOf(d)==-1){
-        settings.groupBy.push(d);
-      }   
-    })
-  }
-    return settings;
+export function syncSettings(settings) {
+    const syncedSettings = clone(settings);
+
+    syncedSettings.y.column = syncedSettings.form_col;
+    syncedSettings.marks[0].per[0] = syncedSettings.form_col;
+    syncedSettings.marks[0].split = syncedSettings.status_col
+    syncedSettings.marks[0].tooltip = syncedSettings.status_col
+        ? '['+syncedSettings.status_col+'] - $x queries'
+        : '$x queries';
+    syncedSettings.marks[1].per[0] = syncedSettings.form_col;
+    syncedSettings.color_by = syncedSettings.status_col
+
+    return syncedSettings;
 }
 
 // Default Control objects
-export const controlInputs = [ 
-{type:"subsetter", value_col:null, label: "Form: "},
-
-{ 
-  type: "dropdown", 
-  option: "y.column", 
-  label: "Group By: ", 
-  values: [null], 
-  require: true
-},
-{
-  type:"radio",
-  option:"cutoff",
-  label: "Show first N results",
-  values: ["10", "25","All"], 
-},
-{type:"checkbox", option: 'alphabetize', label: 'Alphabetical? '}
-];
+export const controlInputs =
+    [
+        {type: 'subsetter'
+        ,value_col: null
+        ,label: 'Form'
+        ,description: 'filter'}
+    ,
+        {type: 'subsetter'
+        ,value_col: null
+        ,label: 'Status'
+        ,description: 'filter'
+        ,multiple: true}
+    ,
+        {type: 'dropdown'
+        ,options:
+            ['y.column'
+            ,'marks.0.per.0'
+            ,'marks.1.per.0']
+        ,label: 'Group by'
+        ,description: 'variable toggle'
+        ,values: null
+        ,require: true}
+    ,
+        {type: 'radio'
+        ,option: 'cutoff'
+        ,label: 'Show first N groups'
+        ,values: ['10', '25','All']}
+    ,
+        {type: 'checkbox'
+        ,option: 'alphabetize'
+        ,label: 'Alphabetical?'}
+    ];
 
 // Map values from settings to control inputs
-export function syncControlInputs(controlInputs, settings){
-  var formControl = controlInputs.filter(function(d){return d.label=="Form: "})[0] 
-  formControl.value_col = settings.form_col; 
+export function syncControlInputs(controlInputs, settings) {
+    const syncedControlInputs = clone(controlInputs);
 
-  var yColControl = controlInputs.filter(function(d){return d.label=="Group By: "})[0]
-  yColControl.values = settings.groupBy; 
+    syncedControlInputs.filter(controlInput => controlInput.label === 'Form')[0].value_col = settings.form_col;
+    syncedControlInputs.filter(controlInput => controlInput.label === 'Status')[0].value_col = settings.status_col;
 
-  if(settings.status_col){
-    var statusControl = {
-      type:"subsetter", 
-      value_col:settings.status_col, 
-      label: "Status: ",
-      multiple:true
+    const groupByControl = syncedControlInputs
+        .filter(controlInput => controlInput.label === 'Group by')[0];
+    groupByControl.values =
+        [settings.form_col
+        ,settings.field_col
+        ,settings.status_col
+        ,'Form: Field'];
+    groupByControl.relabels =
+        ['Form'
+        ,'Field'
+        ,'Status'
+        ,'Form: Field'];
+
+  //Add filters to control inputs and group-by control values.
+    if (settings.filters) {
+        const filters = clone(settings.filters);
+        filters.reverse()
+            .forEach(filter => {
+              //Define filter and add to control inputs.
+                filter.type = 'subsetter';
+                filter.value_col = filter.value_col || filter;
+                filter.label = filter.label || filter;
+                filter.description = 'filter';
+                syncedControlInputs.splice(1,0,filter);
+
+              //Add filter variable to group-by control values.
+                groupByControl.values.push(filter.value_col || filter)
+                groupByControl.relabels.push(filter.label || filter)
+            });
     }
-    var filter_vars = controlInputs.map(function(d){return d.value_col})
-    if (filter_vars.indexOf(statusControl.value_col)== -1) {
-     controlInputs.push(statusControl);
-    } 
-  }
 
-  if(settings.filter_cols){
-  settings.filter_cols.forEach(function(d,i){
-      var thisFilter = {
-        type:"subsetter", 
-        value_col:d, 
-        multiple:true
-      }
-      thisFilter.label = settings.filter_labels[i] ? settings.filter_labels[i] : null
-      var filter_vars = controlInputs.map(function(d){return d.value_col})
-      if (filter_vars.indexOf(thisFilter.value_col)== -1) {
-        controlInputs.push(thisFilter);
-      } 
-    })
-  }
-  return controlInputs
+  //Add groups to group-by control values.
+    if (settings.groups)
+        settings.groups
+            .forEach(group => {
+                groupByControl.values.push(group.value_col || group);
+                groupByControl.relabels.push(group.label || group);
+            });
+
+    return syncedControlInputs;
 }
