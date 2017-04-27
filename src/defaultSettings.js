@@ -103,6 +103,7 @@ export function syncControlInputs(controlInputs, settings) {
 
     const groupByControl = syncedControlInputs
         .filter(controlInput => controlInput.label === 'Group by')[0];
+
     groupByControl.values =
         [settings.form_col
         ,settings.field_col
