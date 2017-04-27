@@ -2,9 +2,14 @@ import clone from './util/clone';
 
 export default {
   //custom settings
-  form_col: 'Form',
-  field_col: 'Field',
-  status_col: 'Status',
+  form_col: 'form',
+  field_col: 'field',
+  status_col: 'status',
+  status_order:
+    ['Open'
+    ,'Answered'
+    ,'Closed'
+    ,'Cancelled'],
   filters: null,
   groups: null,
   cutoff: 10,
@@ -39,7 +44,9 @@ export default {
     }
   ],
   color_by: null,
-  legend: {location: 'top'},
+  legend: {
+    location: 'top',
+    label: 'Query Status'},
   range_band: 15,
   margin: {'right': '50'} // room for count annotation
 };
@@ -56,6 +63,8 @@ export function syncSettings(settings) {
         : '$x queries';
     syncedSettings.marks[1].per[0] = syncedSettings.form_col;
     syncedSettings.color_by = syncedSettings.status_col
+    syncedSettings.color_dom = syncedSettings.status_order;
+    syncedSettings.legend.order = syncedSettings.status_order;
 
     return syncedSettings;
 }
@@ -83,6 +92,13 @@ export const controlInputs =
         ,description: 'variable toggle'
         ,values: null
         ,require: true}
+    ,
+        {type: 'radio'
+        ,option: 'marks.0.arrange'
+        ,label: 'Bar Arrangement'
+        ,values:
+            ['stacked'
+            ,'grouped']}
     ,
         {type: 'radio'
         ,option: 'cutoff'

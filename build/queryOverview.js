@@ -68,9 +68,10 @@ function clone(obj) {
 
 var defaultSettings = {
     //custom settings
-    form_col: 'Form',
-    field_col: 'Field',
-    status_col: 'Status',
+    form_col: 'form',
+    field_col: 'field',
+    status_col: 'status',
+    status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
     filters: null,
     groups: null,
     cutoff: 10,
@@ -102,7 +103,9 @@ var defaultSettings = {
         'attributes': { 'dx': '0.25em', 'dy': '.25em' }
     }],
     color_by: null,
-    legend: { location: 'top' },
+    legend: {
+        location: 'top',
+        label: 'Query Status' },
     range_band: 15,
     margin: { 'right': '50' } // room for count annotation
 };
@@ -117,6 +120,8 @@ function syncSettings(settings) {
     syncedSettings.marks[0].tooltip = syncedSettings.status_col ? '[' + syncedSettings.status_col + '] - $x queries' : '$x queries';
     syncedSettings.marks[1].per[0] = syncedSettings.form_col;
     syncedSettings.color_by = syncedSettings.status_col;
+    syncedSettings.color_dom = syncedSettings.status_order;
+    syncedSettings.legend.order = syncedSettings.status_order;
 
     return syncedSettings;
 }
@@ -135,6 +140,9 @@ var controlInputs = [{ type: 'subsetter',
     description: 'variable toggle',
     values: null,
     require: true }, { type: 'radio',
+    option: 'marks.0.arrange',
+    label: 'Bar Arrangement',
+    values: ['stacked', 'grouped'] }, { type: 'radio',
     option: 'cutoff',
     label: 'Show first N groups',
     values: ['10', '25', 'All'] }, { type: 'checkbox',
@@ -155,6 +163,7 @@ function syncControlInputs(controlInputs, settings) {
     var groupByControl = syncedControlInputs.filter(function (controlInput) {
         return controlInput.label === 'Group by';
     })[0];
+
     groupByControl.values = [settings.form_col, settings.field_col, settings.status_col, 'Form: Field'];
     groupByControl.relabels = ['Form', 'Field', 'Status', 'Form: Field'];
 
@@ -212,17 +221,36 @@ function onLayout() {
     });
 }
 
+function onPreprocess() {
+    var chart = this;
+}
+
 function onDataTransform() {
     var chart = this;
+
+    if (this.config.marks[0].arrange === 'stacked') {
+        this.config.range_band = 15;
+    } else {
+        this.config.range_band = 30;
+    }
 }
 
 function onDraw() {
     var chart = this;
 
+    //Change rangeBand() depending on bar arrangement.
+    if (this.config.marks[0].arrange === 'stacked') {
+        this.config.range_band = 15;
+    } else {
+        this.config.range_band = 60;
+    }
+
+    //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
         return b.total < a.total ? -1 : b.total > a.total ? 1 : b.total >= a.total ? 0 : NaN;
     });
 
+    //Sort y-domain by descending total.
     this.y_dom.sort(function (a, b) {
         var order = chart.current_data.map(function (d) {
             return d.key;
@@ -230,12 +258,14 @@ function onDraw() {
         return order.indexOf(b) < order.indexOf(a) ? -1 : order.indexOf(b) > order.indexOf(a) ? 1 : order.indexOf(b) >= order.indexOf(a) ? 0 : NaN;
     });
 
+    //Limit y-domain to key values in summarized data.
     this.y_dom = this.y_dom.filter(function (d, i) {
         return chart.current_data.map(function (d) {
             return d.key;
         }).indexOf(d) > -1;
     });
 
+    //Limit y-domain to first [chart.config.cutoff] values.
     this.y_dom = this.y_dom.filter(function (d, i) {
         return i >= chart.y_dom.length - chart.config.cutoff;
     });
@@ -272,6 +302,7 @@ function queryOverview(element, settings) {
 	var chart = webcharts.createChart(element, mergedSettings, controls);
 	chart.on('init', onInit);
 	chart.on('layout', onLayout);
+	chart.on('preprocess', onPreprocess);
 	chart.on('datatransform', onDataTransform);
 	chart.on('draw', onDraw);
 	chart.on('resize', onResize);
