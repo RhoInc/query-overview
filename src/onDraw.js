@@ -1,12 +1,7 @@
 export default function onDraw(){
     var chart = this
 
-  //Change rangeBand() depending on bar arrangement.
-    if (this.config.marks[0].arrange === 'stacked') {
-        this.config.range_band = 15;
-    } else {
-        this.config.range_band = 60;
-    }
+    this.svg.selectAll('.number-of-queries').remove();
 
   //Sort summarized data by descending total.
     this.current_data.sort(function(a,b){

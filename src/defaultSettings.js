@@ -34,13 +34,6 @@ export default {
       'arrange': 'stacked',
       'summarizeX': 'count',
       'tooltip': null
-    },
-    {      
-      'type': 'text',
-      'per': [null],
-      'summarizeX': 'count',
-      'text': '$x',
-      'attributes': {'dx': '0.25em', 'dy': '.25em'}
     }
   ],
   color_by: null,
@@ -61,7 +54,6 @@ export function syncSettings(settings) {
     syncedSettings.marks[0].tooltip = syncedSettings.status_col
         ? '['+syncedSettings.status_col+'] - $x queries'
         : '$x queries';
-    syncedSettings.marks[1].per[0] = syncedSettings.form_col;
     syncedSettings.color_by = syncedSettings.status_col
     syncedSettings.color_dom = syncedSettings.status_order;
     syncedSettings.legend.order = syncedSettings.status_order;
@@ -86,8 +78,7 @@ export const controlInputs =
         {type: 'dropdown'
         ,options:
             ['y.column'
-            ,'marks.0.per.0'
-            ,'marks.1.per.0']
+            ,'marks.0.per.0']
         ,label: 'Group by'
         ,description: 'variable toggle'
         ,values: null
@@ -131,6 +122,14 @@ export function syncControlInputs(controlInputs, settings) {
         ,'Status'
         ,'Form: Field'];
 
+  //Add groups to group-by control values.
+    if (settings.groups)
+        settings.groups
+            .forEach(group => {
+                groupByControl.values.push(group.value_col || group);
+                groupByControl.relabels.push(group.label || group);
+            });
+
   //Add filters to control inputs and group-by control values.
     if (settings.filters) {
         const filters = clone(settings.filters);
@@ -144,18 +143,12 @@ export function syncControlInputs(controlInputs, settings) {
                 syncedControlInputs.splice(1,0,filter);
 
               //Add filter variable to group-by control values.
-                groupByControl.values.push(filter.value_col || filter)
-                groupByControl.relabels.push(filter.label || filter)
+                if (groupByControl.values.indexOf(filter.value_col) === '-1') {
+                    groupByControl.values.push(filter.value_col || filter)
+                    groupByControl.relabels.push(filter.label || filter)
+                }
             });
     }
-
-  //Add groups to group-by control values.
-    if (settings.groups)
-        settings.groups
-            .forEach(group => {
-                groupByControl.values.push(group.value_col || group);
-                groupByControl.relabels.push(group.label || group);
-            });
 
     return syncedControlInputs;
 }

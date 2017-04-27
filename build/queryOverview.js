@@ -95,12 +95,6 @@ var defaultSettings = {
         'arrange': 'stacked',
         'summarizeX': 'count',
         'tooltip': null
-    }, {
-        'type': 'text',
-        'per': [null],
-        'summarizeX': 'count',
-        'text': '$x',
-        'attributes': { 'dx': '0.25em', 'dy': '.25em' }
     }],
     color_by: null,
     legend: {
@@ -118,7 +112,6 @@ function syncSettings(settings) {
     syncedSettings.marks[0].per[0] = syncedSettings.form_col;
     syncedSettings.marks[0].split = syncedSettings.status_col;
     syncedSettings.marks[0].tooltip = syncedSettings.status_col ? '[' + syncedSettings.status_col + '] - $x queries' : '$x queries';
-    syncedSettings.marks[1].per[0] = syncedSettings.form_col;
     syncedSettings.color_by = syncedSettings.status_col;
     syncedSettings.color_dom = syncedSettings.status_order;
     syncedSettings.legend.order = syncedSettings.status_order;
@@ -135,7 +128,7 @@ var controlInputs = [{ type: 'subsetter',
     label: 'Status',
     description: 'filter',
     multiple: true }, { type: 'dropdown',
-    options: ['y.column', 'marks.0.per.0', 'marks.1.per.0'],
+    options: ['y.column', 'marks.0.per.0'],
     label: 'Group by',
     description: 'variable toggle',
     values: null,
@@ -167,6 +160,12 @@ function syncControlInputs(controlInputs, settings) {
     groupByControl.values = [settings.form_col, settings.field_col, settings.status_col, 'Form: Field'];
     groupByControl.relabels = ['Form', 'Field', 'Status', 'Form: Field'];
 
+    //Add groups to group-by control values.
+    if (settings.groups) settings.groups.forEach(function (group) {
+        groupByControl.values.push(group.value_col || group);
+        groupByControl.relabels.push(group.label || group);
+    });
+
     //Add filters to control inputs and group-by control values.
     if (settings.filters) {
         var filters = clone(settings.filters);
@@ -179,16 +178,12 @@ function syncControlInputs(controlInputs, settings) {
             syncedControlInputs.splice(1, 0, filter);
 
             //Add filter variable to group-by control values.
-            groupByControl.values.push(filter.value_col || filter);
-            groupByControl.relabels.push(filter.label || filter);
+            if (groupByControl.values.indexOf(filter.value_col) === '-1') {
+                groupByControl.values.push(filter.value_col || filter);
+                groupByControl.relabels.push(filter.label || filter);
+            }
         });
     }
-
-    //Add groups to group-by control values.
-    if (settings.groups) settings.groups.forEach(function (group) {
-        groupByControl.values.push(group.value_col || group);
-        groupByControl.relabels.push(group.label || group);
-    });
 
     return syncedControlInputs;
 }
@@ -222,28 +217,37 @@ function onLayout() {
 }
 
 function onPreprocess() {
+    var _this = this;
+
     var chart = this;
+
+    //Change rangeBand() depending on bar arrangement.
+    var max = 0;
+    var test = d3.nest().key(function (d) {
+        return d[_this.config.y.column];
+    }).key(function (d) {
+        return d[_this.config.color_by];
+    }).rollup(function (d) {
+        max = Math.max(max, d.length);
+        return d.length;
+    }).entries(this.raw_data);
+    if (this.config.marks[0].arrange === 'stacked') {
+        this.config.range_band = 15;
+        this.config.x.domain = [0, null];
+    } else {
+        this.config.range_band = 60;
+        this.config.x.domain = [0, max];
+    }
 }
 
 function onDataTransform() {
     var chart = this;
-
-    if (this.config.marks[0].arrange === 'stacked') {
-        this.config.range_band = 15;
-    } else {
-        this.config.range_band = 30;
-    }
 }
 
 function onDraw() {
     var chart = this;
 
-    //Change rangeBand() depending on bar arrangement.
-    if (this.config.marks[0].arrange === 'stacked') {
-        this.config.range_band = 15;
-    } else {
-        this.config.range_band = 60;
-    }
+    this.svg.selectAll('.number-of-queries').remove();
 
     //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
@@ -283,6 +287,22 @@ function onResize() {
     });
     var bars = d3.select("g.bar-supergroup").selectAll("g.bar-group").attr("display", function (d, i) {
         return chart.y_dom.indexOf(d.key) > -1 ? null : "none";
+    });
+
+    //Annotate # of Queries.
+    if (this.config.marks[0].arrange === 'stacked') this.svg.selectAll('.bar-group').each(function (d) {
+        d3.select(this).append('text').classed('number-of-queries', true).attr({ x: chart.x(d.total),
+            y: chart.y(d.key) + chart.y.rangeBand() / 2,
+            dx: '0.25em',
+            dy: '0.3em' }).style('font-size', '80%').text(d.total);
+    });else this.svg.selectAll('.bar-group').each(function (d) {
+        var barGroup = d3.select(this);
+        barGroup.selectAll('.bar').each(function (di, i) {
+            barGroup.append('text').classed('number-of-queries', true).attr({ x: chart.x(di.values.x),
+                y: chart.y(di.values.y) + chart.y.rangeBand() * i / 4,
+                dx: '0.25em',
+                dy: '1em' }).style('font-size', '80%').text(di.values.x);
+        });
     });
 }
 
