@@ -46,4 +46,29 @@ export default function onResize() {
                                 .text(di.values.x);
                     });
             });
+
+  //Plot data by field when viewing data by form.
+    if (this.config.y.column === 'Form') {
+        const yLabels = this.svg.selectAll('.y.axis .tick');
+        yLabels
+            .style('cursor', 'pointer')
+            .on('click', yLabel => {
+                this.config.y.column = 'Field';
+                this.config.marks[0].per[0] = 'Field';
+                this.controls.wrap
+                    .selectAll('.control-group')
+                    .filter(d => d.label === 'Form')
+                    .selectAll('option')
+                    .filter(d => d === yLabel)
+                    .property('selected', true);
+                this.controls.wrap
+                    .selectAll('.control-group')
+                    .filter(d => d.label === 'Group by')
+                    .selectAll('option')
+                    .filter(d => d === 'Field')
+                    .property('selected', true);
+                this.draw(this.filtered_data
+                    .filter(d => d[this.config.form_col] === yLabel));
+            });
+    }
 }

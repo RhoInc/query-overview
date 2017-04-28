@@ -258,12 +258,18 @@ function onPreprocess() {
     }
 }
 
+function onPreprocess() {
+    var chart = this;
+}
+
 function onDataTransform() {
     var chart = this;
 }
 
 function onDraw() {
     var chart = this;
+    console.log(this.config.y.column);
+    console.log(this.config.marks[0].per);
 
     //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
@@ -297,6 +303,8 @@ function onDraw() {
 }
 
 function onResize() {
+    var _this = this;
+
     var chart = this;
 
     //Hide bars that aren't in first N groups.
@@ -320,6 +328,31 @@ function onResize() {
                 dy: '1em' }).style('font-size', '80%').text(di.values.x);
         });
     });
+
+    //Plot data by field when viewing data by form.
+    if (this.config.y.column === 'Form') {
+        var yLabels = this.svg.selectAll('.y.axis .tick');
+        yLabels.style('cursor', 'pointer').on('click', function (yLabel) {
+            _this.config.y.column = 'FormField';
+            _this.config.marks[0].per[0] = 'Field';
+            _this.config.marks[1].per[0] = 'Field';
+            _this.controls.wrap.selectAll('.control-group').filter(function (d) {
+                return d.label === 'Form'
+                );
+            }).selectAll('option').filter(function (d) {
+                return d === yLabel;
+            }).property('selected', true);
+            _this.controls.wrap.selectAll('.control-group').filter(function (d) {
+                return d.label === 'Group by'
+                );
+            }).selectAll('option').filter(function (d) {
+                return d === 'Field';
+            }).property('selected', true);
+            _this.draw(_this.filtered_data.filter(function (d) {
+                return d[_this.config.form_col] === yLabel;
+            }));
+        });
+    }
 }
 
 function queryOverview(element, settings) {
