@@ -5,7 +5,7 @@ export default {
   form_col:"form",
   field_col:"field",
   status_col:"status",
-  filter_cols:["markGroup","site"],
+  filter_cols:["markingGroup","site"],
   filter_labels:["Marking Group: ","Site: "],
   groupBy:[null],
 

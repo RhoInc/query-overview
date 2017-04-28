@@ -33,7 +33,7 @@ var defaultSettings = {
   form_col: "form",
   field_col: "field",
   status_col: "status",
-  filter_cols: ["markGroup", "site"],
+  filter_cols: ["markingGroup", "site"],
   filter_labels: ["Marking Group: ", "Site: "],
   groupBy: [null],
 
@@ -192,12 +192,18 @@ function onLayout() {
             });
 }
 
+function onPreprocess() {
+    var chart = this;
+}
+
 function onDataTransform() {
     var chart = this;
 }
 
 function onDraw() {
     var chart = this;
+    console.log(this.config.y.column);
+    console.log(this.config.marks[0].per);
 
     this.current_data.sort(function (a, b) {
         return b.total < a.total ? -1 : b.total > a.total ? 1 : b.total >= a.total ? 0 : NaN;
@@ -227,6 +233,8 @@ function onDraw() {
 }
 
 function onResize() {
+    var _this = this;
+
     var chart = this;
     var textMarks = d3.select("g.text-supergroup").selectAll("text").attr("display", function (d, i) {
         return chart.y_dom.indexOf(d.key) > -1 ? null : "none";
@@ -234,6 +242,36 @@ function onResize() {
     var bars = d3.select("g.bar-supergroup").selectAll("g.bar-group").attr("display", function (d, i) {
         return chart.y_dom.indexOf(d.key) > -1 ? null : "none";
     });
+
+    /*------------------------------------------------------------------------------------------------\
+      Update this section to reference 'Form' and 'Field' instead of `this.config.form_col` and
+      'FormField' after merging https://github.com/RhoInc/query-overview/pull/11.
+    \------------------------------------------------------------------------------------------------*/
+
+    //Plot data by field when viewing data by form.
+    if (this.config.y.column === this.config.form_col) {
+        var yLabels = this.svg.selectAll('.y.axis .tick');
+        yLabels.style('cursor', 'pointer').on('click', function (yLabel) {
+            _this.config.y.column = 'FormField';
+            _this.config.marks[0].per[0] = 'FormField';
+            _this.config.marks[1].per[0] = 'FormField';
+            _this.controls.wrap.selectAll('.control-group').filter(function (d) {
+                return (/^Form/.test(d.label)
+                );
+            }).selectAll('option').filter(function (d) {
+                return d === yLabel;
+            }).property('selected', true);
+            _this.controls.wrap.selectAll('.control-group').filter(function (d) {
+                return (/^Group/.test(d.label)
+                );
+            }).selectAll('option').filter(function (d) {
+                return d === 'FormField';
+            }).property('selected', true);
+            _this.draw(_this.filtered_data.filter(function (d) {
+                return d[_this.config.form_col] === yLabel;
+            }));
+        });
+    }
 }
 
 function queryOverview(element, settings) {
@@ -252,6 +290,7 @@ function queryOverview(element, settings) {
 	var chart = webcharts.createChart(element, mergedSettings, controls);
 	chart.on('init', onInit);
 	chart.on('layout', onLayout);
+	chart.on('preprocess', onPreprocess);
 	chart.on('datatransform', onDataTransform);
 	chart.on('draw', onDraw);
 	chart.on('resize', onResize);

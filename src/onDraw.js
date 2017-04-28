@@ -1,5 +1,7 @@
 export default function onDraw(){
     var chart = this
+    console.log(this.config.y.column);
+    console.log(this.config.marks[0].per);
 
     this.current_data.sort(function(a,b){
         return b.total < a.total ? -1 : b.total > a.total ? 1 : b.total >= a.total ? 0 : NaN;
