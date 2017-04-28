@@ -64,8 +64,21 @@ export function syncSettings(settings) {
         syncedSettings.groups
             .forEach(group => groups.push(
                 {value_col: group.value_col || group
-                ,label: group.label || group}));
+                ,label: group.label || group.value_col || group}));
     syncedSettings.groups = groups;
+
+  //Add filters to group-by control.
+    if (syncedSettings.filters) {
+        syncedSettings.filters
+            .forEach(filter => {
+                const value_col = filter.value_col || filter;
+                const label = filter.label || filter.value_col || filter;
+                if (syncedSettings.groups.map(d => d.value_col).indexOf(value_col) === -1)
+                    syncedSettings.groups.push(
+                        {value_col: value_col
+                        ,label: label});
+            });
+    }
 
     return syncedSettings;
 }
@@ -73,6 +86,16 @@ export function syncSettings(settings) {
 // Default Control objects
 export const controlInputs =
     [
+        {type: 'dropdown'
+        ,options:
+            ['y.column'
+            ,'y.label'
+            ,'marks.0.per.0']
+        ,label: 'Group by'
+        ,description: 'variable toggle'
+        ,values: [] // set in syncControlInputs
+        ,require: true}
+    ,
         {type: 'subsetter'
         ,value_col: 'Form'
         ,label: 'Form'
@@ -83,16 +106,6 @@ export const controlInputs =
         ,label: 'Status'
         ,description: 'filter'
         ,multiple: true}
-    ,
-        {type: 'dropdown'
-        ,options:
-            ['y.column'
-            ,'y.label'
-            ,'marks.0.per.0']
-        ,label: 'Group by'
-        ,description: 'variable toggle'
-        ,values: [] // set in syncControlInputs
-        ,require: true}
     ,
         {type: 'radio'
         ,option: 'marks.0.arrange'
@@ -127,17 +140,12 @@ export function syncControlInputs(controlInputs, settings) {
         filters.reverse()
             .forEach(filter => {
               //Define filter and add to control inputs.
-                filter.type = 'subsetter';
-                filter.value_col = filter.value_col || filter;
-                filter.label = filter.label || filter;
-                filter.description = 'filter';
-                syncedControlInputs.splice(1,0,filter);
-
-              //Add filter variable to group-by control values.
-                if (groupByControl.values.indexOf(filter.value_col) === '-1') {
-                    groupByControl.values.push(filter.value_col)
-                    groupByControl.relabels.push(filter.label)
-                }
+                const filterObject = {};
+                filterObject.type = 'subsetter';
+                filterObject.value_col = filter.value_col || filter;
+                filterObject.label = filter.label || filter.value_col || filter;
+                filterObject.description = 'filter';
+                syncedControlInputs.splice(2,0,filterObject);
             });
     }
 

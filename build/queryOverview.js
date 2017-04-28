@@ -117,27 +117,39 @@ function syncSettings(settings) {
     //Merge default group settings with custom group settings.
     if (syncedSettings.groups) syncedSettings.groups.forEach(function (group) {
         return groups.push({ value_col: group.value_col || group,
-            label: group.label || group });
+            label: group.label || group.value_col || group });
     });
     syncedSettings.groups = groups;
+
+    //Add filters to group-by control.
+    if (syncedSettings.filters) {
+        syncedSettings.filters.forEach(function (filter) {
+            var value_col = filter.value_col || filter;
+            var label = filter.label || filter.value_col || filter;
+            if (syncedSettings.groups.map(function (d) {
+                return d.value_col;
+            }).indexOf(value_col) === -1) syncedSettings.groups.push({ value_col: value_col,
+                label: label });
+        });
+    }
 
     return syncedSettings;
 }
 
 // Default Control objects
-var controlInputs = [{ type: 'subsetter',
+var controlInputs = [{ type: 'dropdown',
+    options: ['y.column', 'y.label', 'marks.0.per.0'],
+    label: 'Group by',
+    description: 'variable toggle',
+    values: [] // set in syncControlInputs
+    , require: true }, { type: 'subsetter',
     value_col: 'Form',
     label: 'Form',
     description: 'filter' }, { type: 'subsetter',
     value_col: 'Status',
     label: 'Status',
     description: 'filter',
-    multiple: true }, { type: 'dropdown',
-    options: ['y.column', 'y.label', 'marks.0.per.0'],
-    label: 'Group by',
-    description: 'variable toggle',
-    values: [] // set in syncControlInputs
-    , require: true }, { type: 'radio',
+    multiple: true }, { type: 'radio',
     option: 'marks.0.arrange',
     label: 'Bar Arrangement',
     values: ['stacked', 'grouped'] }, { type: 'radio',
@@ -164,17 +176,12 @@ function syncControlInputs(controlInputs, settings) {
         var filters = clone(settings.filters);
         filters.reverse().forEach(function (filter) {
             //Define filter and add to control inputs.
-            filter.type = 'subsetter';
-            filter.value_col = filter.value_col || filter;
-            filter.label = filter.label || filter;
-            filter.description = 'filter';
-            syncedControlInputs.splice(1, 0, filter);
-
-            //Add filter variable to group-by control values.
-            if (groupByControl.values.indexOf(filter.value_col) === '-1') {
-                groupByControl.values.push(filter.value_col);
-                groupByControl.relabels.push(filter.label);
-            }
+            var filterObject = {};
+            filterObject.type = 'subsetter';
+            filterObject.value_col = filter.value_col || filter;
+            filterObject.label = filter.label || filter.value_col || filter;
+            filterObject.description = 'filter';
+            syncedControlInputs.splice(2, 0, filterObject);
         });
     }
 
@@ -192,7 +199,6 @@ function onInit() {
         chart.config.groups.forEach(function (group) {
             if (group.value_col !== group.label) {
                 d[group.label] = d[group.value_col];
-                delete d[group.value_col];
             }
         });
     });

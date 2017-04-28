@@ -10,7 +10,6 @@ export default function onInit(){
             .forEach(group => {
                 if (group.value_col !== group.label) {
                     d[group.label] = d[group.value_col];
-                    delete d[group.value_col];
                 }
             });
     });
