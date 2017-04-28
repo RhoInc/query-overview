@@ -1,6 +1,7 @@
 export default function onLayout() {
     var chart = this
 
+  //Handle y-domain length control
     var groupToggles = this.controls.wrap
         .selectAll(".control-group")
         .filter(function(d){return d.label=="Show first N groups"})

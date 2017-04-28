@@ -84,55 +84,60 @@ var defaultSettings = {
     },
     'y': {
         'type': 'ordinal',
-        'column': null,
-        'label': 'Form',
+        'column': 'Form',
         'sort': 'total-descending'
     },
     'marks': [{
         'type': 'bar',
-        'per': [null],
-        'split': null,
+        'per': ['Form'],
+        'split': 'Status',
         'arrange': 'stacked',
         'summarizeX': 'count',
-        'tooltip': null
+        'tooltip': '[Status] - $x queries'
     }],
-    color_by: null,
+    color_by: 'Status',
+    color_dom: null, // set in syncSettings()
     legend: {
         location: 'top',
-        label: 'Query Status' },
+        label: 'Query Status',
+        order: null // set in syncSettings()
+    },
     range_band: 15,
     margin: { 'right': '50' } // room for count annotation
 };
 
 // Replicate settings in multiple places in the settings object
 function syncSettings(settings) {
-    var syncedSettings = clone(settings);
+    var syncedSettings = clone(settings),
+        groups = [{ value_col: settings.form_col, label: 'Form' },, { value_col: settings.field_col, label: 'Field' },, { value_col: settings.status_col, label: 'Status' },, { value_col: 'Form: Field', label: 'Form: Field' }];
 
-    syncedSettings.y.column = syncedSettings.form_col;
-    syncedSettings.marks[0].per[0] = syncedSettings.form_col;
-    syncedSettings.marks[0].split = syncedSettings.status_col;
-    syncedSettings.marks[0].tooltip = syncedSettings.status_col ? '[' + syncedSettings.status_col + '] - $x queries' : '$x queries';
-    syncedSettings.color_by = syncedSettings.status_col;
     syncedSettings.color_dom = syncedSettings.status_order;
     syncedSettings.legend.order = syncedSettings.status_order;
+
+    //Merge default group settings with custom group settings.
+    if (syncedSettings.groups) syncedSettings.groups.forEach(function (group) {
+        return groups.push({ value_col: group.value_col || group,
+            label: group.label || group });
+    });
+    syncedSettings.groups = groups;
 
     return syncedSettings;
 }
 
 // Default Control objects
 var controlInputs = [{ type: 'subsetter',
-    value_col: null,
+    value_col: 'Form',
     label: 'Form',
     description: 'filter' }, { type: 'subsetter',
-    value_col: null,
+    value_col: 'Status',
     label: 'Status',
     description: 'filter',
     multiple: true }, { type: 'dropdown',
-    options: ['y.column', 'marks.0.per.0'],
+    options: ['y.column', 'y.label', 'marks.0.per.0'],
     label: 'Group by',
     description: 'variable toggle',
-    values: null,
-    require: true }, { type: 'radio',
+    values: [] // set in syncControlInputs
+    , require: true }, { type: 'radio',
     option: 'marks.0.arrange',
     label: 'Bar Arrangement',
     values: ['stacked', 'grouped'] }, { type: 'radio',
@@ -146,24 +151,12 @@ var controlInputs = [{ type: 'subsetter',
 function syncControlInputs(controlInputs, settings) {
     var syncedControlInputs = clone(controlInputs);
 
-    syncedControlInputs.filter(function (controlInput) {
-        return controlInput.label === 'Form';
-    })[0].value_col = settings.form_col;
-    syncedControlInputs.filter(function (controlInput) {
-        return controlInput.label === 'Status';
-    })[0].value_col = settings.status_col;
-
+    //Add groups to group-by control values.
     var groupByControl = syncedControlInputs.filter(function (controlInput) {
         return controlInput.label === 'Group by';
     })[0];
-
-    groupByControl.values = [settings.form_col, settings.field_col, settings.status_col, 'Form: Field'];
-    groupByControl.relabels = ['Form', 'Field', 'Status', 'Form: Field'];
-
-    //Add groups to group-by control values.
-    if (settings.groups) settings.groups.forEach(function (group) {
-        groupByControl.values.push(group.value_col || group);
-        groupByControl.relabels.push(group.label || group);
+    settings.groups.forEach(function (group) {
+        return groupByControl.values.push(group.label);
     });
 
     //Add filters to control inputs and group-by control values.
@@ -179,8 +172,8 @@ function syncControlInputs(controlInputs, settings) {
 
             //Add filter variable to group-by control values.
             if (groupByControl.values.indexOf(filter.value_col) === '-1') {
-                groupByControl.values.push(filter.value_col || filter);
-                groupByControl.relabels.push(filter.label || filter);
+                groupByControl.values.push(filter.value_col);
+                groupByControl.relabels.push(filter.label);
             }
         });
     }
@@ -190,10 +183,17 @@ function syncControlInputs(controlInputs, settings) {
 
 function onInit() {
     var chart = this;
+
+    //Define new variables.
     this.raw_data.forEach(function (d) {
         d['Form: Field'] = d[chart.config.form_col] + ": " + d[chart.config.field_col];
-        if (chart.config.groups) chart.config.groups.forEach(function (group) {
-            return d[group.label] = d[group.value_col];
+
+        //Redefine group-by variables with their labels.
+        chart.config.groups.forEach(function (group) {
+            if (group.value_col !== group.label) {
+                d[group.label] = d[group.value_col];
+                delete d[group.value_col];
+            }
         });
     });
 }
@@ -201,6 +201,7 @@ function onInit() {
 function onLayout() {
     var chart = this;
 
+    //Handle y-domain length control
     var groupToggles = this.controls.wrap.selectAll(".control-group").filter(function (d) {
         return d.label == "Show first N groups";
     }).selectAll('input[type="radio"]');
@@ -220,6 +221,17 @@ function onPreprocess() {
     var _this = this;
 
     var chart = this;
+
+    var barArrangementControl = this.controls.wrap.selectAll('.control-group').filter(function (d) {
+        return d.label === 'Bar Arrangement';
+    });
+    if (this.config.y.column === 'Status') {
+        this.config.marks[0].arrange = 'stacked';
+        barArrangementControl.selectAll('.radio').filter(function (d) {
+            return d === 'stacked';
+        }).select('input').property('checked', true);
+        barArrangementControl.selectAll('input').property('disabled', true);
+    } else barArrangementControl.selectAll('input').property('disabled', false);
 
     //Change rangeBand() depending on bar arrangement.
     var max = 0;
@@ -246,8 +258,6 @@ function onDataTransform() {
 
 function onDraw() {
     var chart = this;
-
-    this.svg.selectAll('.number-of-queries').remove();
 
     //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
@@ -282,23 +292,23 @@ function onDraw() {
 
 function onResize() {
     var chart = this;
-    var textMarks = d3.select("g.text-supergroup").selectAll("text").attr("display", function (d, i) {
-        return chart.y_dom.indexOf(d.key) > -1 ? null : "none";
-    });
+
+    //Hide bars that aren't in first N groups.
     var bars = d3.select("g.bar-supergroup").selectAll("g.bar-group").attr("display", function (d, i) {
         return chart.y_dom.indexOf(d.key) > -1 ? null : "none";
     });
 
     //Annotate # of Queries.
+    this.svg.selectAll('.number-of-queries').remove();
     if (this.config.marks[0].arrange === 'stacked') this.svg.selectAll('.bar-group').each(function (d) {
-        d3.select(this).append('text').classed('number-of-queries', true).attr({ x: chart.x(d.total),
+        if (chart.y_dom.indexOf(d.key) > -1) d3.select(this).append('text').classed('number-of-queries', true).attr({ x: chart.x(d.total),
             y: chart.y(d.key) + chart.y.rangeBand() / 2,
             dx: '0.25em',
             dy: '0.3em' }).style('font-size', '80%').text(d.total);
     });else this.svg.selectAll('.bar-group').each(function (d) {
         var barGroup = d3.select(this);
         barGroup.selectAll('.bar').each(function (di, i) {
-            barGroup.append('text').classed('number-of-queries', true).attr({ x: chart.x(di.values.x),
+            if (chart.y_dom.indexOf(di.values.y) > -1) barGroup.append('text').classed('number-of-queries', true).attr({ x: chart.x(di.values.x),
                 y: chart.y(di.values.y) + chart.y.rangeBand() * i / 4,
                 dx: '0.25em',
                 dy: '1em' }).style('font-size', '80%').text(di.values.x);

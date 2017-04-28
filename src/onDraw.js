@@ -1,8 +1,6 @@
 export default function onDraw(){
     var chart = this
 
-    this.svg.selectAll('.number-of-queries').remove();
-
   //Sort summarized data by descending total.
     this.current_data.sort(function(a,b){
         return b.total < a.total ? -1 : b.total > a.total ? 1 : b.total >= a.total ? 0 : NaN;
