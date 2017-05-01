@@ -12,4 +12,33 @@ export default function onLayout() {
         chart.config.cutoff = value == "All" ? chart.raw_data.length : +value;
         chart.draw()
     });
+
+  //Sync status filter with legend items.
+    const
+        statusFilter = this.controls.wrap
+            .selectAll('.control-group')
+            .filter(d => d.label === 'Status');
+    statusFilter
+        .on('change', function() {
+            const
+                selectedOptions = statusFilter
+                    .select('.changer')
+                    .selectAll('option:checked')
+                    .data(), // selected statuses
+                legendItems = chart.wrap
+                    .selectAll('.legend-item')
+                    .classed('selected', false), // de-select all legend items
+                selectedLegendItems = legendItems
+                    .filter(d => selectedOptions.indexOf(d.label) > -1)
+                    .classed('selected', true); // sync legend items with status options
+                legendItems
+                    .each(function() {
+                        const
+                            legendItem = d3.select(this),
+                            selected = legendItem.classed('selected');
+                        legendItem
+                            .style(
+                                {'background': selected ? 'lightgray' : 'white'});
+                    });
+        });
 }

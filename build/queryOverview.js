@@ -221,6 +221,25 @@ function onLayout() {
         chart.config.cutoff = value == "All" ? chart.raw_data.length : +value;
         chart.draw();
     });
+
+    //Sync status filter with legend items.
+    var statusFilter = this.controls.wrap.selectAll('.control-group').filter(function (d) {
+        return d.label === 'Status';
+    });
+    statusFilter.on('change', function () {
+        var selectedOptions = statusFilter.select('.changer').selectAll('option:checked').data(),
+            // selected statuses
+        legendItems = chart.wrap.selectAll('.legend-item').classed('selected', false),
+            // de-select all legend items
+        selectedLegendItems = legendItems.filter(function (d) {
+            return selectedOptions.indexOf(d.label) > -1;
+        }).classed('selected', true); // sync legend items with status options
+        legendItems.each(function () {
+            var legendItem = d3.select(this),
+                selected = legendItem.classed('selected');
+            legendItem.style({ 'background': selected ? 'lightgray' : 'white' });
+        });
+    });
 }
 
 function onPreprocess() {
@@ -339,6 +358,9 @@ function onResize() {
             }).selectAll('option').filter(function (d) {
                 return d === 'Field';
             }).property('selected', true);
+            _this.filters.filter(function (filter) {
+                return filter.col === 'Form';
+            })[0].val = yLabel;
             _this.draw(_this.filtered_data.filter(function (d) {
                 return d[_this.config.form_col] === yLabel;
             }));
@@ -347,15 +369,43 @@ function onResize() {
 
     //Filter data by clicking on legend.
     var legendItems = this.wrap.selectAll('.legend-item').style({ 'cursor': 'pointer',
-        'padding': '4px' });
+        'border-radius': '4px',
+        'padding': '5px',
+        'padding-left': '8px' }),
+        // legend items
+    statusOptions = this.controls.wrap.selectAll('.control-group').filter(function (d) {
+        return d.label === 'Status';
+    }).selectAll('.changer option'); // status filter options
+    legendItems.selectAll('.legend-mark-text').remove(); // don't need 'em
     legendItems.on('click', function (d) {
-        d3.select(this).classed('selected', !d3.select(this).classed('selected'));
-        legendItems.style({ 'padding': '4px',
-            'border': 'none' }).filter(function () {
+        var legendItem = d3.select(this),
+            // clicked legend item
+        selected = !legendItem.classed('selected'); // selected boolean
+        legendItem.classed('selected', selected); // toggle selected class
+        var selectedLegendItems = legendItems.filter(function () {
             return d3.select(this).classed('selected');
-        }).style({ 'padding': '2px',
-            'border': '2px solid black',
-            'border-radius': '4px' });
+        }).data().map(function (d) {
+            return d.label;
+        }); // selected statuses
+        legendItem.style({ 'background': selected ? 'lightgray' : 'white' }); // set background of legend items corresponding to selected statuses to light gray
+        statusOptions.property('selected', false).filter(function (d) {
+            return selectedLegendItems.indexOf(d) > -1;
+        }).property('selected', true); // set selected property of status options corresponding to selected statuses to true
+        var filtered_data = chart.raw_data.filter(function (d) {
+            var filtered = selectedLegendItems.indexOf(d.Status) === -1;
+
+            chart.filters.filter(function (filter) {
+                return filter.col !== 'Status';
+            }).forEach(function (filter) {
+                if (filtered === false && filter.val !== 'All') filtered = d[filter.col] !== filter.val || filter.val.indexOf(d[filter.col]) === -1;
+            });
+
+            return !filtered;
+        }); // define filtered data
+        chart.filters.filter(function (filter) {
+            return filter.col === 'Status';
+        })[0].val = selectedLegendItems; // update chart's status filter object
+        chart.draw(filtered_data);
     });
 }
 
