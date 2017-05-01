@@ -258,18 +258,12 @@ function onPreprocess() {
     }
 }
 
-function onPreprocess() {
-    var chart = this;
-}
-
 function onDataTransform() {
     var chart = this;
 }
 
 function onDraw() {
     var chart = this;
-    console.log(this.config.y.column);
-    console.log(this.config.marks[0].per);
 
     //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
@@ -333,18 +327,15 @@ function onResize() {
     if (this.config.y.column === 'Form') {
         var yLabels = this.svg.selectAll('.y.axis .tick');
         yLabels.style('cursor', 'pointer').on('click', function (yLabel) {
-            _this.config.y.column = 'FormField';
+            _this.config.y.column = 'Field';
             _this.config.marks[0].per[0] = 'Field';
-            _this.config.marks[1].per[0] = 'Field';
             _this.controls.wrap.selectAll('.control-group').filter(function (d) {
-                return d.label === 'Form'
-                );
+                return d.label === 'Form';
             }).selectAll('option').filter(function (d) {
                 return d === yLabel;
             }).property('selected', true);
             _this.controls.wrap.selectAll('.control-group').filter(function (d) {
-                return d.label === 'Group by'
-                );
+                return d.label === 'Group by';
             }).selectAll('option').filter(function (d) {
                 return d === 'Field';
             }).property('selected', true);
@@ -353,6 +344,19 @@ function onResize() {
             }));
         });
     }
+
+    //Filter data by clicking on legend.
+    var legendItems = this.wrap.selectAll('.legend-item').style({ 'cursor': 'pointer',
+        'padding': '4px' });
+    legendItems.on('click', function (d) {
+        d3.select(this).classed('selected', !d3.select(this).classed('selected'));
+        legendItems.style({ 'padding': '4px',
+            'border': 'none' }).filter(function () {
+            return d3.select(this).classed('selected');
+        }).style({ 'padding': '2px',
+            'border': '2px solid black',
+            'border-radius': '4px' });
+    });
 }
 
 function queryOverview(element, settings) {

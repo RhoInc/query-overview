@@ -71,4 +71,26 @@ export default function onResize() {
                     .filter(d => d[this.config.form_col] === yLabel));
             });
     }
+
+  //Filter data by clicking on legend.
+    const legendItems = this.wrap
+        .selectAll('.legend-item')
+        .style(
+            {'cursor': 'pointer'
+            ,'padding': '4px'});
+    legendItems
+        .on('click', function(d) {
+            d3.select(this)
+                .classed('selected', !d3.select(this).classed('selected'));
+            legendItems
+                .style(
+                    {'padding': '4px'
+                    ,'border': 'none'})
+                .filter(function() {
+                    return d3.select(this).classed('selected'); })
+                .style(
+                    {'padding': '2px'
+                    ,'border': '2px solid black'
+                    ,'border-radius': '4px'});
+        });
 }
