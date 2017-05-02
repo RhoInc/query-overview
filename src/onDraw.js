@@ -1,7 +1,5 @@
 export default function onDraw(){
     var chart = this
-    console.log(this.config.y.column);
-    console.log(this.config.marks[0].per);
 
   //Sort summarized data by descending total.
     this.current_data.sort(function(a,b){
