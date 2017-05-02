@@ -11,6 +11,7 @@ export default {
     ,'Closed'
     ,'Cancelled'],
   filters: null,
+  details: null,
   groups: null,
   cutoff: 10,
   alphabetize: false,   
@@ -80,6 +81,20 @@ export function syncSettings(settings) {
             });
     }
 
+  //Format details argument.
+    if (Array.isArray(syncedSettings.details && syncedSettings.details && syncedSettings.details.length))
+        syncedSettings.details = syncedSettings.details
+            .map(detail => {
+                const detailObject = {};
+                detailObject.value_col = detail.value_col || detail;
+                detailObject.label = detail.label || detailObject.value_col;
+                console.log(detailObject);
+
+                return detailObject;
+            });
+    else
+        syncedSettings.details = null;
+
     return syncedSettings;
 }
 
@@ -143,7 +158,7 @@ export function syncControlInputs(controlInputs, settings) {
                 const filterObject = {};
                 filterObject.type = 'subsetter';
                 filterObject.value_col = filter.value_col || filter;
-                filterObject.label = filter.label || filter.value_col || filter;
+                filterObject.label = filter.label || filter.value_col;
                 filterObject.description = 'filter';
                 syncedControlInputs.splice(2,0,filterObject);
             });

@@ -1,7 +1,5 @@
 export default function onDraw(){
     var chart = this
-    console.log(this.config.y.column);
-    console.log(this.config.marks[0].per);
 
   //Sort summarized data by descending total.
     this.current_data.sort(function(a,b){
@@ -28,4 +26,13 @@ export default function onDraw(){
 
     //change chart height to match the current number of bars displayed
     this.raw_height = (+this.config.range_band+(this.config.range_band*this.config.padding))*this.y_dom.length;
+
+  //Reset listing.
+    this.listing.draw([]);
+    this.svg
+        .selectAll('.bar')
+        .classed('selected', false)
+        .style(
+            {'stroke-width': '1px'
+            ,'fill': d => this.colorScale(d.key)});
 }

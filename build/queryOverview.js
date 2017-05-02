@@ -26,6 +26,19 @@ if (typeof Object.assign != 'function') {
   })();
 }
 
+d3.selection.prototype.moveToFront = function () {
+    return this.each(function () {
+        this.parentNode.appendChild(this);
+    });
+};
+
+d3.selection.prototype.moveToBack = function () {
+    return this.each(function () {
+        var firstChild = this.parentNode.firstChild;
+        if (firstChild) this.parentNode.insertBefore(this, firstChild);
+    });
+};
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
 } : function (obj) {
@@ -73,6 +86,7 @@ var defaultSettings = {
     status_col: 'status',
     status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
     filters: null,
+    details: null,
     groups: null,
     cutoff: 10,
     alphabetize: false,
@@ -133,6 +147,16 @@ function syncSettings(settings) {
         });
     }
 
+    //Format details argument.
+    if (Array.isArray(syncedSettings.details && syncedSettings.details && syncedSettings.details.length)) syncedSettings.details = syncedSettings.details.map(function (detail) {
+        var detailObject = {};
+        detailObject.value_col = detail.value_col || detail;
+        detailObject.label = detail.label || detailObject.value_col;
+        console.log(detailObject);
+
+        return detailObject;
+    });else syncedSettings.details = null;
+
     return syncedSettings;
 }
 
@@ -179,7 +203,7 @@ function syncControlInputs(controlInputs, settings) {
             var filterObject = {};
             filterObject.type = 'subsetter';
             filterObject.value_col = filter.value_col || filter;
-            filterObject.label = filter.label || filter.value_col || filter;
+            filterObject.label = filter.label || filter.value_col;
             filterObject.description = 'filter';
             syncedControlInputs.splice(2, 0, filterObject);
         });
@@ -190,6 +214,19 @@ function syncControlInputs(controlInputs, settings) {
 
 function onInit() {
     var chart = this;
+
+    //Define detail listing settings.
+    this.listing.config.cols = this.config.details ? this.config.details.map(function (d) {
+        return d.value_col;
+    }) : Object.keys(this.raw_data[0]);
+    this.listing.config.headers = this.config.details ? this.config.details.map(function (d) {
+        return d.label;
+    }) : Object.keys(this.raw_data[0]);
+    if (!this.config.details) {
+        this.listing.config.headers[this.listing.config.headers.indexOf(this.config.form_col)] = 'Form';
+        this.listing.config.headers[this.listing.config.headers.indexOf(this.config.field_col)] = 'Field';
+        this.listing.config.headers[this.listing.config.headers.indexOf(this.config.status_col)] = 'Status';
+    }
 
     //Define new variables.
     this.raw_data.forEach(function (d) {
@@ -258,18 +295,14 @@ function onPreprocess() {
     }
 }
 
-function onPreprocess() {
-    var chart = this;
-}
-
 function onDataTransform() {
     var chart = this;
 }
 
 function onDraw() {
+    var _this = this;
+
     var chart = this;
-    console.log(this.config.y.column);
-    console.log(this.config.marks[0].per);
 
     //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
@@ -300,6 +333,13 @@ function onDraw() {
 
     //change chart height to match the current number of bars displayed
     this.raw_height = (+this.config.range_band + this.config.range_band * this.config.padding) * this.y_dom.length;
+
+    //Reset listing.
+    this.listing.draw([]);
+    this.svg.selectAll('.bar').classed('selected', false).style({ 'stroke-width': '1px',
+        'fill': function fill(d) {
+            return _this.colorScale(d.key);
+        } });
 }
 
 function onResize() {
@@ -308,7 +348,7 @@ function onResize() {
     var chart = this;
 
     //Hide bars that aren't in first N groups.
-    var bars = d3.select("g.bar-supergroup").selectAll("g.bar-group").attr("display", function (d, i) {
+    this.svg.select("g.bar-supergroup").selectAll("g.bar-group").attr("display", function (d, i) {
         return chart.y_dom.indexOf(d.key) > -1 ? null : "none";
     });
 
@@ -333,50 +373,147 @@ function onResize() {
     if (this.config.y.column === 'Form') {
         var yLabels = this.svg.selectAll('.y.axis .tick');
         yLabels.style('cursor', 'pointer').on('click', function (yLabel) {
-            _this.config.y.column = 'FormField';
+            _this.config.y.column = 'Field';
             _this.config.marks[0].per[0] = 'Field';
-            _this.config.marks[1].per[0] = 'Field';
             _this.controls.wrap.selectAll('.control-group').filter(function (d) {
-                return d.label === 'Form'
-                );
+                return d.label === 'Form';
             }).selectAll('option').filter(function (d) {
                 return d === yLabel;
             }).property('selected', true);
             _this.controls.wrap.selectAll('.control-group').filter(function (d) {
-                return d.label === 'Group by'
-                );
+                return d.label === 'Group by';
             }).selectAll('option').filter(function (d) {
                 return d === 'Field';
             }).property('selected', true);
+            _this.filters.filter(function (filter) {
+                return filter.col === 'Form';
+            })[0].val = yLabel;
             _this.draw(_this.filtered_data.filter(function (d) {
                 return d[_this.config.form_col] === yLabel;
             }));
         });
     }
+
+    //Add bar click-ability.
+    var barGroups = this.svg.selectAll('.bar-group'),
+        bars = this.svg.selectAll('.bar'),
+        mouseoverStyle = { 'stroke-width': '5px',
+        'fill': 'black' },
+        mouseoutStyle = { 'stroke-width': '1px',
+        'fill': function fill(d) {
+            return chart.colorScale(d.key);
+        } };
+    bars.style('cursor', 'pointer').on('mouseover', function () {
+        d3.select(this).style(mouseoverStyle).moveToFront();
+    }).on('mouseout', function () {
+        if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
+        bars.filter(function () {
+            return d3.select(this).classed('selected');
+        }).moveToFront();
+    }).on('click', function (d) {
+        bars.classed('selected', false).style(mouseoutStyle);
+        d3.select(this).classed('selected', true).style(mouseoverStyle);
+        chart.listing.draw(d.values.raw);
+    });
 }
 
+function onInit$1() {
+    var listing = this;
+}
+
+function onLayout$1() {
+    var listing = this;
+}
+
+function onPreprocess$1() {
+    var listing = this;
+}
+
+function onDataTransform$1() {
+    var listing = this;
+}
+
+function onDraw$1() {
+    var _this = this;
+
+    var listing = this;
+
+    if (this.current_data.length) {
+        this.wrap.select('#listing-instruction').remove();
+        this.wrap.select('#clear-listing').remove();
+        this.wrap.insert('button', ':first-child').attr('id', 'clear-listing').style({ 'margin': '5px',
+            'padding': '5px',
+            'float': 'right' }).text('Clear listing').on('click', function () {
+            _this.draw([]);
+            _this.chart.svg.selectAll('.bar').style({ 'stroke-width': '1px',
+                'fill': function fill(d) {
+                    return _this.chart.colorScale(d.key);
+                } });
+        });
+        this.wrap.insert('em', ':first-child').attr('id', 'listing-instruction').text(this.current_data[0].values.length + ' records are displayed below.');
+    } else {
+        this.wrap.select('#listing-instruction').remove();
+        this.wrap.select('#clear-listing').remove();
+        this.wrap.insert('em', ':first-child').attr('id', 'listing-instruction').text('Click a bar to view its underlying data.');
+    }
+
+    /**-------------------------------------------------------------------------------------------\
+      Listing aesthetics
+    \-------------------------------------------------------------------------------------------**/
+
+    //Table
+    this.table.attr({ 'width': '100%' }).style({ 'border-collapse': 'collapse' });
+    //Header
+    this.table.select('thead tr').style({ 'border-bottom': '1px solid black' }).selectAll('th').style({ 'text-align': 'left',
+        'padding': '5px' });
+    //Body
+    this.table.selectAll('tbody tr').style({ 'background': function background(d, i) {
+            return i % 2 ? '#eee' : 'white';
+        } }).selectAll('td').style({ 'text-align': 'left',
+        'padding': '3px 5px' });
+}
+
+function onResize$1() {
+    var listing = this;
+}
+
+//chart callbacks
+//listing callbacks
 function queryOverview(element, settings) {
 
-	//merge user's settings with defaults
-	var mergedSettings = Object.assign({}, defaultSettings, settings);
+  //merge user's settings with defaults
+  var mergedSettings = Object.assign({}, defaultSettings, settings);
 
-	//keep settings in sync with the data mappings
-	mergedSettings = syncSettings(mergedSettings);
+  //keep settings in sync with the data mappings
+  mergedSettings = syncSettings(mergedSettings);
 
-	//keep control inputs in sync and create controls object 
-	var syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
-	var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
+  //keep control inputs in sync and create controls object 
+  var syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
+  var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
 
-	//create chart
-	var chart = webcharts.createChart(element, mergedSettings, controls);
-	chart.on('init', onInit);
-	chart.on('layout', onLayout);
-	chart.on('preprocess', onPreprocess);
-	chart.on('datatransform', onDataTransform);
-	chart.on('draw', onDraw);
-	chart.on('resize', onResize);
+  //create chart
+  var chart = webcharts.createChart(element, mergedSettings, controls);
+  chart.on('init', onInit);
+  chart.on('layout', onLayout);
+  chart.on('preprocess', onPreprocess);
+  chart.on('datatransform', onDataTransform);
+  chart.on('draw', onDraw);
+  chart.on('resize', onResize);
 
-	return chart;
+  //create listing
+  var listing = webcharts.createTable(element, {});
+  listing.on('init', onInit$1);
+  listing.on('layout', onLayout$1);
+  listing.on('preprocess', onPreprocess$1);
+  listing.on('datatransform', onDataTransform$1);
+  listing.on('draw', onDraw$1);
+  listing.on('resize', onResize$1);
+  listing.init([]);
+
+  chart.listing = listing;
+  listing.chart = chart;
+
+  return chart;
 }
 
 return queryOverview;
