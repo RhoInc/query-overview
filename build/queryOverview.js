@@ -461,7 +461,7 @@ var queryOverview = (function (webcharts) {
     //Plot data by field when viewing data by form.
     if (this.config.y.column === "Form") {
       var yLabels = this.svg.selectAll(".y.axis .tick");
-      yLabels.style("cursor", "pointer").on("click", function (yLabel) {
+      yLabels.style("cursor", "pointer").style("text-decoration", "underline").style("fill", "blue").on("click", function (yLabel) {
         _this.config.y.column = "Field";
         _this.config.marks[0].per[0] = "Field";
         _this.controls.wrap.selectAll(".control-group").filter(function (d) {
