@@ -1,3 +1,3 @@
 export default function onLayout() {
-    const listing = this;
+  const listing = this;
 }

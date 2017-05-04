@@ -1,5 +1,5 @@
-d3.selection.prototype.moveToFront = function() {  
-    return this.each(function() {
-        this.parentNode.appendChild(this);
-    });
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function() {
+    this.parentNode.appendChild(this);
+  });
 };
