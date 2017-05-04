@@ -2,7 +2,7 @@ export default function onResize() {
   var chart = this;
 
   //Hide bars that aren't in first N groups.
-  var bars = d3
+  this.svg
     .select("g.bar-supergroup")
     .selectAll("g.bar-group")
     .attr("display", function(d, i) {
@@ -65,12 +65,42 @@ export default function onResize() {
         .filter(d => d === "Field")
         .property("selected", true);
       this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
-      this.config.y.label = "Field";
       this.draw(
         this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
       );
     });
   }
+
+  //Add bar click-ability.
+  const barGroups = this.svg.selectAll(".bar-group"),
+    bars = this.svg.selectAll(".bar"),
+    mouseoverStyle = {
+      "stroke-width": "5px",
+      fill: "black"
+    },
+    mouseoutStyle = {
+      "stroke-width": "1px",
+      fill: d => chart.colorScale(d.key)
+    };
+  bars
+    .style("cursor", "pointer")
+    .on("mouseover", function() {
+      d3.select(this).style(mouseoverStyle).moveToFront();
+    })
+    .on("mouseout", function() {
+      if (!d3.select(this).classed("selected"))
+        d3.select(this).style(mouseoutStyle);
+      bars
+        .filter(function() {
+          return d3.select(this).classed("selected");
+        })
+        .moveToFront();
+    })
+    .on("click", function(d) {
+      bars.classed("selected", false).style(mouseoutStyle);
+      d3.select(this).classed("selected", true).style(mouseoverStyle);
+      chart.listing.draw(d.values.raw);
+    });
 
   //Add y-tick-label tooltips.
   if (this.config.y.column === "Form" && this.config.formDescription_col)

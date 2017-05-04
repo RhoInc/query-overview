@@ -26,6 +26,19 @@ var queryOverview = (function (webcharts) {
     })();
   }
 
+  d3.selection.prototype.moveToFront = function () {
+    return this.each(function () {
+      this.parentNode.appendChild(this);
+    });
+  };
+
+  d3.selection.prototype.moveToBack = function () {
+    return this.each(function () {
+      var firstChild = this.parentNode.firstChild;
+      if (firstChild) this.parentNode.insertBefore(this, firstChild);
+    });
+  };
+
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
@@ -181,6 +194,7 @@ var queryOverview = (function (webcharts) {
 
   var defaultSettings = {
     //custom settings
+
     form_col: "form",
     formDescription_col: null,
     field_col: "field",
@@ -188,8 +202,8 @@ var queryOverview = (function (webcharts) {
     status_col: "status",
     status_order: ["Open", "Answered", "Closed", "Cancelled"],
     groups: null, // array of objects with value_col/label properties
+    details: null, //array of detail columns
     filters: null, // array of objects with value_col/label properties
-
     cutoff: 10,
     alphabetize: false,
 
@@ -251,6 +265,16 @@ var queryOverview = (function (webcharts) {
       });
     });
 
+    //Format details argument.
+    if (Array.isArray(syncedSettings.details && syncedSettings.details && syncedSettings.details.length)) syncedSettings.details = syncedSettings.details.map(function (detail) {
+      var detailObject = {};
+      detailObject.value_col = detail.value_col || detail;
+      detailObject.label = detail.label || detailObject.value_col;
+      console.log(detailObject);
+
+      return detailObject;
+    });else syncedSettings.details = null;
+
     return syncedSettings;
   }
 
@@ -309,7 +333,7 @@ var queryOverview = (function (webcharts) {
         var filterObject = {};
         filterObject.type = "subsetter";
         filterObject.value_col = filter.value_col || filter;
-        filterObject.label = filter.label || filter.value_col || filter;
+        filterObject.label = filter.label || filter.value_col;
         filterObject.description = "filter";
         syncedControlInputs.splice(2, 0, filterObject);
       });
@@ -320,6 +344,19 @@ var queryOverview = (function (webcharts) {
 
   function onInit() {
     var chart = this;
+
+    //Define detail listing settings.
+    this.listing.config.cols = this.config.details ? this.config.details.map(function (d) {
+      return d.value_col;
+    }) : Object.keys(this.raw_data[0]);
+    this.listing.config.headers = this.config.details ? this.config.details.map(function (d) {
+      return d.label;
+    }) : Object.keys(this.raw_data[0]);
+    if (!this.config.details) {
+      this.listing.config.headers[this.listing.config.headers.indexOf(this.config.form_col)] = "Form";
+      this.listing.config.headers[this.listing.config.headers.indexOf(this.config.field_col)] = "Field";
+      this.listing.config.headers[this.listing.config.headers.indexOf(this.config.status_col)] = "Status";
+    }
 
     //Define new variables.
     this.raw_data.forEach(function (d) {
@@ -393,6 +430,8 @@ var queryOverview = (function (webcharts) {
   }
 
   function onDraw() {
+    var _this = this;
+
     var chart = this;
 
     //Sort summarized data by descending total.
@@ -424,6 +463,15 @@ var queryOverview = (function (webcharts) {
 
     //change chart height to match the current number of bars displayed
     this.raw_height = (+this.config.range_band + this.config.range_band * this.config.padding) * this.y_dom.length;
+
+    //Reset listing.
+    this.listing.draw([]);
+    this.svg.selectAll(".bar").classed("selected", false).style({
+      "stroke-width": "1px",
+      fill: function fill(d) {
+        return _this.colorScale(d.key);
+      }
+    });
   }
 
   function onResize() {
@@ -432,7 +480,7 @@ var queryOverview = (function (webcharts) {
     var chart = this;
 
     //Hide bars that aren't in first N groups.
-    var bars = d3.select("g.bar-supergroup").selectAll("g.bar-group").attr("display", function (d, i) {
+    this.svg.select("g.bar-supergroup").selectAll("g.bar-group").attr("display", function (d, i) {
       return chart.y_dom.indexOf(d.key) > -1 ? null : "none";
     });
 
@@ -476,12 +524,37 @@ var queryOverview = (function (webcharts) {
         _this.filters.filter(function (filter) {
           return filter.col === "Form";
         })[0].val = yLabel;
-        _this.config.y.label = "Field";
         _this.draw(_this.filtered_data.filter(function (d) {
           return d[_this.config.form_col] === yLabel;
         }));
       });
     }
+
+    //Add bar click-ability.
+    var barGroups = this.svg.selectAll(".bar-group"),
+        bars = this.svg.selectAll(".bar"),
+        mouseoverStyle = {
+      "stroke-width": "5px",
+      fill: "black"
+    },
+        mouseoutStyle = {
+      "stroke-width": "1px",
+      fill: function fill(d) {
+        return chart.colorScale(d.key);
+      }
+    };
+    bars.style("cursor", "pointer").on("mouseover", function () {
+      d3.select(this).style(mouseoverStyle).moveToFront();
+    }).on("mouseout", function () {
+      if (!d3.select(this).classed("selected")) d3.select(this).style(mouseoutStyle);
+      bars.filter(function () {
+        return d3.select(this).classed("selected");
+      }).moveToFront();
+    }).on("click", function (d) {
+      bars.classed("selected", false).style(mouseoutStyle);
+      d3.select(this).classed("selected", true).style(mouseoverStyle);
+      chart.listing.draw(d.values.raw);
+    });
 
     //Add y-tick-label tooltips.
     if (this.config.y.column === "Form" && this.config.formDescription_col) this.svg.selectAll(".y.axis .tick").filter(function (form) {
@@ -498,6 +571,74 @@ var queryOverview = (function (webcharts) {
         return d.Field === field;
       })[0][_this.config.fieldDescription_col];
     });
+  }
+
+  function onInit$1() {
+    var listing = this;
+  }
+
+  function onLayout$1() {
+    var listing = this;
+  }
+
+  function onPreprocess$1() {
+    var listing = this;
+  }
+
+  function onDataTransform$1() {
+    var listing = this;
+  }
+
+  function onDraw$1() {
+    var _this = this;
+
+    var listing = this;
+
+    if (this.current_data.length) {
+      this.wrap.select("#listing-instruction").remove();
+      this.wrap.select("#clear-listing").remove();
+      this.wrap.insert("button", ":first-child").attr("id", "clear-listing").style({
+        margin: "5px",
+        padding: "5px",
+        float: "right"
+      }).text("Clear listing").on("click", function () {
+        _this.draw([]);
+        _this.chart.svg.selectAll(".bar").style({
+          "stroke-width": "1px",
+          fill: function fill(d) {
+            return _this.chart.colorScale(d.key);
+          }
+        });
+      });
+      this.wrap.insert("em", ":first-child").attr("id", "listing-instruction").text(this.current_data[0].values.length + " records are displayed below.");
+    } else {
+      this.wrap.select("#listing-instruction").remove();
+      this.wrap.select("#clear-listing").remove();
+      this.wrap.insert("em", ":first-child").attr("id", "listing-instruction").text("Click a bar to view its underlying data.");
+    }
+
+    /**-------------------------------------------------------------------------------------------\
+        Listing aesthetics
+      \-------------------------------------------------------------------------------------------**/
+
+    //Table
+    this.table.attr({ width: "100%" }).style({ "border-collapse": "collapse" });
+    //Header
+    this.table.select("thead tr").style({ "border-bottom": "1px solid black" }).selectAll("th").style({
+      "text-align": "left",
+      padding: "5px"
+    });
+    //Body
+    this.table.selectAll("tbody tr").style({ background: function background(d, i) {
+        return i % 2 ? "#eee" : "white";
+      } }).selectAll("td").style({
+      "text-align": "left",
+      padding: "3px 5px"
+    });
+  }
+
+  function onResize$1() {
+    var listing = this;
   }
 
   function queryOverview(element, settings) {
@@ -522,6 +663,19 @@ var queryOverview = (function (webcharts) {
     chart.on("datatransform", onDataTransform);
     chart.on("draw", onDraw);
     chart.on("resize", onResize);
+
+    //create listing
+    var listing = webcharts.createTable(element, {});
+    listing.on("init", onInit$1);
+    listing.on("layout", onLayout$1);
+    listing.on("preprocess", onPreprocess$1);
+    listing.on("datatransform", onDataTransform$1);
+    listing.on("draw", onDraw$1);
+    listing.on("resize", onResize$1);
+    listing.init([]);
+
+    chart.listing = listing;
+    listing.chart = chart;
 
     return chart;
   }
