@@ -2,16 +2,12 @@ import clone from "./util/clone";
 
 export default {
   //custom settings
-  form_col: 'form',
+  form_col: "form",
   formDescription_col: null,
-  field_col: 'field',
+  field_col: "field",
   fieldDescription_col: null,
-  status_col: 'status',
-  status_order:
-    ['Open'
-    ,'Answered'
-    ,'Closed'
-    ,'Cancelled'],
+  status_col: "status",
+  status_order: ["Open", "Answered", "Closed", "Cancelled"],
   groups: null, // array of objects with value_col/label properties
   filters: null, // array of objects with value_col/label properties
 
@@ -76,17 +72,16 @@ export function syncSettings(settings) {
   syncedSettings.groups = groups;
 
   //Add filters to group-by control.
-    if (syncedSettings.filters)
-        syncedSettings.filters
-            .forEach(filter => {
-                const value_col = filter.value_col || filter;
-                const label = filter.label || filter.value_col || filter;
-                if (syncedSettings.groups.map(d => d.value_col).indexOf(value_col) === -1)
-                    syncedSettings.groups.push(
-                        {value_col: value_col
-                        ,label: label});
-            });
-
+  if (syncedSettings.filters)
+    syncedSettings.filters.forEach(filter => {
+      const value_col = filter.value_col || filter;
+      const label = filter.label || filter.value_col || filter;
+      if (syncedSettings.groups.map(d => d.value_col).indexOf(value_col) === -1)
+        syncedSettings.groups.push({
+          value_col: value_col,
+          label: label
+        });
+    });
 
   return syncedSettings;
 }

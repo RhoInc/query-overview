@@ -1,6 +1,5 @@
-export default function onDraw(){
-    var chart = this
-
+export default function onDraw() {
+  var chart = this;
 
   //Sort summarized data by descending total.
   this.current_data.sort(function(a, b) {
