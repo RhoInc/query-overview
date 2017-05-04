@@ -181,12 +181,15 @@ var queryOverview = (function (webcharts) {
 
   var defaultSettings = {
     //custom settings
-    form_col: "form",
-    field_col: "field",
-    status_col: "status",
-    status_order: ["Open", "Answered", "Closed", "Cancelled"],
-    filters: null,
-    groups: null,
+    form_col: 'form',
+    formDescription_col: null,
+    field_col: 'field',
+    fieldDescription_col: null,
+    status_col: 'status',
+    status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
+    groups: null, // array of objects with value_col/label properties
+    filters: null, // array of objects with value_col/label properties
+
     cutoff: 10,
     alphabetize: false,
 
@@ -237,18 +240,14 @@ var queryOverview = (function (webcharts) {
     syncedSettings.groups = groups;
 
     //Add filters to group-by control.
-    if (syncedSettings.filters) {
-      syncedSettings.filters.forEach(function (filter) {
+    if (syncedSettings.filters) syncedSettings.filters.forEach(function (filter) {
         var value_col = filter.value_col || filter;
         var label = filter.label || filter.value_col || filter;
         if (syncedSettings.groups.map(function (d) {
-          return d.value_col;
-        }).indexOf(value_col) === -1) syncedSettings.groups.push({
-          value_col: value_col,
-          label: label
-        });
-      });
-    }
+            return d.value_col;
+        }).indexOf(value_col) === -1) syncedSettings.groups.push({ value_col: value_col,
+            label: label });
+    });
 
     return syncedSettings;
   }
@@ -385,16 +384,15 @@ var queryOverview = (function (webcharts) {
       this.config.range_band = 60;
       this.config.x.domain = [0, max];
     }
-  }
+}
 
-  function onDataTransform() {
+function onDataTransform() {
+
     var chart = this;
   }
 
   function onDraw() {
     var chart = this;
-    console.log(this.config.y.column);
-    console.log(this.config.marks[0].per);
 
     //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
@@ -459,27 +457,48 @@ var queryOverview = (function (webcharts) {
     });
 
     //Plot data by field when viewing data by form.
-    if (this.config.y.column === "Form") {
-      var yLabels = this.svg.selectAll(".y.axis .tick");
-      yLabels.style("cursor", "pointer").style("text-decoration", "underline").style("fill", "blue").on("click", function (yLabel) {
-        _this.config.y.column = "Field";
-        _this.config.marks[0].per[0] = "Field";
-        _this.controls.wrap.selectAll(".control-group").filter(function (d) {
-          return d.label === "Form";
-        }).selectAll("option").filter(function (d) {
-          return d === yLabel;
-        }).property("selected", true);
-        _this.controls.wrap.selectAll(".control-group").filter(function (d) {
-          return d.label === "Group by";
-        }).selectAll("option").filter(function (d) {
-          return d === "Field";
-        }).property("selected", true);
-        _this.draw(_this.filtered_data.filter(function (d) {
-          return d[_this.config.form_col] === yLabel;
-        }));
-      });
+    if (this.config.y.column === 'Form') {
+        var yLabels = this.svg.selectAll('.y.axis .tick');
+        yLabels.style('cursor', 'pointer').on('click', function (yLabel) {
+            _this.config.y.column = 'Field';
+            _this.config.marks[0].per[0] = 'Field';
+            _this.controls.wrap.selectAll('.control-group').filter(function (d) {
+                return d.label === 'Form';
+            }).selectAll('option').filter(function (d) {
+                return d === yLabel;
+            }).property('selected', true);
+            _this.controls.wrap.selectAll('.control-group').filter(function (d) {
+                return d.label === 'Group by';
+            }).selectAll('option').filter(function (d) {
+                return d === 'Field';
+            }).property('selected', true);
+            _this.filters.filter(function (filter) {
+                return filter.col === 'Form';
+            })[0].val = yLabel;
+            _this.config.y.label = 'Field';
+            _this.draw(_this.filtered_data.filter(function (d) {
+                return d[_this.config.form_col] === yLabel;
+            }));
+        });
     }
-  }
+
+    //Add y-tick-label tooltips.
+    if (this.config.y.column === 'Form' && this.config.formDescription_col) this.svg.selectAll('.y.axis .tick').filter(function (form) {
+        return _this.y_dom.indexOf(form) > -1;
+    }).append('title').text(function (form) {
+        return _this.raw_data.filter(function (d) {
+            return d.Form === form;
+        })[0][_this.config.formDescription_col];
+    });
+    if (this.config.y.column === 'Field' && this.config.fieldDescription_col) this.svg.selectAll('.y.axis .tick').filter(function (field) {
+        return _this.y_dom.indexOf(field) > -1;
+    }).append('title').text(function (field) {
+        return _this.raw_data.filter(function (d) {
+            return d.Field === field;
+        })[0][_this.config.fieldDescription_col];
+    });
+}
+
 
   function queryOverview(element, settings) {
     //merge user's settings with defaults

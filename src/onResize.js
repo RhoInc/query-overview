@@ -47,30 +47,45 @@ export default function onResize() {
     });
 
   //Plot data by field when viewing data by form.
-  if (this.config.y.column === "Form") {
-    const yLabels = this.svg.selectAll(".y.axis .tick");
-    yLabels
-      .style("cursor", "pointer")
-      .style("text-decoration", "underline")
-      .style("fill", "blue")
-      .on("click", yLabel => {
-        this.config.y.column = "Field";
-        this.config.marks[0].per[0] = "Field";
-        this.controls.wrap
-          .selectAll(".control-group")
-          .filter(d => d.label === "Form")
-          .selectAll("option")
-          .filter(d => d === yLabel)
-          .property("selected", true);
-        this.controls.wrap
-          .selectAll(".control-group")
-          .filter(d => d.label === "Group by")
-          .selectAll("option")
-          .filter(d => d === "Field")
-          .property("selected", true);
-        this.draw(
-          this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
-        );
-      });
-  }
+    if (this.config.y.column === 'Form') {
+        const yLabels = this.svg.selectAll('.y.axis .tick');
+        yLabels
+            .style('cursor', 'pointer')
+            .on('click', yLabel => {
+                this.config.y.column = 'Field';
+                this.config.marks[0].per[0] = 'Field';
+                this.controls.wrap
+                    .selectAll('.control-group')
+                    .filter(d => d.label === 'Form')
+                    .selectAll('option')
+                    .filter(d => d === yLabel)
+                    .property('selected', true);
+                this.controls.wrap
+                    .selectAll('.control-group')
+                    .filter(d => d.label === 'Group by')
+                    .selectAll('option')
+                    .filter(d => d === 'Field')
+                    .property('selected', true);
+                this.filters
+                    .filter(filter => filter.col === 'Form')[0]
+                    .val = yLabel;
+                this.config.y.label = 'Field';
+                this.draw(this.filtered_data
+                    .filter(d => d[this.config.form_col] === yLabel));
+            });
+    }
+
+  //Add y-tick-label tooltips.
+    if (this.config.y.column === 'Form' && this.config.formDescription_col)
+        this.svg.selectAll('.y.axis .tick')
+            .filter(form => this.y_dom.indexOf(form) > -1)
+            .append('title')
+            .text(form => this.raw_data
+                .filter(d => d.Form === form)[0][this.config.formDescription_col]);
+    if (this.config.y.column === 'Field' && this.config.fieldDescription_col)
+        this.svg.selectAll('.y.axis .tick')
+            .filter(field => this.y_dom.indexOf(field) > -1)
+            .append('title')
+            .text(field => this.raw_data
+                .filter(d => d.Field === field)[0][this.config.fieldDescription_col]);
 }
