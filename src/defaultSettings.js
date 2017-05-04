@@ -50,12 +50,8 @@ export function syncSettings(settings) {
   const syncedSettings = clone(settings),
     groups = [
       { value_col: settings.form_col, label: "Form" },
-      ,
-      { value_col: settings.field_col, label: "Field" },
-      ,
-      { value_col: settings.status_col, label: "Status" },
-      ,
-      { value_col: "Form: Field", label: "Form: Field" }
+      { value_col: "Form: Field", label: "Form: Field" },
+      { value_col: settings.status_col, label: "Status" }
     ];
 
   syncedSettings.color_dom = syncedSettings.status_order;
