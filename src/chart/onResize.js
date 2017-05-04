@@ -51,7 +51,7 @@ export default function onResize() {
     const yLabels = this.svg.selectAll(".y.axis .tick");
     yLabels
       .style("cursor", "pointer")
-      .style("color", "blue")
+      .style("fill", "blue")
       .style("text-decoration", "underline")
       .on("click", yLabel => {
         this.config.y.column = "Field";
