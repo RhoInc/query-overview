@@ -65,12 +65,17 @@ export default function onResize() {
         .filter(d => d === "Field")
         .property("selected", true);
       this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
+<<<<<<< HEAD:src/chart/onResize.js
+=======
+
+>>>>>>> d8b299b0d49ee6319ec332c4ee47c58d0a1c4eb5:src/onResize.js
       this.draw(
         this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
       );
     });
   }
 
+<<<<<<< HEAD:src/chart/onResize.js
   //Add bar click-ability.
   const barGroups = this.svg.selectAll(".bar-group"),
     bars = this.svg.selectAll(".bar"),
@@ -102,6 +107,57 @@ export default function onResize() {
       chart.listing.draw(d.values.raw);
     });
 
+=======
+  //Filter data by clicking on legend.
+  const legendItems = this.wrap.selectAll(".legend-item").style({
+    cursor: "pointer",
+    "border-radius": "4px",
+    padding: "5px",
+    "padding-left": "8px"
+  }), // legend items
+    statusOptions = this.controls.wrap
+      .selectAll(".control-group")
+      .filter(d => d.label === "Status")
+      .selectAll(".changer option"); // status filter options
+  legendItems.selectAll(".legend-mark-text").remove(); // don't need 'em
+  legendItems.on("click", function(d) {
+    const legendItem = d3.select(this), // clicked legend item
+      selected = !legendItem.classed("selected"); // selected boolean
+    legendItem.classed("selected", selected); // toggle selected class
+    const selectedLegendItems = legendItems
+      .filter(function() {
+        return d3.select(this).classed("selected");
+      })
+      .data()
+      .map(d => d.label); // selected statuses
+    legendItem.style({
+      background: selected ? "lightgray" : "white"
+    }); // set background of legend items corresponding to selected statuses to light gray
+    statusOptions
+      .property("selected", false)
+      .filter(d => selectedLegendItems.indexOf(d) > -1)
+      .property("selected", true); // set selected property of status options corresponding to selected statuses to true
+    const filtered_data = chart.raw_data.filter(d => {
+      let filtered = selectedLegendItems.indexOf(d.Status) === -1;
+
+      chart.filters
+        .filter(filter => filter.col !== "Status")
+        .forEach(filter => {
+          if (filtered === false && filter.val !== "All")
+            filtered =
+              d[filter.col] !== filter.val ||
+              filter.val.indexOf(d[filter.col]) === -1;
+        });
+
+      return !filtered;
+    }); // define filtered data
+    chart.filters.filter(filter => filter.col === "Status")[
+      0
+    ].val = selectedLegendItems; // update chart's status filter object
+    chart.draw(filtered_data);
+  });
+  
+>>>>>>> d8b299b0d49ee6319ec332c4ee47c58d0a1c4eb5:src/onResize.js
   //Add y-tick-label tooltips.
   if (this.config.y.column === "Form" && this.config.formDescription_col)
     this.svg
