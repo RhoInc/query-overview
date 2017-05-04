@@ -8,6 +8,7 @@ export default {
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   filters: null,
   groups: null,
+
   cutoff: 10,
   alphabetize: false,
 
@@ -21,6 +22,7 @@ export default {
     column: "Form",
     sort: "total-descending"
   },
+
   marks: [
     {
       type: "bar",
@@ -70,6 +72,7 @@ export function syncSettings(settings) {
 
   //Add filters to group-by control.
   if (syncedSettings.filters) {
+
     syncedSettings.filters.forEach(filter => {
       const value_col = filter.value_col || filter;
       const label = filter.label || filter.value_col || filter;
@@ -80,6 +83,7 @@ export function syncSettings(settings) {
         });
     });
   }
+
 
   return syncedSettings;
 }

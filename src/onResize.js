@@ -65,6 +65,7 @@ export default function onResize() {
         .filter(d => d === "Field")
         .property("selected", true);
       this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
+
       this.draw(
         this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
       );
@@ -119,4 +120,28 @@ export default function onResize() {
     ].val = selectedLegendItems; // update chart's status filter object
     chart.draw(filtered_data);
   });
+  
+  //Add y-tick-label tooltips.
+  if (this.config.y.column === "Form" && this.config.formDescription_col)
+    this.svg
+      .selectAll(".y.axis .tick")
+      .filter(form => this.y_dom.indexOf(form) > -1)
+      .append("title")
+      .text(
+        form =>
+          this.raw_data.filter(d => d.Form === form)[0][
+            this.config.formDescription_col
+          ]
+      );
+  if (this.config.y.column === "Field" && this.config.fieldDescription_col)
+    this.svg
+      .selectAll(".y.axis .tick")
+      .filter(field => this.y_dom.indexOf(field) > -1)
+      .append("title")
+      .text(
+        field =>
+          this.raw_data.filter(d => d.Field === field)[0][
+            this.config.fieldDescription_col
+          ]
+      );
 }
