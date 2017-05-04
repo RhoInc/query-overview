@@ -196,9 +196,7 @@ var queryOverview = (function (webcharts) {
     //custom settings
 
     form_col: "form",
-    formDescription_col: null,
     field_col: "field",
-    fieldDescription_col: null,
     status_col: "status",
     status_order: ["Open", "Answered", "Closed", "Cancelled"],
     groups: null, // array of objects with value_col/label properties
@@ -217,6 +215,7 @@ var queryOverview = (function (webcharts) {
       column: "Form",
       sort: "total-descending"
     },
+
     marks: [{
       type: "bar",
       per: ["Form"],
@@ -254,16 +253,18 @@ var queryOverview = (function (webcharts) {
     syncedSettings.groups = groups;
 
     //Add filters to group-by control.
-    if (syncedSettings.filters) syncedSettings.filters.forEach(function (filter) {
-      var value_col = filter.value_col || filter;
-      var label = filter.label || filter.value_col || filter;
-      if (syncedSettings.groups.map(function (d) {
-        return d.value_col;
-      }).indexOf(value_col) === -1) syncedSettings.groups.push({
-        value_col: value_col,
-        label: label
+    if (syncedSettings.filters) {
+      syncedSettings.filters.forEach(function (filter) {
+        var value_col = filter.value_col || filter;
+        var label = filter.label || filter.value_col || filter;
+        if (syncedSettings.groups.map(function (d) {
+          return d.value_col;
+        }).indexOf(value_col) === -1) syncedSettings.groups.push({
+          value_col: value_col,
+          label: label
+        });
       });
-    });
+    }
 
     //Format details argument.
     if (Array.isArray(syncedSettings.details && syncedSettings.details && syncedSettings.details.length)) syncedSettings.details = syncedSettings.details.map(function (detail) {
@@ -387,6 +388,25 @@ var queryOverview = (function (webcharts) {
       }).property("value");
       chart.config.cutoff = value == "All" ? chart.raw_data.length : +value;
       chart.draw();
+    });
+
+    //Sync status filter with legend items.
+    var statusFilter = this.controls.wrap.selectAll(".control-group").filter(function (d) {
+      return d.label === "Status";
+    });
+    statusFilter.on("change", function () {
+      var selectedOptions = statusFilter.select(".changer").selectAll("option:checked").data(),
+          // selected statuses
+      legendItems = chart.wrap.selectAll(".legend-item").classed("selected", false),
+          // de-select all legend items
+      selectedLegendItems = legendItems.filter(function (d) {
+        return selectedOptions.indexOf(d.label) > -1;
+      }).classed("selected", true); // sync legend items with status options
+      legendItems.each(function () {
+        var legendItem = d3.select(this),
+            selected = legendItem.classed("selected");
+        legendItem.style({ background: selected ? "lightgray" : "white" });
+      });
     });
   }
 
@@ -524,6 +544,7 @@ var queryOverview = (function (webcharts) {
         _this.filters.filter(function (filter) {
           return filter.col === "Form";
         })[0].val = yLabel;
+
         _this.draw(_this.filtered_data.filter(function (d) {
           return d[_this.config.form_col] === yLabel;
         }));
@@ -554,6 +575,51 @@ var queryOverview = (function (webcharts) {
       bars.classed("selected", false).style(mouseoutStyle);
       d3.select(this).classed("selected", true).style(mouseoverStyle);
       chart.listing.draw(d.values.raw);
+    });
+
+    //Filter data by clicking on legend.
+    var legendItems = this.wrap.selectAll(".legend-item").style({
+      cursor: "pointer",
+      "border-radius": "4px",
+      padding: "5px",
+      "padding-left": "8px"
+    }),
+        // legend items
+    statusOptions = this.controls.wrap.selectAll(".control-group").filter(function (d) {
+      return d.label === "Status";
+    }).selectAll(".changer option"); // status filter options
+    legendItems.selectAll(".legend-mark-text").remove(); // don't need 'em
+    legendItems.on("click", function (d) {
+      var legendItem = d3.select(this),
+          // clicked legend item
+      selected = !legendItem.classed("selected"); // selected boolean
+      legendItem.classed("selected", selected); // toggle selected class
+      var selectedLegendItems = legendItems.filter(function () {
+        return d3.select(this).classed("selected");
+      }).data().map(function (d) {
+        return d.label;
+      }); // selected statuses
+      legendItem.style({
+        background: selected ? "lightgray" : "white"
+      }); // set background of legend items corresponding to selected statuses to light gray
+      statusOptions.property("selected", false).filter(function (d) {
+        return selectedLegendItems.indexOf(d) > -1;
+      }).property("selected", true); // set selected property of status options corresponding to selected statuses to true
+      var filtered_data = chart.raw_data.filter(function (d) {
+        var filtered = selectedLegendItems.indexOf(d.Status) === -1;
+
+        chart.filters.filter(function (filter) {
+          return filter.col !== "Status";
+        }).forEach(function (filter) {
+          if (filtered === false && filter.val !== "All") filtered = d[filter.col] !== filter.val || filter.val.indexOf(d[filter.col]) === -1;
+        });
+
+        return !filtered;
+      }); // define filtered data
+      chart.filters.filter(function (filter) {
+        return filter.col === "Status";
+      })[0].val = selectedLegendItems; // update chart's status filter object
+      chart.draw(filtered_data);
     });
 
     //Add y-tick-label tooltips.

@@ -65,17 +65,13 @@ export default function onResize() {
         .filter(d => d === "Field")
         .property("selected", true);
       this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
-<<<<<<< HEAD:src/chart/onResize.js
-=======
 
->>>>>>> d8b299b0d49ee6319ec332c4ee47c58d0a1c4eb5:src/onResize.js
       this.draw(
         this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
       );
     });
   }
 
-<<<<<<< HEAD:src/chart/onResize.js
   //Add bar click-ability.
   const barGroups = this.svg.selectAll(".bar-group"),
     bars = this.svg.selectAll(".bar"),
@@ -107,7 +103,6 @@ export default function onResize() {
       chart.listing.draw(d.values.raw);
     });
 
-=======
   //Filter data by clicking on legend.
   const legendItems = this.wrap.selectAll(".legend-item").style({
     cursor: "pointer",
@@ -156,8 +151,7 @@ export default function onResize() {
     ].val = selectedLegendItems; // update chart's status filter object
     chart.draw(filtered_data);
   });
-  
->>>>>>> d8b299b0d49ee6319ec332c4ee47c58d0a1c4eb5:src/onResize.js
+
   //Add y-tick-label tooltips.
   if (this.config.y.column === "Form" && this.config.formDescription_col)
     this.svg

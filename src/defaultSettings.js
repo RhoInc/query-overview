@@ -73,7 +73,6 @@ export function syncSettings(settings) {
 
   //Add filters to group-by control.
   if (syncedSettings.filters) {
-
     syncedSettings.filters.forEach(filter => {
       const value_col = filter.value_col || filter;
       const label = filter.label || filter.value_col || filter;
@@ -84,7 +83,6 @@ export function syncSettings(settings) {
         });
     });
   }
-
 
   //Format details argument.
   if (
