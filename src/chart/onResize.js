@@ -162,18 +162,15 @@ export default function onResize() {
   });
 
   //Add y-tick-label tooltips.
-  if (this.config.y.column === "Form" && this.config.formDescription_col)
+  if (this.config.y.column === "Form")
     this.svg
       .selectAll(".y.axis .tick")
       .filter(form => this.y_dom.indexOf(form) > -1)
       .append("title")
       .text(
-        form =>
-          this.raw_data.filter(d => d.Form === form)[0][
-            this.config.formDescription_col
-          ]
+        form => `Form: ${this.raw_data.filter(d => d.Form === form)[0][this.config.formDescription_col] || form}`
       );
-  if (this.config.y.column === "Form: Field" && this.config.fieldDescription_col)
+  if (this.config.y.column === "Form: Field")
     this.svg
       .selectAll(".y.axis .tick")
       .style('cursor', 'help')
@@ -182,8 +179,6 @@ export default function onResize() {
       .text(
         field => {
             const datum = this.raw_data.filter(d => d['Form: Field'] === field)[0];
-            return this.config.formDescription_col
-                ? `${datum[this.config.formDescription_col]}: ${datum[this.config.fieldDescription_col]}`
-                : datum[this.config.fieldDescription_col];
+            return `Form: ${datum[this.config.formDescription_col] || datum[this.config.form_col]}\nField: ${datum[this.config.fieldDescription_col] || datum[this.config.field_col]}`;
         });
 }

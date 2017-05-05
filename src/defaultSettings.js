@@ -4,12 +4,14 @@ export default {
   //custom settings
 
   form_col: "form",
+  formDescription_col: "formDescription",
   field_col: "field",
+  fieldDescription_col: "fieldDescription",
   status_col: "status",
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   groups: null, // array of objects with value_col/label properties
-  details: null, //array of detail columns
   filters: null, // array of objects with value_col/label properties
+  details: null, //array of detail columns
   cutoff: 10,
   alphabetize: false,
 

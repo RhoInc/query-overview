@@ -83,12 +83,14 @@ var defaultSettings = {
   //custom settings
 
   form_col: "form",
+  formDescription_col: "formDescription",
   field_col: "field",
+  fieldDescription_col: "fieldDescription",
   status_col: "status",
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   groups: null, // array of objects with value_col/label properties
-  details: null, //array of detail columns
   filters: null, // array of objects with value_col/label properties
+  details: null, //array of detail columns
   cutoff: 10,
   alphabetize: false,
 
@@ -517,20 +519,20 @@ function onResize() {
   });
 
   //Add y-tick-label tooltips.
-  if (this.config.y.column === "Form" && this.config.formDescription_col) this.svg.selectAll(".y.axis .tick").filter(function (form) {
+  if (this.config.y.column === "Form") this.svg.selectAll(".y.axis .tick").filter(function (form) {
     return _this.y_dom.indexOf(form) > -1;
   }).append("title").text(function (form) {
-    return _this.raw_data.filter(function (d) {
+    return "Form: " + (_this.raw_data.filter(function (d) {
       return d.Form === form;
-    })[0][_this.config.formDescription_col];
+    })[0][_this.config.formDescription_col] || form);
   });
-  if (this.config.y.column === "Form: Field" && this.config.fieldDescription_col) this.svg.selectAll(".y.axis .tick").style('cursor', 'help').filter(function (field) {
+  if (this.config.y.column === "Form: Field") this.svg.selectAll(".y.axis .tick").style('cursor', 'help').filter(function (field) {
     return _this.y_dom.indexOf(field) > -1;
   }).append("title").text(function (field) {
     var datum = _this.raw_data.filter(function (d) {
       return d['Form: Field'] === field;
     })[0];
-    return _this.config.formDescription_col ? datum[_this.config.formDescription_col] + ": " + datum[_this.config.fieldDescription_col] : datum[_this.config.fieldDescription_col];
+    return "Form: " + (datum[_this.config.formDescription_col] || datum[_this.config.form_col]) + "\nField: " + (datum[_this.config.fieldDescription_col] || datum[_this.config.field_col]);
   });
 }
 
