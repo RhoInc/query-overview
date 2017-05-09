@@ -51,12 +51,17 @@ export default function onResize() {
   }
 
   //Plot data by field when viewing data by form.
-  if (this.config.y.column === "Form") {
+  if (this.config.y.column === this.config.form_col) {
     const yLabels = this.svg
       .selectAll(".y.axis .tick")
       .style("fill", "blue")
       .style("text-decoration", "underline");
     yLabels.style("cursor", "pointer").on("click", yLabel => {
+      this.controls.wrap
+        .selectAll(".control-group")
+        .filter(d => d.label === "Group by")
+        .selectAll("option")
+        .property("selected", d => d === "Form: Field");
       this.config.y.column = "Form: Field";
       this.config.y.label = "Form: Field";
       this.config.marks[0].per[0] = "Form: Field";
@@ -65,12 +70,7 @@ export default function onResize() {
         .filter(d => d.label === "Form")
         .selectAll("option")
         .property("selected", d => d === yLabel);
-      this.controls.wrap
-        .selectAll(".control-group")
-        .filter(d => d.label === "Group by")
-        .selectAll("option")
-        .property("selected", d => d === "Form: Field");
-      this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
+      this.filters.filter(filter => filter.col === this.config.form_col)[0].val = yLabel;
 
       this.draw(
         this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
@@ -139,10 +139,10 @@ export default function onResize() {
       .filter(d => selectedLegendItems.indexOf(d) > -1)
       .property("selected", true); // set selected property of status options corresponding to selected statuses to true
     const filtered_data = chart.raw_data.filter(d => {
-      let filtered = selectedLegendItems.indexOf(d.Status) === -1;
+      let filtered = selectedLegendItems.indexOf(d[chart.config.status_col]) === -1;
 
       chart.filters
-        .filter(filter => filter.col !== "Status")
+        .filter(filter => filter.col !== chart.config.status_col)
         .forEach(filter => {
           if (filtered === false && filter.val !== "All")
             filtered =
@@ -152,21 +152,21 @@ export default function onResize() {
 
       return !filtered;
     }); // define filtered data
-    chart.filters.filter(filter => filter.col === "Status")[
+    chart.filters.filter(filter => filter.col === chart.config.status_col)[
       0
     ].val = selectedLegendItems; // update chart's status filter object
     chart.draw(filtered_data);
   });
 
   //Add y-tick-label tooltips.
-  if (this.config.y.column === "Form")
+  if (this.config.y.column === this.config.form_col)
     this.svg
       .selectAll(".y.axis .tick")
       .filter(form => this.y_dom.indexOf(form) > -1)
       .append("title")
       .text(
         form =>
-          `Form: ${this.raw_data.filter(d => d.Form === form)[0][this.config.formDescription_col] || form}`
+          `Form: ${this.raw_data.filter(d => d[this.config.form_col] === form)[0][this.config.formDescription_col] || form}`
       );
   if (this.config.y.column === "Form: Field")
     this.svg

@@ -3,11 +3,11 @@ import clone from "./util/clone";
 export default {
   //custom settings
 
-  form_col: "form",
-  formDescription_col: "formDescription",
-  field_col: "field",
-  fieldDescription_col: "fieldDescription",
-  status_col: "status",
+  form_col: "Datastr",
+  formDescription_col: "Form",
+  field_col: "Field Name",
+  fieldDescription_col: "Field",
+  status_col: "Query Status",
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   groups: null, // array of objects with value_col/label properties
   filters: null, // array of objects with value_col/label properties
@@ -22,21 +22,22 @@ export default {
   },
   y: {
     type: "ordinal",
-    column: "Form",
+    column: null, // set in syncSettings()
+    label: 'Form',
     sort: "total-descending"
   },
 
   marks: [
     {
       type: "bar",
-      per: ["Form"],
-      split: "Status",
+      per: [null], // set in syncSettings()
+      split: null, // set in syncSettings()
       arrange: "stacked",
       summarizeX: "count",
-      tooltip: "[Status] - $x queries"
+      tooltip: null // set in syncSettings()
     }
   ],
-  color_by: "Status",
+  color_by: null, // set in syncSettings()
   color_dom: null, // set in syncSettings()
   legend: {
     location: "top",
@@ -56,17 +57,23 @@ export function syncSettings(settings) {
       { value_col: settings.status_col, label: "Status" }
     ];
 
-  syncedSettings.color_dom = syncedSettings.status_order;
-  syncedSettings.legend.order = syncedSettings.status_order;
+    syncedSettings.y.column = syncedSettings.form_col;
+    syncedSettings.marks[0].per[0] = syncedSettings.form_col;
+    syncedSettings.marks[0].split = syncedSettings.status_col;
+    syncedSettings.marks[0].tooltip = `[${syncedSettings.status_col}] - $x queries`;
+    syncedSettings.color_by = syncedSettings.status_col;
+    syncedSettings.color_dom = syncedSettings.status_order;
+    syncedSettings.legend.order = syncedSettings.status_order;
 
   //Merge default group settings with custom group settings.
   if (syncedSettings.groups)
-    syncedSettings.groups.forEach(group =>
-      groups.push({
-        value_col: group.value_col || group,
-        label: group.label || group.value_col || group
-      })
-    );
+    syncedSettings.groups.forEach(group => {
+        if (groups.map(defaultGroup => defaultGroup.value_col).indexOf(group.value_col || group) === -1)
+            groups.push({
+                value_col: group.value_col || group,
+                label: group.label || group.value_col || group
+            });
+    });
   syncedSettings.groups = groups;
 
   //Add filters to group-by control.
@@ -92,7 +99,6 @@ export function syncSettings(settings) {
       const detailObject = {};
       detailObject.value_col = detail.value_col || detail;
       detailObject.label = detail.label || detailObject.value_col;
-      console.log(detailObject);
 
       return detailObject;
     });
@@ -109,7 +115,7 @@ export function syncSettings(settings) {
 export const controlInputs = [
   {
     type: "dropdown",
-    options: ["y.column", "y.label", "marks.0.per.0"],
+    option: "y.label",
     label: "Group by",
     description: "variable toggle",
     values: [], // set in syncControlInputs
@@ -117,13 +123,13 @@ export const controlInputs = [
   },
   {
     type: "subsetter",
-    value_col: "Form",
+    value_col: null, // set in syncControlInputs()
     label: "Form",
     description: "filter"
   },
   {
     type: "subsetter",
-    value_col: "Status",
+    value_col: null, // set in syncControlInputs()
     label: "Status",
     description: "filter",
     multiple: true
@@ -157,6 +163,11 @@ export function syncControlInputs(controlInputs, settings) {
   )[0];
   settings.groups.forEach(group => groupByControl.values.push(group.label));
 
+  //Set value_col of Form filter.
+    syncedControlInputs
+        .filter(controlInput => controlInput.label === 'Form')[0]
+        .value_col = settings.form_col;
+
   //Add filters to control inputs and group-by control values.
   if (settings.filters) {
     const filters = clone(settings.filters);
@@ -170,6 +181,11 @@ export function syncControlInputs(controlInputs, settings) {
       syncedControlInputs.splice(2, 0, filterObject);
     });
   }
+
+  //Set value_col of Status filter.
+    syncedControlInputs
+        .filter(controlInput => controlInput.label === 'Status')[0]
+        .value_col = settings.status_col;
 
   //Add cutoff argument to Show first N groups control if not already a default value.
   const nGroupsControl = syncedControlInputs.filter(
