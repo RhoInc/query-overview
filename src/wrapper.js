@@ -1,7 +1,7 @@
 import "./util/object-assign";
 import "./util/moveToFront";
 import "./util/moveToBack";
-import clone from './util/clone';
+import clone from "./util/clone";
 
 import defaultSettings from "./defaultSettings";
 import {
