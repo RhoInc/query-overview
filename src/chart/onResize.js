@@ -48,27 +48,33 @@ export default function onResize() {
 
   //Plot data by field when viewing data by form.
   if (this.config.y.column === "Form") {
-    const yLabels = this.svg.selectAll(".y.axis .tick");
-    yLabels
-      .style("cursor", "pointer")
-      .style("fill", "blue")
-      .style("text-decoration", "underline")
-      .on("click", yLabel => {
-        this.config.y.column = "Field";
-        this.config.marks[0].per[0] = "Field";
-        this.controls.wrap
-          .selectAll(".control-group")
-          .filter(d => d.label === "Form")
-          .selectAll("option")
-          .filter(d => d === yLabel)
-          .property("selected", true);
-        this.controls.wrap
-          .selectAll(".control-group")
-          .filter(d => d.label === "Group by")
-          .selectAll("option")
-          .filter(d => d === "Field")
-          .property("selected", true);
-        this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
+    const yLabels = this.svg.selectAll(".y.axis .tick")
+        .on('mouseover', function() {
+            d3.select(this)
+                .style(
+                    {'font-weight': 'bold'
+                    ,'font-size': '125%'}); })
+        .on('mouseout', function() {
+            d3.select(this)
+                .style(
+                    {'font-weight': 'normal'
+                    ,'font-size': '100%'}); })
+    yLabels.style("cursor", "pointer").on("click", yLabel => {
+      this.config.y.column = "Form: Field";
+      this.config.y.label = "Form: Field";
+      this.config.marks[0].per[0] = "Form: Field";
+      this.controls.wrap
+        .selectAll(".control-group")
+        .filter(d => d.label === "Form")
+        .selectAll("option")
+        .property("selected", d => d === yLabel);
+      this.controls.wrap
+        .selectAll(".control-group")
+        .filter(d => d.label === "Group by")
+        .selectAll("option")
+        .property("selected", d => d === "Form: Field");
+      this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
+
 
         this.draw(
           this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
@@ -157,26 +163,23 @@ export default function onResize() {
   });
 
   //Add y-tick-label tooltips.
-  if (this.config.y.column === "Form" && this.config.formDescription_col)
+  if (this.config.y.column === "Form")
     this.svg
       .selectAll(".y.axis .tick")
       .filter(form => this.y_dom.indexOf(form) > -1)
       .append("title")
       .text(
-        form =>
-          this.raw_data.filter(d => d.Form === form)[0][
-            this.config.formDescription_col
-          ]
+        form => `Form: ${this.raw_data.filter(d => d.Form === form)[0][this.config.formDescription_col] || form}`
       );
-  if (this.config.y.column === "Field" && this.config.fieldDescription_col)
+  if (this.config.y.column === "Form: Field")
     this.svg
       .selectAll(".y.axis .tick")
+      .style('cursor', 'help')
       .filter(field => this.y_dom.indexOf(field) > -1)
       .append("title")
       .text(
-        field =>
-          this.raw_data.filter(d => d.Field === field)[0][
-            this.config.fieldDescription_col
-          ]
-      );
+        field => {
+            const datum = this.raw_data.filter(d => d['Form: Field'] === field)[0];
+            return `Form: ${datum[this.config.formDescription_col] || datum[this.config.form_col]}\nField: ${datum[this.config.fieldDescription_col] || datum[this.config.field_col]}`;
+        });
 }
