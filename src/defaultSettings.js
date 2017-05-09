@@ -85,10 +85,9 @@ export function syncSettings(settings) {
   //Format details argument.
   if (
     Array.isArray(
-      syncedSettings.details &&
+      syncedSettings.details) &&
         syncedSettings.details &&
         syncedSettings.details.length
-    )
   )
     syncedSettings.details = syncedSettings.details.map(detail => {
       const detailObject = {};
@@ -99,6 +98,10 @@ export function syncSettings(settings) {
       return detailObject;
     });
   else syncedSettings.details = null;
+
+  //Check cutoff argument and set to 10 if invalid.
+    if (!(+syncedSettings.cutoff > 0 || syncedSettings.cutoff === 'All'))
+        syncedSettings.cutoff = 10;
 
   return syncedSettings;
 }
@@ -168,6 +171,14 @@ export function syncControlInputs(controlInputs, settings) {
       syncedControlInputs.splice(2, 0, filterObject);
     });
   }
+
+  //Add cutoff argument to Show first N groups control if not already a default value.
+    const nGroupsControl = syncedControlInputs
+        .filter(controlInput => controlInput.label === 'Show first N groups')[0];
+    if (nGroupsControl.values.indexOf(settings.cutoff.toString()) === -1) {
+        nGroupsControl.values.push(settings.cutoff.toString());
+        nGroupsControl.values.sort((a,b) => a === 'All' ? 1 : b === 'All' ? -1 : +a - +b);
+    }
 
   return syncedControlInputs;
 }
