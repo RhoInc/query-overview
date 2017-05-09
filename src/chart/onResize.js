@@ -11,55 +11,61 @@ export default function onResize() {
 
   //Annotate # of Queries.
   this.svg.selectAll(".number-of-queries").remove();
-    if (this.config.marks[0].arrange === "stacked") {
-        this.current_data.forEach(d => {
-            if (chart.y_dom.indexOf(d.key) > -1) {
-                chart.svg
-                    .append("text")
-                    .classed("number-of-queries", true)
-                    .attr({
-                        x: chart.x(d.total),
-                        y: chart.y(d.key) + chart.y.rangeBand() / 2,
-                        dx: "0.25em",
-                        dy: "0.3em"
-                    })
-                    .style("font-size", "80%")
-                    .text(d.total);
-            }
+  if (this.config.marks[0].arrange === "stacked") {
+    this.current_data.forEach(d => {
+      if (chart.y_dom.indexOf(d.key) > -1) {
+        chart.svg
+          .append("text")
+          .classed("number-of-queries", true)
+          .attr({
+            x: chart.x(d.total),
+            y: chart.y(d.key) + chart.y.rangeBand() / 2,
+            dx: "0.25em",
+            dy: "0.3em"
+          })
+          .style("font-size", "80%")
+          .text(d.total);
+      }
+    });
+  } else {
+    this.current_data.forEach(d => {
+      if (chart.y_dom.indexOf(d.key) > -1) {
+        d.values.forEach(di => {
+          chart.svg
+            .append("text")
+            .classed("number-of-queries", true)
+            .attr({
+              x: chart.x(di.values.x),
+              y: chart.y(d.key) +
+                chart.y.rangeBand() *
+                  (3 - chart.config.status_order.indexOf(di.key)) /
+                  4,
+              dx: "0.25em",
+              dy: "1em"
+            })
+            .style("font-size", "80%")
+            .text(di.values.x);
         });
-    } else {
-        this.current_data.forEach(d => {
-            if (chart.y_dom.indexOf(d.key) > -1) {
-                d.values.forEach(di => {
-                    chart.svg
-                        .append("text")
-                        .classed("number-of-queries", true)
-                        .attr({
-                            x: chart.x(di.values.x),
-                            y: chart.y(d.key) + chart.y.rangeBand() * (3 - chart.config.status_order.indexOf(di.key)) / 4,
-                            dx: "0.25em",
-                            dy: "1em"
-                        })
-                        .style("font-size", "80%")
-                        .text(di.values.x);
-                });
-            }
-        });
-    }
+      }
+    });
+  }
 
   //Plot data by field when viewing data by form.
   if (this.config.y.column === "Form") {
-    const yLabels = this.svg.selectAll(".y.axis .tick")
-        .on('mouseover', function() {
-            d3.select(this)
-                .style(
-                    {'font-weight': 'bold'
-                    ,'font-size': '125%'}); })
-        .on('mouseout', function() {
-            d3.select(this)
-                .style(
-                    {'font-weight': 'normal'
-                    ,'font-size': '100%'}); })
+    const yLabels = this.svg
+      .selectAll(".y.axis .tick")
+      .on("mouseover", function() {
+        d3.select(this).style({
+          "font-weight": "bold",
+          "font-size": "125%"
+        });
+      })
+      .on("mouseout", function() {
+        d3.select(this).style({
+          "font-weight": "normal",
+          "font-size": "100%"
+        });
+      });
     yLabels.style("cursor", "pointer").on("click", yLabel => {
       this.config.y.column = "Form: Field";
       this.config.y.label = "Form: Field";
@@ -76,11 +82,10 @@ export default function onResize() {
         .property("selected", d => d === "Form: Field");
       this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
 
-
-        this.draw(
-          this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
-        );
-      });
+      this.draw(
+        this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
+      );
+    });
   }
 
   //Add bar click-ability.
@@ -170,17 +175,17 @@ export default function onResize() {
       .filter(form => this.y_dom.indexOf(form) > -1)
       .append("title")
       .text(
-        form => `Form: ${this.raw_data.filter(d => d.Form === form)[0][this.config.formDescription_col] || form}`
+        form =>
+          `Form: ${this.raw_data.filter(d => d.Form === form)[0][this.config.formDescription_col] || form}`
       );
   if (this.config.y.column === "Form: Field")
     this.svg
       .selectAll(".y.axis .tick")
-      .style('cursor', 'help')
+      .style("cursor", "help")
       .filter(field => this.y_dom.indexOf(field) > -1)
       .append("title")
-      .text(
-        field => {
-            const datum = this.raw_data.filter(d => d['Form: Field'] === field)[0];
-            return `Form: ${datum[this.config.formDescription_col] || datum[this.config.form_col]}\nField: ${datum[this.config.fieldDescription_col] || datum[this.config.field_col]}`;
-        });
+      .text(field => {
+        const datum = this.raw_data.filter(d => d["Form: Field"] === field)[0];
+        return `Form: ${datum[this.config.formDescription_col] || datum[this.config.form_col]}\nField: ${datum[this.config.fieldDescription_col] || datum[this.config.field_col]}`;
+      });
 }
