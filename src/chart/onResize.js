@@ -54,18 +54,8 @@ export default function onResize() {
   if (this.config.y.column === "Form") {
     const yLabels = this.svg
       .selectAll(".y.axis .tick")
-      .on("mouseover", function() {
-        d3.select(this).style({
-          "font-weight": "bold",
-          "font-size": "125%"
-        });
-      })
-      .on("mouseout", function() {
-        d3.select(this).style({
-          "font-weight": "normal",
-          "font-size": "100%"
-        });
-      });
+      .style("fill", "blue")
+      .style("text-decoration", "underline");
     yLabels.style("cursor", "pointer").on("click", yLabel => {
       this.config.y.column = "Form: Field";
       this.config.y.label = "Form: Field";
