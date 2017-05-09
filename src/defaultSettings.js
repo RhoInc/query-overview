@@ -4,12 +4,14 @@ export default {
   //custom settings
 
   form_col: "form",
+  formDescription_col: "formDescription",
   field_col: "field",
+  fieldDescription_col: "fieldDescription",
   status_col: "status",
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   groups: null, // array of objects with value_col/label properties
-  details: null, //array of detail columns
   filters: null, // array of objects with value_col/label properties
+  details: null, //array of detail columns
   cutoff: 10,
   alphabetize: false,
 
@@ -50,12 +52,8 @@ export function syncSettings(settings) {
   const syncedSettings = clone(settings),
     groups = [
       { value_col: settings.form_col, label: "Form" },
-      ,
-      { value_col: settings.field_col, label: "Field" },
-      ,
-      { value_col: settings.status_col, label: "Status" },
-      ,
-      { value_col: "Form: Field", label: "Form: Field" }
+      { value_col: "Form: Field", label: "Form: Field" },
+      { value_col: settings.status_col, label: "Status" }
     ];
 
   syncedSettings.color_dom = syncedSettings.status_order;
