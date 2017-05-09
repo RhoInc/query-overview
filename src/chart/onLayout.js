@@ -1,3 +1,5 @@
+import clone from "../util/clone";
+
 export default function onLayout() {
   var chart = this;
 
@@ -12,8 +14,8 @@ export default function onLayout() {
     return d == chart.config.cutoff;
   });
   this.config.cutoff = this.config.cutoff === "All"
-        ? this.raw_data.length
-        : +this.config.cutoff;
+    ? this.raw_data.length
+    : +this.config.cutoff;
   groupToggles.on("change", function() {
     var value = groupToggles
       .filter(function(f) {
@@ -45,4 +47,23 @@ export default function onLayout() {
       legendItem.style({ background: selected ? "lightgray" : "white" });
     });
   });
+
+  //Add reset button.
+  this.controls.wrap
+    .append("button")
+    .attr("id", "reset-chart")
+    .style({
+      margin: "5px",
+      padding: "5px",
+      float: "right"
+    })
+    .text("Reset chart")
+    .on("click", () => {
+      const element = clone(this.div),
+        settings = clone(this.initialSettings),
+        data = clone(this.raw_data);
+      this.listing.destroy();
+      this.destroy();
+      queryOverview(element, settings).init(data);
+    });
 }
