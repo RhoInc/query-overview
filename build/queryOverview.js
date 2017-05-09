@@ -536,17 +536,7 @@ var queryOverview = (function (webcharts) {
 
     //Plot data by field when viewing data by form.
     if (this.config.y.column === "Form") {
-      var yLabels = this.svg.selectAll(".y.axis .tick").on("mouseover", function () {
-        d3.select(this).style({
-          "font-weight": "bold",
-          "font-size": "125%"
-        });
-      }).on("mouseout", function () {
-        d3.select(this).style({
-          "font-weight": "normal",
-          "font-size": "100%"
-        });
-      });
+      var yLabels = this.svg.selectAll(".y.axis .tick").style("fill", "blue").style("text-decoration", "underline");
       yLabels.style("cursor", "pointer").on("click", function (yLabel) {
         _this.config.y.column = "Form: Field";
         _this.config.y.label = "Form: Field";
