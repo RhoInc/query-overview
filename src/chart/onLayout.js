@@ -11,8 +11,11 @@ export default function onLayout() {
     })
     .selectAll('input[type="radio"]');
   groupToggles.property("checked", function(d, i) {
-    return d == 10;
+    return d == chart.config.cutoff;
   });
+  this.config.cutoff = this.config.cutoff === "All"
+        ? this.raw_data.length
+        : +this.config.cutoff;
   groupToggles.on("change", function() {
     var value = groupToggles
       .filter(function(f) {
