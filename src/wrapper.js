@@ -1,6 +1,7 @@
 import "./util/object-assign";
 import "./util/moveToFront";
 import "./util/moveToBack";
+import clone from './util/clone';
 
 import defaultSettings from "./defaultSettings";
 import {
@@ -33,6 +34,7 @@ export default function queryOverview(element, settings) {
 
   //keep settings in sync with the data mappings
   mergedSettings = syncSettings(mergedSettings);
+  const initialSettings = clone(mergedSettings);
 
   //keep control inputs in sync and create controls object
   let syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
@@ -43,6 +45,7 @@ export default function queryOverview(element, settings) {
 
   //create chart
   let chart = createChart(element, mergedSettings, controls);
+  chart.initialSettings = initialSettings;
   chart.on("init", onInit);
   chart.on("layout", onLayout);
   chart.on("preprocess", onPreprocess);
