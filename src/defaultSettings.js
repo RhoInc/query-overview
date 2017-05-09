@@ -3,11 +3,11 @@ import clone from "./util/clone";
 export default {
   //custom settings
 
-  form_col: "form",
-  formDescription_col: "formDescription",
-  field_col: "field",
-  fieldDescription_col: "fieldDescription",
-  status_col: "status",
+  form_col: "Datastr",
+  formDescription_col: "Form",
+  field_col: "Field Name",
+  fieldDescription_col: "Field",
+  status_col: "Query Status",
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   groups: null, // array of objects with value_col/label properties
   filters: null, // array of objects with value_col/label properties
