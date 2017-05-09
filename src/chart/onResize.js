@@ -75,10 +75,11 @@ export default function onResize() {
         .property("selected", d => d === "Form: Field");
       this.filters.filter(filter => filter.col === "Form")[0].val = yLabel;
 
-      this.draw(
-        this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
-      );
-    });
+
+        this.draw(
+          this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
+        );
+      });
   }
 
   //Add bar click-ability.

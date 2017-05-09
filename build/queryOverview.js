@@ -379,6 +379,7 @@ function onDraw() {
     "stroke-width": "1px",
     fill: function fill(d) {
       return _this.colorScale(d.key);
+
     }
   });
 }
