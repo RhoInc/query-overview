@@ -101,19 +101,20 @@ var defaultSettings = {
   },
   y: {
     type: "ordinal",
-    column: "Form",
+    column: null, // set in syncSettings()
+    label: 'Form',
     sort: "total-descending"
   },
 
   marks: [{
     type: "bar",
-    per: ["Form"],
-    split: "Status",
+    per: [null], // set in syncSettings()
+    split: null, // set in syncSettings()
     arrange: "stacked",
     summarizeX: "count",
-    tooltip: "[Status] - $x queries"
+    tooltip: null // set in syncSettings()
   }],
-  color_by: "Status",
+  color_by: null, // set in syncSettings()
   color_dom: null, // set in syncSettings()
   legend: {
     location: "top",
@@ -129,12 +130,19 @@ function syncSettings(settings) {
   var syncedSettings = clone(settings),
       groups = [{ value_col: settings.form_col, label: "Form" }, { value_col: "Form: Field", label: "Form: Field" }, { value_col: settings.status_col, label: "Status" }];
 
+  syncedSettings.y.column = syncedSettings.form_col;
+  syncedSettings.marks[0].per[0] = syncedSettings.form_col;
+  syncedSettings.marks[0].split = syncedSettings.status_col;
+  syncedSettings.marks[0].tooltip = "[" + syncedSettings.status_col + "] - $x queries";
+  syncedSettings.color_by = syncedSettings.status_col;
   syncedSettings.color_dom = syncedSettings.status_order;
   syncedSettings.legend.order = syncedSettings.status_order;
 
   //Merge default group settings with custom group settings.
   if (syncedSettings.groups) syncedSettings.groups.forEach(function (group) {
-    return groups.push({
+    if (groups.map(function (defaultGroup) {
+      return defaultGroup.value_col;
+    }).indexOf(group.value_col || group) === -1) groups.push({
       value_col: group.value_col || group,
       label: group.label || group.value_col || group
     });
@@ -160,7 +168,6 @@ function syncSettings(settings) {
     var detailObject = {};
     detailObject.value_col = detail.value_col || detail;
     detailObject.label = detail.label || detailObject.value_col;
-    console.log(detailObject);
 
     return detailObject;
   });else syncedSettings.details = null;
@@ -174,19 +181,19 @@ function syncSettings(settings) {
 // Default Control objects
 var controlInputs = [{
   type: "dropdown",
-  options: ["y.column", "y.label", "marks.0.per.0"],
+  option: "y.label",
   label: "Group by",
   description: "variable toggle",
   values: [], // set in syncControlInputs
   require: true
 }, {
   type: "subsetter",
-  value_col: "Form",
+  value_col: null, // set in syncControlInputs()
   label: "Form",
   description: "filter"
 }, {
   type: "subsetter",
-  value_col: "Status",
+  value_col: null, // set in syncControlInputs()
   label: "Status",
   description: "filter",
   multiple: true
@@ -218,6 +225,11 @@ function syncControlInputs(controlInputs, settings) {
     return groupByControl.values.push(group.label);
   });
 
+  //Set value_col of Form filter.
+  syncedControlInputs.filter(function (controlInput) {
+    return controlInput.label === 'Form';
+  })[0].value_col = settings.form_col;
+
   //Add filters to control inputs and group-by control values.
   if (settings.filters) {
     var filters = clone(settings.filters);
@@ -231,6 +243,11 @@ function syncControlInputs(controlInputs, settings) {
       syncedControlInputs.splice(2, 0, filterObject);
     });
   }
+
+  //Set value_col of Status filter.
+  syncedControlInputs.filter(function (controlInput) {
+    return controlInput.label === 'Status';
+  })[0].value_col = settings.status_col;
 
   //Add cutoff argument to Show first N groups control if not already a default value.
   var nGroupsControl = syncedControlInputs.filter(function (controlInput) {
@@ -256,22 +273,24 @@ function onInit() {
   this.listing.config.headers = this.config.details ? this.config.details.map(function (d) {
     return d.label;
   }) : Object.keys(this.raw_data[0]);
-  if (!this.config.details) {
-    this.listing.config.headers[this.listing.config.headers.indexOf(this.config.form_col)] = "Form";
-    this.listing.config.headers[this.listing.config.headers.indexOf(this.config.field_col)] = "Field";
-    this.listing.config.headers[this.listing.config.headers.indexOf(this.config.status_col)] = "Status";
-  }
+  if (!this.config.details) {}
+  //this.listing.config.headers[
+  //  this.listing.config.headers.indexOf(this.config.form_col)
+  //] =
+  //  "Form";
+  //this.listing.config.headers[
+  //  this.listing.config.headers.indexOf(this.config.field_col)
+  //] =
+  //  "Field";
+  //this.listing.config.headers[
+  //  this.listing.config.headers.indexOf(this.config.status_col)
+  //] =
+  //  "Status";
+
 
   //Define new variables.
   this.raw_data.forEach(function (d) {
     d["Form: Field"] = d[chart.config.form_col] + ": " + d[chart.config.field_col];
-
-    //Redefine group-by variables with their labels.
-    chart.config.groups.forEach(function (group) {
-      if (group.value_col !== group.label) {
-        d[group.label] = d[group.value_col];
-      }
-    });
   });
 }
 
@@ -327,6 +346,20 @@ function onLayout() {
     _this.listing.destroy();
     _this.destroy();
     queryOverview(element, settings).init(data);
+  });
+
+  //Display group label rather than group column name in Group by control.
+  var groupByControl = this.controls.wrap.selectAll('.control-group').filter(function (d) {
+    return d.label === 'Group by';
+  }).on('change', function () {
+    var label = d3.select(this).select('option:checked').text(),
+        value_col = chart.config.groups[chart.config.groups.map(function (d) {
+      return d.label;
+    }).indexOf(label)].value_col;
+
+    chart.config.y.column = value_col;
+    chart.config.marks[0].per = [value_col];
+    chart.draw();
   });
 }
 
@@ -453,9 +486,14 @@ function onResize() {
   }
 
   //Plot data by field when viewing data by form.
-  if (this.config.y.column === "Form") {
+  if (this.config.y.column === this.config.form_col) {
     var yLabels = this.svg.selectAll(".y.axis .tick").style("fill", "blue").style("text-decoration", "underline");
     yLabels.style("cursor", "pointer").on("click", function (yLabel) {
+      _this.controls.wrap.selectAll(".control-group").filter(function (d) {
+        return d.label === "Group by";
+      }).selectAll("option").property("selected", function (d) {
+        return d === "Form: Field";
+      });
       _this.config.y.column = "Form: Field";
       _this.config.y.label = "Form: Field";
       _this.config.marks[0].per[0] = "Form: Field";
@@ -464,13 +502,8 @@ function onResize() {
       }).selectAll("option").property("selected", function (d) {
         return d === yLabel;
       });
-      _this.controls.wrap.selectAll(".control-group").filter(function (d) {
-        return d.label === "Group by";
-      }).selectAll("option").property("selected", function (d) {
-        return d === "Form: Field";
-      });
       _this.filters.filter(function (filter) {
-        return filter.col === "Form";
+        return filter.col === _this.config.form_col;
       })[0].val = yLabel;
 
       _this.draw(_this.filtered_data.filter(function (d) {
@@ -534,10 +567,10 @@ function onResize() {
       return selectedLegendItems.indexOf(d) > -1;
     }).property("selected", true); // set selected property of status options corresponding to selected statuses to true
     var filtered_data = chart.raw_data.filter(function (d) {
-      var filtered = selectedLegendItems.indexOf(d.Status) === -1;
+      var filtered = selectedLegendItems.indexOf(d[chart.config.status_col]) === -1;
 
       chart.filters.filter(function (filter) {
-        return filter.col !== "Status";
+        return filter.col !== chart.config.status_col;
       }).forEach(function (filter) {
         if (filtered === false && filter.val !== "All") filtered = d[filter.col] !== filter.val || filter.val.indexOf(d[filter.col]) === -1;
       });
@@ -545,17 +578,17 @@ function onResize() {
       return !filtered;
     }); // define filtered data
     chart.filters.filter(function (filter) {
-      return filter.col === "Status";
+      return filter.col === chart.config.status_col;
     })[0].val = selectedLegendItems; // update chart's status filter object
     chart.draw(filtered_data);
   });
 
   //Add y-tick-label tooltips.
-  if (this.config.y.column === "Form") this.svg.selectAll(".y.axis .tick").filter(function (form) {
+  if (this.config.y.column === this.config.form_col) this.svg.selectAll(".y.axis .tick").filter(function (form) {
     return _this.y_dom.indexOf(form) > -1;
   }).append("title").text(function (form) {
     return "Form: " + (_this.raw_data.filter(function (d) {
-      return d.Form === form;
+      return d[_this.config.form_col] === form;
     })[0][_this.config.formDescription_col] || form);
   });
   if (this.config.y.column === "Form: Field") this.svg.selectAll(".y.axis .tick").style("cursor", "help").filter(function (field) {
