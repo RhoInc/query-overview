@@ -9,8 +9,11 @@ export default {
   fieldDescription_col: "Field",
   status_col: "Query Status",
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
+  site_col: "Site Name",
   groups: null, // array of objects with value_col/label properties
-  filters: null, // array of objects with value_col/label properties
+  filters: [
+    { value_col: "Query Open By: Marking Group", label: "Marking Group" }
+  ],
   details: null, //array of detail columns
   cutoff: 10,
   alphabetize: false,
@@ -55,7 +58,7 @@ export function syncSettings(settings) {
       { value_col: settings.form_col, label: "Form" },
       { value_col: "Form: Field", label: "Form: Field" },
       { value_col: settings.status_col, label: "Status" },
-      { value_col: "Site Name", label: "Site" }
+      { value_col: settings.site_col, label: "Site" }
     ];
 
   syncedSettings.y.column = syncedSettings.form_col;
@@ -143,14 +146,8 @@ export const controlInputs = [
   },
   {
     type: "subsetter",
-    value_col: "Site Name", 
+    value_col: null, // set in syncControlInputs()
     label: "Site",
-    description: "filter"
-  },
-  {
-    type: "subsetter",
-    value_col: "Query Open By: Marking Group",
-    label: "Marking Group",
     description: "filter"
   },
   {
@@ -187,6 +184,12 @@ export function syncControlInputs(controlInputs, settings) {
     0
   ].value_col =
     settings.form_col;
+
+  //Set value_col of Form filter.
+  syncedControlInputs.filter(controlInput => controlInput.label === "Site")[
+    0
+  ].value_col =
+    settings.site_col;
 
   //Add filters to control inputs and group-by control values.
   if (settings.filters) {

@@ -201,8 +201,9 @@ var queryOverview = (function (webcharts) {
     fieldDescription_col: "Field",
     status_col: "Query Status",
     status_order: ["Open", "Answered", "Closed", "Cancelled"],
+    site_col: "Site Name",
     groups: null, // array of objects with value_col/label properties
-    filters: null, // array of objects with value_col/label properties
+    filters: [{ value_col: "Query Open By: Marking Group", label: "Marking Group" }],
     details: null, //array of detail columns
     cutoff: 10,
     alphabetize: false,
@@ -241,7 +242,7 @@ var queryOverview = (function (webcharts) {
   // Replicate settings in multiple places in the settings object
   function syncSettings(settings) {
     var syncedSettings = clone(settings),
-        groups = [{ value_col: settings.form_col, label: "Form" }, { value_col: "Form: Field", label: "Form: Field" }, { value_col: settings.status_col, label: "Status" }, { value_col: "Site Name", label: "Site" }];
+        groups = [{ value_col: settings.form_col, label: "Form" }, { value_col: "Form: Field", label: "Form: Field" }, { value_col: settings.status_col, label: "Status" }, { value_col: settings.site_col, label: "Site" }];
 
     syncedSettings.y.column = syncedSettings.form_col;
     syncedSettings.marks[0].per[0] = syncedSettings.form_col;
@@ -312,13 +313,8 @@ var queryOverview = (function (webcharts) {
     multiple: true
   }, {
     type: "subsetter",
-    value_col: "Site Name", // set in syncControlInputs()
+    value_col: null, // set in syncControlInputs()
     label: "Site",
-    description: "filter"
-  }, {
-    type: "subsetter",
-    value_col: "Query Open By: Marking Group", // set in syncControlInputs()
-    label: "Marking Group",
     description: "filter"
   }, {
     type: "radio",
@@ -352,6 +348,11 @@ var queryOverview = (function (webcharts) {
     syncedControlInputs.filter(function (controlInput) {
       return controlInput.label === "Form";
     })[0].value_col = settings.form_col;
+
+    //Set value_col of Form filter.
+    syncedControlInputs.filter(function (controlInput) {
+      return controlInput.label === "Site";
+    })[0].value_col = settings.site_col;
 
     //Add filters to control inputs and group-by control values.
     if (settings.filters) {
