@@ -9,8 +9,11 @@ export default {
   fieldDescription_col: "Field",
   status_col: "Query Status",
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
+  site_col: "Site Name",
   groups: null, // array of objects with value_col/label properties
-  filters: null, // array of objects with value_col/label properties
+  filters: [
+    { value_col: "Query Open By: Marking Group", label: "Marking Group" }
+  ],
   details: null, //array of detail columns
   cutoff: 10,
   alphabetize: false,
@@ -23,7 +26,7 @@ export default {
   y: {
     type: "ordinal",
     column: null, // set in syncSettings()
-    label: 'Form',
+    label: "Form",
     sort: "total-descending"
   },
 
@@ -54,25 +57,32 @@ export function syncSettings(settings) {
     groups = [
       { value_col: settings.form_col, label: "Form" },
       { value_col: "Form: Field", label: "Form: Field" },
-      { value_col: settings.status_col, label: "Status" }
+      { value_col: settings.status_col, label: "Status" },
+      { value_col: settings.site_col, label: "Site" }
     ];
 
-    syncedSettings.y.column = syncedSettings.form_col;
-    syncedSettings.marks[0].per[0] = syncedSettings.form_col;
-    syncedSettings.marks[0].split = syncedSettings.status_col;
-    syncedSettings.marks[0].tooltip = `[${syncedSettings.status_col}] - $x queries`;
-    syncedSettings.color_by = syncedSettings.status_col;
-    syncedSettings.color_dom = syncedSettings.status_order;
-    syncedSettings.legend.order = syncedSettings.status_order;
+  syncedSettings.y.column = syncedSettings.form_col;
+  syncedSettings.marks[0].per[0] = syncedSettings.form_col;
+  syncedSettings.marks[0].split = syncedSettings.status_col;
+  syncedSettings.marks[
+    0
+  ].tooltip = `[${syncedSettings.status_col}] - $x queries`;
+  syncedSettings.color_by = syncedSettings.status_col;
+  syncedSettings.color_dom = syncedSettings.status_order;
+  syncedSettings.legend.order = syncedSettings.status_order;
 
   //Merge default group settings with custom group settings.
   if (syncedSettings.groups)
     syncedSettings.groups.forEach(group => {
-        if (groups.map(defaultGroup => defaultGroup.value_col).indexOf(group.value_col || group) === -1)
-            groups.push({
-                value_col: group.value_col || group,
-                label: group.label || group.value_col || group
-            });
+      if (
+        groups
+          .map(defaultGroup => defaultGroup.value_col)
+          .indexOf(group.value_col || group) === -1
+      )
+        groups.push({
+          value_col: group.value_col || group,
+          label: group.label || group.value_col || group
+        });
     });
   syncedSettings.groups = groups;
 
@@ -135,6 +145,12 @@ export const controlInputs = [
     multiple: true
   },
   {
+    type: "subsetter",
+    value_col: null, // set in syncControlInputs()
+    label: "Site",
+    description: "filter"
+  },
+  {
     type: "radio",
     option: "marks.0.arrange",
     label: "Bar Arrangement",
@@ -164,9 +180,16 @@ export function syncControlInputs(controlInputs, settings) {
   settings.groups.forEach(group => groupByControl.values.push(group.label));
 
   //Set value_col of Form filter.
-    syncedControlInputs
-        .filter(controlInput => controlInput.label === 'Form')[0]
-        .value_col = settings.form_col;
+  syncedControlInputs.filter(controlInput => controlInput.label === "Form")[
+    0
+  ].value_col =
+    settings.form_col;
+
+  //Set value_col of Form filter.
+  syncedControlInputs.filter(controlInput => controlInput.label === "Site")[
+    0
+  ].value_col =
+    settings.site_col;
 
   //Add filters to control inputs and group-by control values.
   if (settings.filters) {
@@ -183,9 +206,10 @@ export function syncControlInputs(controlInputs, settings) {
   }
 
   //Set value_col of Status filter.
-    syncedControlInputs
-        .filter(controlInput => controlInput.label === 'Status')[0]
-        .value_col = settings.status_col;
+  syncedControlInputs.filter(controlInput => controlInput.label === "Status")[
+    0
+  ].value_col =
+    settings.status_col;
 
   //Add cutoff argument to Show first N groups control if not already a default value.
   const nGroupsControl = syncedControlInputs.filter(

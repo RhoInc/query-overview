@@ -70,7 +70,9 @@ export default function onResize() {
         .filter(d => d.label === "Form")
         .selectAll("option")
         .property("selected", d => d === yLabel);
-      this.filters.filter(filter => filter.col === this.config.form_col)[0].val = yLabel;
+      this.filters.filter(filter => filter.col === this.config.form_col)[
+        0
+      ].val = yLabel;
 
       this.draw(
         this.filtered_data.filter(d => d[this.config.form_col] === yLabel)
@@ -139,7 +141,8 @@ export default function onResize() {
       .filter(d => selectedLegendItems.indexOf(d) > -1)
       .property("selected", true); // set selected property of status options corresponding to selected statuses to true
     const filtered_data = chart.raw_data.filter(d => {
-      let filtered = selectedLegendItems.indexOf(d[chart.config.status_col]) === -1;
+      let filtered =
+        selectedLegendItems.indexOf(d[chart.config.status_col]) === -1;
 
       chart.filters
         .filter(filter => filter.col !== chart.config.status_col)

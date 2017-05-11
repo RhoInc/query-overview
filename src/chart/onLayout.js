@@ -68,17 +68,18 @@ export default function onLayout() {
     });
 
   //Display group label rather than group column name in Group by control.
-    const
-        groupByControl = this.controls.wrap
-            .selectAll('.control-group')
-            .filter(d => d.label === 'Group by')
-            .on('change', function() {
-                const
-                    label = d3.select(this).select('option:checked').text(),
-                    value_col = chart.config.groups[chart.config.groups.map(d => d.label).indexOf(label)].value_col;
+  const groupByControl = this.controls.wrap
+    .selectAll(".control-group")
+    .filter(d => d.label === "Group by")
+    .on("change", function() {
+      const label = d3.select(this).select("option:checked").text(),
+        value_col =
+          chart.config.groups[
+            chart.config.groups.map(d => d.label).indexOf(label)
+          ].value_col;
 
-                chart.config.y.column = value_col;
-                chart.config.marks[0].per = [value_col];
-                chart.draw();
-            });
+      chart.config.y.column = value_col;
+      chart.config.marks[0].per = [value_col];
+      chart.draw();
+    });
 }
