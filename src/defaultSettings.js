@@ -11,7 +11,7 @@ export default {
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   site_col: "Site Name",
   groups: null, // array of objects with value_col/label properties
-  filters: [],
+  filters: null,
   details: null, //array of detail columns
   cutoff: 10,
   alphabetize: false,
