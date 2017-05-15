@@ -11,9 +11,7 @@ export default {
   status_order: ["Open", "Answered", "Closed", "Cancelled"],
   site_col: "Site Name",
   groups: null, // array of objects with value_col/label properties
-  filters: [
-    { value_col: "Query Open By: Marking Group", label: "Marking Group" }
-  ],
+  filters: [],
   details: null, //array of detail columns
   cutoff: 10,
   alphabetize: false,
@@ -132,6 +130,23 @@ export const controlInputs = [
     require: true
   },
   {
+    type: "radio",
+    option: "marks.0.arrange",
+    label: "Bar Arrangement",
+    values: ["stacked", "grouped"]
+  },
+  {
+    type: "radio",
+    option: "cutoff",
+    label: "Show first N groups",
+    values: ["10", "25", "All"]
+  },
+  {
+    type: "checkbox",
+    option: "alphabetize",
+    label: "Alphabetical?"
+  },
+  {
     type: "subsetter",
     value_col: null, // set in syncControlInputs()
     label: "Form",
@@ -148,24 +163,8 @@ export const controlInputs = [
     type: "subsetter",
     value_col: null, // set in syncControlInputs()
     label: "Site",
-    description: "filter"
-  },
-  {
-    type: "radio",
-    option: "marks.0.arrange",
-    label: "Bar Arrangement",
-    values: ["stacked", "grouped"]
-  },
-  {
-    type: "radio",
-    option: "cutoff",
-    label: "Show first N groups",
-    values: ["10", "25", "All"]
-  },
-  {
-    type: "checkbox",
-    option: "alphabetize",
-    label: "Alphabetical?"
+    description: "filter",
+    multiple: true
   }
 ];
 
