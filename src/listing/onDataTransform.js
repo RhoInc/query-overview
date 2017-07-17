@@ -1,3 +1,3 @@
 export default function onDataTransform() {
-  const listing = this;
+    const listing = this;
 }

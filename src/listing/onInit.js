@@ -1,3 +1,3 @@
 export default function onInit() {
-  const listing = this;
+    const listing = this;
 }

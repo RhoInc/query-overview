@@ -10,7 +10,7 @@
     "webcharts": "~1.7"
   },
   "scripts": {
-    "format": "prettier --write 'src/**/*.js'",
+    "format": "prettier --print-width=100 --tab-width=4 --single-quote --write \"src/**/*.js\"",
     "build": "npm run format && rollup -c",
     "watch": "rollup -c -w"
   },
