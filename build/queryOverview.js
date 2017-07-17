@@ -538,7 +538,10 @@ function onResize() {
         }
     };
     bars.style('cursor', 'pointer').on('mouseover', function () {
-        d3.select(this).style(mouseoverStyle).moveToFront();
+        d3.select(this).style(mouseoverStyle);
+
+        //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
+        if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
     }).on('mouseout', function () {
         if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
         bars.filter(function () {
