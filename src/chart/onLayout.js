@@ -40,9 +40,25 @@ export default function onLayout() {
         });
     });
 
+    //Add download link.
+    if (this.config.exportData)
+        this.controls.wrap
+            .insert('a', ':first-child')
+            .attr('id', 'downloadCSV')
+            .style({
+                'text-decoration': 'underline',
+                color: 'blue',
+                cursor: 'pointer',
+                float: 'right',
+                margin: '5px',
+                padding: '5px',
+                clear: 'right'
+            })
+            .text('Download Query Data');
+
     //Add reset button.
     this.controls.wrap
-        .append('button')
+        .insert('button', ':first-child')
         .attr('id', 'reset-chart')
         .style({
             margin: '5px',
