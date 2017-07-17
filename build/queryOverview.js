@@ -188,20 +188,6 @@ var controlInputs = [{
     values: [], // set in syncControlInputs
     require: true
 }, {
-    type: 'radio',
-    option: 'marks.0.arrange',
-    label: 'Bar Arrangement',
-    values: ['stacked', 'grouped']
-}, {
-    type: 'radio',
-    option: 'cutoff',
-    label: 'Show first N groups',
-    values: ['10', '25', 'All']
-}, {
-    type: 'checkbox',
-    option: 'alphabetize',
-    label: 'Alphabetical?'
-}, {
     type: 'subsetter',
     value_col: null, // set in syncControlInputs()
     label: 'Form',
@@ -218,6 +204,20 @@ var controlInputs = [{
     label: 'Site',
     description: 'filter',
     multiple: true
+}, {
+    type: 'radio',
+    option: 'marks.0.arrange',
+    label: 'Bar Arrangement',
+    values: ['stacked', 'grouped']
+}, {
+    type: 'radio',
+    option: 'cutoff',
+    label: 'Show first N groups',
+    values: ['10', '25', 'All']
+}, {
+    type: 'checkbox',
+    option: 'alphabetize',
+    label: 'Alphabetical?'
 }];
 
 // Map values from settings to control inputs
