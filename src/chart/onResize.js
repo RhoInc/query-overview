@@ -139,9 +139,9 @@ export default function onResize() {
                 .filter(filter => filter.col !== chart.config.status_col)
                 .forEach(filter => {
                     if (filtered === false && filter.val !== 'All')
-                        filtered =
-                            d[filter.col] !== filter.val ||
-                            filter.val.indexOf(d[filter.col]) === -1;
+                        filtered = typeof filter.val === 'string'
+                            ? d[filter.col] !== filter.val
+                            : filter.val.indexOf(d[filter.col]) === -1;
                 });
 
             return !filtered;
