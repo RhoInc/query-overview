@@ -584,7 +584,7 @@ function onResize() {
             chart.filters.filter(function (filter) {
                 return filter.col !== chart.config.status_col;
             }).forEach(function (filter) {
-                if (filtered === false && filter.val !== 'All') filtered = d[filter.col] !== filter.val || filter.val.indexOf(d[filter.col]) === -1;
+                if (filtered === false && filter.val !== 'All') filtered = typeof filter.val === 'string' ? d[filter.col] !== filter.val : filter.val.indexOf(d[filter.col]) === -1;
             });
 
             return !filtered;
