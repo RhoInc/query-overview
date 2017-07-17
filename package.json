@@ -1,6 +1,6 @@
 {
   "name": "query-overview",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Interactive bar chart for exploration of query data from clinical trials",
   "main": "./build/queryOverview.js",
   "author": "Rho, Inc.",
