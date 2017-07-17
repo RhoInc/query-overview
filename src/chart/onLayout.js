@@ -3,6 +3,8 @@ import clone from '../util/clone';
 export default function onLayout() {
     var chart = this;
 
+    this.wrap.style('overflow', 'hidden');
+
     //Handle y-domain length control
     var groupToggles = this.controls.wrap
         .selectAll('.control-group')

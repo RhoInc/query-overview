@@ -282,24 +282,14 @@ function onInit() {
     //Define detail listing settings.
     this.listing.config.cols = this.config.details ? this.config.details.map(function (d) {
         return d.value_col;
-    }) : Object.keys(this.raw_data[0]);
+    }) : Object.keys(this.raw_data[0]).filter(function (key) {
+        return key !== 'Form: Field';
+    });
     this.listing.config.headers = this.config.details ? this.config.details.map(function (d) {
         return d.label;
-    }) : Object.keys(this.raw_data[0]);
-    if (!this.config.details) {}
-    //this.listing.config.headers[
-    //  this.listing.config.headers.indexOf(this.config.form_col)
-    //] =
-    //  "Form";
-    //this.listing.config.headers[
-    //  this.listing.config.headers.indexOf(this.config.field_col)
-    //] =
-    //  "Field";
-    //this.listing.config.headers[
-    //  this.listing.config.headers.indexOf(this.config.status_col)
-    //] =
-    //  "Status";
-
+    }) : Object.keys(this.raw_data[0]).filter(function (key) {
+        return key !== 'Form: Field';
+    });
 
     //Define new variables.
     this.raw_data.forEach(function (d) {
@@ -311,6 +301,8 @@ function onLayout() {
     var _this = this;
 
     var chart = this;
+
+    this.wrap.style('overflow', 'hidden');
 
     //Handle y-domain length control
     var groupToggles = this.controls.wrap.selectAll('.control-group').filter(function (d) {
