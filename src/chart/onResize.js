@@ -149,9 +149,9 @@ export default function onResize() {
 
             return !filtered;
         }); // define filtered data
-        chart.filters.filter(
-            filter => filter.col === chart.config.status_col
-        )[0].val = selectedLegendItems; // update chart's status filter object
+        chart.filters.filter(filter => filter.col === chart.config.status_col)[
+            0
+        ].val = selectedLegendItems; // update chart's status filter object
         chart.draw(filtered_data);
     });
 
