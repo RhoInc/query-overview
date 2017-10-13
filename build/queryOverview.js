@@ -889,12 +889,13 @@ var queryOverview = (function(webcharts) {
             .style({
                 margin: '5px',
                 padding: '5px',
-                float: 'right'
+                float: 'left',
+                display: 'block'
             })
             .text('Clear listing')
             .on('click', function() {
                 _this.wrap.selectAll('*').remove();
-                _this.chart.svg.selectAll('.bar').style({
+                _this.chart.svg.selectAll('.bar').classed('selected', false).style({
                     'stroke-width': '1px',
                     fill: function fill(d) {
                         return _this.chart.colorScale(d.key);

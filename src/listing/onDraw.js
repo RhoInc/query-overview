@@ -8,12 +8,13 @@ export default function onDraw() {
         .style({
             margin: '5px',
             padding: '5px',
-            float: 'right'
+            float: 'left',
+            display: 'block'
         })
         .text('Clear listing')
         .on('click', () => {
             this.wrap.selectAll('*').remove();
-            this.chart.svg.selectAll('.bar').style({
+            this.chart.svg.selectAll('.bar').classed('selected', false).style({
                 'stroke-width': '1px',
                 fill: d => this.chart.colorScale(d.key)
             });
