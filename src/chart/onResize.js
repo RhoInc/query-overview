@@ -70,6 +70,8 @@ export default function onResize() {
             this.filters.filter(filter => filter.col === this.config.form_col)[0].val = yLabel;
 
             this.draw(this.filtered_data.filter(d => d[this.config.form_col] === yLabel));
+            chart.listing.wrap.selectAll('*').remove();
+            chart.wrap.select('listing-instruction').style('display', 'block');
         });
     }
 
@@ -103,7 +105,8 @@ export default function onResize() {
         .on('click', function(d) {
             bars.classed('selected', false).style(mouseoutStyle);
             d3.select(this).classed('selected', true).style(mouseoverStyle);
-            chart.listing.draw(d.values.raw);
+            chart.listing.wrap.selectAll('*').remove();
+            chart.listing.init(d.values.raw);
         });
 
     //Filter data by clicking on legend.
@@ -153,6 +156,16 @@ export default function onResize() {
             0
         ].val = selectedLegendItems; // update chart's status filter object
         chart.draw(filtered_data);
+
+        //Clear bar highlighting.
+        chart.svg.selectAll('.bar').classed('selected', false).style({
+            'stroke-width': '1px',
+            fill: d => chart.colorScale(d.key)
+        });
+
+        //Remove listing and display listing instruction.
+        chart.listing.wrap.selectAll('*').remove();
+        chart.wrap.select('#listing-instruction').style('display', 'block');
     });
 
     //Add y-tick-label tooltips.

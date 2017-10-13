@@ -40,11 +40,4 @@ export default function onDraw() {
     this.raw_height =
         (+this.config.range_band + this.config.range_band * this.config.padding) *
         this.y_dom.length;
-
-    //Reset listing.
-    this.listing.draw([]);
-    this.svg.selectAll('.bar').classed('selected', false).style({
-        'stroke-width': '1px',
-        fill: d => this.colorScale(d.key)
-    });
 }

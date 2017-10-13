@@ -373,28 +373,46 @@ var queryOverview = (function(webcharts) {
             chart.draw();
         });
 
-        //Sync status filter with legend items.
-        var statusFilter = this.controls.wrap.selectAll('.control-group').filter(function(d) {
-            return d.label === 'Status';
-        });
-        statusFilter.on('change', function() {
-            var selectedOptions = statusFilter
-                .select('.changer')
-                .selectAll('option:checked')
-                .data(),
-                // selected statuses
-                legendItems = chart.wrap.selectAll('.legend-item').classed('selected', false),
-                // de-select all legend items
-                selectedLegendItems = legendItems
-                    .filter(function(d) {
-                        return selectedOptions.indexOf(d.label) > -1;
-                    })
-                    .classed('selected', true); // sync legend items with status options
-            legendItems.each(function() {
-                var legendItem = d3.select(this), selected = legendItem.classed('selected');
-                legendItem.style({ background: selected ? 'lightgray' : 'white' });
+        //Clear listing when controls change.
+        this.controls.wrap
+            .selectAll('.control-group')
+            .filter(function(control) {
+                return ['dropdown', 'subsetter'].indexOf(control.type) > -1;
+            })
+            .on('change', function(d) {
+                //Clear bar highlighting.
+                chart.svg.selectAll('.bar').classed('selected', false).style({
+                    'stroke-width': '1px',
+                    fill: function fill(d) {
+                        return chart.colorScale(d.key);
+                    }
+                });
+
+                //Reset listing.
+                chart.listing.wrap.selectAll('*').remove();
+                chart.wrap.select('#listing-instruction').style('display', 'block');
+
+                //Sync status filter with legend items.
+                if (d.label === 'Status') {
+                    var statusFilter = d3.select(this),
+                        selectedOptions = statusFilter.selectAll('.changer option:checked').data(),
+                        // selected statuses
+                        legendItems = chart.wrap
+                            .selectAll('.legend-item')
+                            .classed('selected', false),
+                        // de-select all legend items
+                        selectedLegendItems = legendItems
+                            .filter(function(d) {
+                                return selectedOptions.indexOf(d.label) > -1;
+                            })
+                            .classed('selected', true); // sync legend items with status options
+
+                    legendItems.each(function() {
+                        var legendItem = d3.select(this), selected = legendItem.classed('selected');
+                        legendItem.style({ background: selected ? 'lightgray' : 'white' });
+                    });
+                }
             });
-        });
 
         //Add download link.
         if (this.config.exportData)
@@ -430,6 +448,12 @@ var queryOverview = (function(webcharts) {
                 _this.destroy();
                 queryOverview(element, settings).init(data);
             });
+
+        //Add listing instruction.
+        this.wrap
+            .append('em')
+            .attr('id', 'listing-instruction')
+            .text('Click a bar to view its underlying data.');
 
         //Display group label rather than group column name in Group by control.
         var groupByControl = this.controls.wrap
@@ -562,8 +586,6 @@ var queryOverview = (function(webcharts) {
     }
 
     function onDraw() {
-        var _this = this;
-
         var chart = this;
 
         //Sort summarized data by descending total.
@@ -605,15 +627,6 @@ var queryOverview = (function(webcharts) {
         this.raw_height =
             (+this.config.range_band + this.config.range_band * this.config.padding) *
             this.y_dom.length;
-
-        //Reset listing.
-        this.listing.draw([]);
-        this.svg.selectAll('.bar').classed('selected', false).style({
-            'stroke-width': '1px',
-            fill: function fill(d) {
-                return _this.colorScale(d.key);
-            }
-        });
     }
 
     function onResize() {
@@ -707,6 +720,8 @@ var queryOverview = (function(webcharts) {
                         return d[_this.config.form_col] === yLabel;
                     })
                 );
+                chart.listing.wrap.selectAll('*').remove();
+                chart.wrap.select('listing-instruction').style('display', 'block');
             });
         }
 
@@ -742,7 +757,8 @@ var queryOverview = (function(webcharts) {
             .on('click', function(d) {
                 bars.classed('selected', false).style(mouseoutStyle);
                 d3.select(this).classed('selected', true).style(mouseoverStyle);
-                chart.listing.draw(d.values.raw);
+                chart.listing.wrap.selectAll('*').remove();
+                chart.listing.init(d.values.raw);
             });
 
         //Filter data by clicking on legend.
@@ -802,6 +818,18 @@ var queryOverview = (function(webcharts) {
                 return filter.col === chart.config.status_col;
             })[0].val = selectedLegendItems; // update chart's status filter object
             chart.draw(filtered_data);
+
+            //Clear bar highlighting.
+            chart.svg.selectAll('.bar').classed('selected', false).style({
+                'stroke-width': '1px',
+                fill: function fill(d) {
+                    return chart.colorScale(d.key);
+                }
+            });
+
+            //Remove listing and display listing instruction.
+            chart.listing.wrap.selectAll('*').remove();
+            chart.wrap.select('#listing-instruction').style('display', 'block');
         });
 
         //Add y-tick-label tooltips.
@@ -849,84 +877,34 @@ var queryOverview = (function(webcharts) {
         var listing = this;
     }
 
-    function onPreprocess$1() {
-        var listing = this;
-    }
-
-    function onDataTransform$1() {
-        var listing = this;
-    }
-
     function onDraw$1() {
         var _this = this;
 
         var listing = this;
 
-        if (this.current_data.length) {
-            this.wrap.select('#listing-instruction').remove();
-            this.wrap.select('#clear-listing').remove();
-            this.wrap
-                .insert('button', ':first-child')
-                .attr('id', 'clear-listing')
-                .style({
-                    margin: '5px',
-                    padding: '5px',
-                    float: 'right'
-                })
-                .text('Clear listing')
-                .on('click', function() {
-                    _this.draw([]);
-                    _this.chart.svg.selectAll('.bar').style({
-                        'stroke-width': '1px',
-                        fill: function fill(d) {
-                            return _this.chart.colorScale(d.key);
-                        }
-                    });
-                });
-            this.wrap
-                .insert('em', ':first-child')
-                .attr('id', 'listing-instruction')
-                .text(this.current_data[0].values.length + ' records are displayed below.');
-        } else {
-            this.wrap.select('#listing-instruction').remove();
-            this.wrap.select('#clear-listing').remove();
-            this.wrap
-                .insert('em', ':first-child')
-                .attr('id', 'listing-instruction')
-                .text('Click a bar to view its underlying data.');
-        }
-
-        /**-------------------------------------------------------------------------------------------\
-      Listing aesthetics
-    \-------------------------------------------------------------------------------------------**/
-
-        //Table
-        this.table.attr({ width: '100%' }).style({ 'border-collapse': 'collapse' });
-        //Header
-        this.table
-            .select('thead tr')
-            .style({ 'border-bottom': '1px solid black' })
-            .selectAll('th')
+        this.chart.wrap.select('#listing-instruction').style('display', 'none');
+        this.wrap
+            .insert('button', ':first-child')
+            .attr('id', 'clear-listing')
             .style({
-                'text-align': 'left',
-                padding: '5px'
-            });
-        //Body
-        this.table
-            .selectAll('tbody tr')
-            .style({
-                background: function background(d, i) {
-                    return i % 2 ? '#eee' : 'white';
-                }
+                margin: '5px',
+                padding: '5px',
+                float: 'right'
             })
-            .selectAll('td')
-            .style({
-                'text-align': 'left',
-                padding: '3px 5px'
+            .text('Clear listing')
+            .on('click', function() {
+                _this.wrap.selectAll('*').remove();
+                _this.chart.svg.selectAll('.bar').style({
+                    'stroke-width': '1px',
+                    fill: function fill(d) {
+                        return _this.chart.colorScale(d.key);
+                    }
+                });
+                _this.chart.wrap.select('#listing-instruction').style('display', 'block');
             });
     }
 
-    function onResize$1() {
+    function onDestroy$1() {
         var listing = this;
     }
 
@@ -961,11 +939,8 @@ var queryOverview = (function(webcharts) {
         var listing = webcharts.createTable(element, {});
         listing.on('init', onInit$1);
         listing.on('layout', onLayout$1);
-        listing.on('preprocess', onPreprocess$1);
-        listing.on('datatransform', onDataTransform$1);
         listing.on('draw', onDraw$1);
-        listing.on('resize', onResize$1);
-        listing.init([]);
+        listing.on('destroy', onDestroy$1);
 
         chart.listing = listing;
         listing.chart = chart;

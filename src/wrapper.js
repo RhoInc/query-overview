@@ -15,14 +15,13 @@ import onPreprocess from './chart/onPreprocess';
 import onDataTransform from './chart/onDataTransform';
 import onDraw from './chart/onDraw';
 import onResize from './chart/onResize';
+import onDestroy from './chart/onDestroy';
 
 //listing callbacks
 import onInitL from './listing/onInit';
 import onLayoutL from './listing/onLayout';
-import onPreprocessL from './listing/onPreprocess';
-import onDataTransformL from './listing/onDataTransform';
 import onDrawL from './listing/onDraw';
-import onResizeL from './listing/onResize';
+import onDestroyL from './listing/onDestroy';
 
 export default function queryOverview(element, settings) {
     //merge user's settings with defaults
@@ -53,11 +52,8 @@ export default function queryOverview(element, settings) {
     let listing = createTable(element, {});
     listing.on('init', onInitL);
     listing.on('layout', onLayoutL);
-    listing.on('preprocess', onPreprocessL);
-    listing.on('datatransform', onDataTransformL);
     listing.on('draw', onDrawL);
-    listing.on('resize', onResizeL);
-    listing.init([]);
+    listing.on('destroy', onDestroyL);
 
     chart.listing = listing;
     listing.chart = chart;

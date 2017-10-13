@@ -26,21 +26,36 @@ export default function onLayout() {
         chart.draw();
     });
 
-    //Sync status filter with legend items.
-    const statusFilter = this.controls.wrap
+    //Clear listing when controls change.
+    this.controls.wrap
         .selectAll('.control-group')
-        .filter(d => d.label === 'Status');
-    statusFilter.on('change', function() {
-        const selectedOptions = statusFilter.select('.changer').selectAll('option:checked').data(), // selected statuses
-            legendItems = chart.wrap.selectAll('.legend-item').classed('selected', false), // de-select all legend items
-            selectedLegendItems = legendItems
-                .filter(d => selectedOptions.indexOf(d.label) > -1)
-                .classed('selected', true); // sync legend items with status options
-        legendItems.each(function() {
-            const legendItem = d3.select(this), selected = legendItem.classed('selected');
-            legendItem.style({ background: selected ? 'lightgray' : 'white' });
+        .filter(control => ['dropdown', 'subsetter'].indexOf(control.type) > -1)
+        .on('change', function(d) {
+            //Clear bar highlighting.
+            chart.svg.selectAll('.bar').classed('selected', false).style({
+                'stroke-width': '1px',
+                fill: d => chart.colorScale(d.key)
+            });
+
+            //Reset listing.
+            chart.listing.wrap.selectAll('*').remove();
+            chart.wrap.select('#listing-instruction').style('display', 'block');
+
+            //Sync status filter with legend items.
+            if (d.label === 'Status') {
+                const statusFilter = d3.select(this),
+                    selectedOptions = statusFilter.selectAll('.changer option:checked').data(), // selected statuses
+                    legendItems = chart.wrap.selectAll('.legend-item').classed('selected', false), // de-select all legend items
+                    selectedLegendItems = legendItems
+                        .filter(d => selectedOptions.indexOf(d.label) > -1)
+                        .classed('selected', true); // sync legend items with status options
+
+                legendItems.each(function() {
+                    const legendItem = d3.select(this), selected = legendItem.classed('selected');
+                    legendItem.style({ background: selected ? 'lightgray' : 'white' });
+                });
+            }
         });
-    });
 
     //Add download link.
     if (this.config.exportData)
@@ -76,6 +91,12 @@ export default function onLayout() {
             this.destroy();
             queryOverview(element, settings).init(data);
         });
+
+    //Add listing instruction.
+    this.wrap
+        .append('em')
+        .attr('id', 'listing-instruction')
+        .text('Click a bar to view its underlying data.');
 
     //Display group label rather than group column name in Group by control.
     const groupByControl = this.controls.wrap
