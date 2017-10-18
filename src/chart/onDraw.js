@@ -1,5 +1,5 @@
 export default function onDraw() {
-    var chart = this;
+    const context = this;
 
     //Sort summarized data by descending total.
     this.current_data.sort(function(a, b) {
@@ -8,7 +8,7 @@ export default function onDraw() {
 
     //Sort y-domain by descending total.
     this.y_dom.sort(function(a, b) {
-        var order = chart.current_data.map(function(d) {
+        var order = context.current_data.map(function(d) {
             return d.key;
         });
         return order.indexOf(b) < order.indexOf(a)
@@ -21,7 +21,7 @@ export default function onDraw() {
     //Limit y-domain to key values in summarized data.
     this.y_dom = this.y_dom.filter(function(d, i) {
         return (
-            chart.current_data
+            context.current_data
                 .map(function(d) {
                     return d.key;
                 })
@@ -31,7 +31,7 @@ export default function onDraw() {
 
     //Limit y-domain to first [chart.config.cutoff] values.
     this.y_dom = this.y_dom.filter(function(d, i) {
-        return i >= chart.y_dom.length - chart.config.cutoff;
+        return i >= context.y_dom.length - context.config.cutoff;
     });
 
     this.y_dom = this.config.alphabetize ? this.y_dom.sort(d3.descending) : this.y_dom;

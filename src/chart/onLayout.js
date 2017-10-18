@@ -1,7 +1,7 @@
 import clone from '../util/clone';
 
 export default function onLayout() {
-    var chart = this;
+    const context = this;
 
     this.wrap.style('overflow', 'hidden');
 
@@ -13,7 +13,7 @@ export default function onLayout() {
         })
         .selectAll('input[type="radio"]');
     groupToggles.property('checked', function(d, i) {
-        return d == chart.config.cutoff;
+        return d == context.config.cutoff;
     });
     this.config.cutoff = this.config.cutoff === 'All' ? this.raw_data.length : +this.config.cutoff;
     groupToggles.on('change', function() {
@@ -22,8 +22,8 @@ export default function onLayout() {
                 return d3.select(this).property('checked');
             })
             .property('value');
-        chart.config.cutoff = value == 'All' ? chart.raw_data.length : +value;
-        chart.draw();
+        context.config.cutoff = value == 'All' ? context.raw_data.length : +value;
+        context.draw();
     });
 
     //Clear listing when controls change.
@@ -32,20 +32,20 @@ export default function onLayout() {
         .filter(control => ['dropdown', 'subsetter'].indexOf(control.type) > -1)
         .on('change', function(d) {
             //Clear bar highlighting.
-            chart.svg.selectAll('.bar').classed('selected', false).style({
+            context.svg.selectAll('.bar').classed('selected', false).style({
                 'stroke-width': '1px',
-                fill: d => chart.colorScale(d.key)
+                fill: d => context.colorScale(d.key)
             });
 
             //Reset listing.
-            chart.listing.wrap.selectAll('*').remove();
-            chart.wrap.select('#listing-instruction').style('display', 'block');
+            context.listing.wrap.selectAll('*').remove();
+            context.wrap.select('#listing-instruction').style('display', 'block');
 
             //Sync status filter with legend items.
             if (d.label === 'Status') {
                 const statusFilter = d3.select(this),
                     selectedOptions = statusFilter.selectAll('.changer option:checked').data(), // selected statuses
-                    legendItems = chart.wrap.selectAll('.legend-item').classed('selected', false), // de-select all legend items
+                    legendItems = context.wrap.selectAll('.legend-item').classed('selected', false), // de-select all legend items
                     selectedLegendItems = legendItems
                         .filter(d => selectedOptions.indexOf(d.label) > -1)
                         .classed('selected', true); // sync legend items with status options
@@ -105,11 +105,11 @@ export default function onLayout() {
         .on('change', function() {
             const label = d3.select(this).select('option:checked').text(),
                 value_col =
-                    chart.config.groups[chart.config.groups.map(d => d.label).indexOf(label)]
+                    context.config.groups[context.config.groups.map(d => d.label).indexOf(label)]
                         .value_col;
 
-            chart.config.y.column = value_col;
-            chart.config.marks[0].per = [value_col];
-            chart.draw();
+            context.config.y.column = value_col;
+            context.config.marks[0].per = [value_col];
+            context.draw();
         });
 }

@@ -100,7 +100,7 @@ var queryOverview = (function(webcharts) {
         details: null, //array of detail columns
         cutoff: 10,
         alphabetize: false,
-        exportData: false,
+        exportable: false,
 
         //webcharts settings
         x: {
@@ -319,7 +319,7 @@ var queryOverview = (function(webcharts) {
     }
 
     function onInit() {
-        var chart = this;
+        var context = this;
 
         //Define detail listing settings.
         this.listing.config.cols = this.config.details
@@ -339,14 +339,14 @@ var queryOverview = (function(webcharts) {
 
         //Define new variables.
         this.raw_data.forEach(function(d) {
-            d['Form: Field'] = d[chart.config.form_col] + ': ' + d[chart.config.field_col];
+            d['Form: Field'] = d[context.config.form_col] + ': ' + d[context.config.field_col];
         });
     }
 
     function onLayout() {
         var _this = this;
 
-        var chart = this;
+        var context = this;
 
         this.wrap.style('overflow', 'hidden');
 
@@ -358,7 +358,7 @@ var queryOverview = (function(webcharts) {
             })
             .selectAll('input[type="radio"]');
         groupToggles.property('checked', function(d, i) {
-            return d == chart.config.cutoff;
+            return d == context.config.cutoff;
         });
         this.config.cutoff = this.config.cutoff === 'All'
             ? this.raw_data.length
@@ -369,8 +369,8 @@ var queryOverview = (function(webcharts) {
                     return d3.select(this).property('checked');
                 })
                 .property('value');
-            chart.config.cutoff = value == 'All' ? chart.raw_data.length : +value;
-            chart.draw();
+            context.config.cutoff = value == 'All' ? context.raw_data.length : +value;
+            context.draw();
         });
 
         //Clear listing when controls change.
@@ -381,23 +381,23 @@ var queryOverview = (function(webcharts) {
             })
             .on('change', function(d) {
                 //Clear bar highlighting.
-                chart.svg.selectAll('.bar').classed('selected', false).style({
+                context.svg.selectAll('.bar').classed('selected', false).style({
                     'stroke-width': '1px',
                     fill: function fill(d) {
-                        return chart.colorScale(d.key);
+                        return context.colorScale(d.key);
                     }
                 });
 
                 //Reset listing.
-                chart.listing.wrap.selectAll('*').remove();
-                chart.wrap.select('#listing-instruction').style('display', 'block');
+                context.listing.wrap.selectAll('*').remove();
+                context.wrap.select('#listing-instruction').style('display', 'block');
 
                 //Sync status filter with legend items.
                 if (d.label === 'Status') {
                     var statusFilter = d3.select(this),
                         selectedOptions = statusFilter.selectAll('.changer option:checked').data(),
                         // selected statuses
-                        legendItems = chart.wrap
+                        legendItems = context.wrap
                             .selectAll('.legend-item')
                             .classed('selected', false),
                         // de-select all legend items
@@ -464,24 +464,24 @@ var queryOverview = (function(webcharts) {
             .on('change', function() {
                 var label = d3.select(this).select('option:checked').text(),
                     value_col =
-                        chart.config.groups[
-                            chart.config.groups
+                        context.config.groups[
+                            context.config.groups
                                 .map(function(d) {
                                     return d.label;
                                 })
                                 .indexOf(label)
                         ].value_col;
 
-                chart.config.y.column = value_col;
-                chart.config.marks[0].per = [value_col];
-                chart.draw();
+                context.config.y.column = value_col;
+                context.config.marks[0].per = [value_col];
+                context.draw();
             });
     }
 
     function onPreprocess() {
         var _this = this;
 
-        var chart = this;
+        var context = this;
 
         var barArrangementControl = this.controls.wrap
             .selectAll('.control-group')
@@ -525,68 +525,11 @@ var queryOverview = (function(webcharts) {
     }
 
     function onDataTransform() {
-        var chart = this;
-
-        //Attach current filtered data to download link.
-        if (this.config.exportData) {
-            var CSVarray = [];
-
-            this.filtered_data.forEach(function(d, i) {
-                //add headers to CSV array
-                if (i === 0) {
-                    var headers = Object.keys(d)
-                        .filter(function(header) {
-                            return header !== 'Form: Field';
-                        })
-                        .map(function(key) {
-                            return '"' + key.replace(/"/g, '""') + '"';
-                        });
-                    CSVarray.push(headers);
-                }
-
-                //add rows to CSV array
-                var row = Object.keys(d)
-                    .filter(function(key) {
-                        return key !== 'Form: Field';
-                    })
-                    .map(function(key) {
-                        if (typeof d[key] === 'string') d[key] = d[key].replace(/"/g, '""');
-
-                        return '"' + d[key] + '"';
-                    });
-
-                CSVarray.push(row);
-            });
-
-            //transform CSV array into CSV string
-            var CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
-                fileName = 'queries.csv',
-                link = chart.controls.wrap.select('#downloadCSV');
-
-            if (navigator.msSaveBlob) {
-                // IE 10+
-                link.style({
-                    cursor: 'pointer',
-                    'text-decoration': 'underline',
-                    color: 'blue'
-                });
-                link.on('click', function() {
-                    navigator.msSaveBlob(CSV, fileName);
-                });
-            } else {
-                // Browsers that support HTML5 download attribute
-                if (link.node().download !== undefined) {
-                    // feature detection
-                    var url = URL.createObjectURL(CSV);
-                    link.node().setAttribute('href', url);
-                    link.node().setAttribute('download', fileName);
-                }
-            }
-        }
+        var context = this;
     }
 
     function onDraw() {
-        var chart = this;
+        var context = this;
 
         //Sort summarized data by descending total.
         this.current_data.sort(function(a, b) {
@@ -595,7 +538,7 @@ var queryOverview = (function(webcharts) {
 
         //Sort y-domain by descending total.
         this.y_dom.sort(function(a, b) {
-            var order = chart.current_data.map(function(d) {
+            var order = context.current_data.map(function(d) {
                 return d.key;
             });
             return order.indexOf(b) < order.indexOf(a)
@@ -608,7 +551,7 @@ var queryOverview = (function(webcharts) {
         //Limit y-domain to key values in summarized data.
         this.y_dom = this.y_dom.filter(function(d, i) {
             return (
-                chart.current_data
+                context.current_data
                     .map(function(d) {
                         return d.key;
                     })
@@ -618,7 +561,7 @@ var queryOverview = (function(webcharts) {
 
         //Limit y-domain to first [chart.config.cutoff] values.
         this.y_dom = this.y_dom.filter(function(d, i) {
-            return i >= chart.y_dom.length - chart.config.cutoff;
+            return i >= context.y_dom.length - context.config.cutoff;
         });
 
         this.y_dom = this.config.alphabetize ? this.y_dom.sort(d3.descending) : this.y_dom;
@@ -632,27 +575,27 @@ var queryOverview = (function(webcharts) {
     function onResize() {
         var _this = this;
 
-        var chart = this;
+        var context = this;
 
         //Hide bars that aren't in first N groups.
         this.svg
             .select('g.bar-supergroup')
             .selectAll('g.bar-group')
             .attr('display', function(d, i) {
-                return chart.y_dom.indexOf(d.key) > -1 ? null : 'none';
+                return context.y_dom.indexOf(d.key) > -1 ? null : 'none';
             });
 
         //Annotate # of Queries.
         this.svg.selectAll('.number-of-queries').remove();
         if (this.config.marks[0].arrange === 'stacked') {
             this.current_data.forEach(function(d) {
-                if (chart.y_dom.indexOf(d.key) > -1) {
-                    chart.svg
+                if (context.y_dom.indexOf(d.key) > -1) {
+                    context.svg
                         .append('text')
                         .classed('number-of-queries', true)
                         .attr({
-                            x: chart.x(d.total),
-                            y: chart.y(d.key) + chart.y.rangeBand() / 2,
+                            x: context.x(d.total),
+                            y: context.y(d.key) + context.y.rangeBand() / 2,
                             dx: '0.25em',
                             dy: '0.3em'
                         })
@@ -662,16 +605,16 @@ var queryOverview = (function(webcharts) {
             });
         } else {
             this.current_data.forEach(function(d) {
-                if (chart.y_dom.indexOf(d.key) > -1) {
+                if (context.y_dom.indexOf(d.key) > -1) {
                     d.values.forEach(function(di) {
-                        chart.svg
+                        context.svg
                             .append('text')
                             .classed('number-of-queries', true)
                             .attr({
-                                x: chart.x(di.values.x),
-                                y: chart.y(d.key) +
-                                    chart.y.rangeBand() *
-                                        (3 - chart.config.status_order.indexOf(di.key)) /
+                                x: context.x(di.values.x),
+                                y: context.y(d.key) +
+                                    context.y.rangeBand() *
+                                        (3 - context.config.status_order.indexOf(di.key)) /
                                         4,
                                 dx: '0.25em',
                                 dy: '1em'
@@ -720,8 +663,8 @@ var queryOverview = (function(webcharts) {
                         return d[_this.config.form_col] === yLabel;
                     })
                 );
-                chart.listing.wrap.selectAll('*').remove();
-                chart.wrap.select('listing-instruction').style('display', 'block');
+                context.listing.wrap.selectAll('*').remove();
+                context.wrap.select('listing-instruction').style('display', 'block');
             });
         }
 
@@ -735,7 +678,7 @@ var queryOverview = (function(webcharts) {
             mouseoutStyle = {
                 'stroke-width': '1px',
                 fill: function fill(d) {
-                    return chart.colorScale(d.key);
+                    return context.colorScale(d.key);
                 }
             };
         bars
@@ -757,8 +700,8 @@ var queryOverview = (function(webcharts) {
             .on('click', function(d) {
                 bars.classed('selected', false).style(mouseoutStyle);
                 d3.select(this).classed('selected', true).style(mouseoverStyle);
-                chart.listing.wrap.selectAll('*').remove();
-                chart.listing.init(d.values.raw);
+                context.listing.wrap.selectAll('*').remove();
+                context.listing.init(d.values.raw);
             });
 
         //Filter data by clicking on legend.
@@ -798,12 +741,12 @@ var queryOverview = (function(webcharts) {
                     return selectedLegendItems.indexOf(d) > -1;
                 })
                 .property('selected', true); // set selected property of status options corresponding to selected statuses to true
-            var filtered_data = chart.raw_data.filter(function(d) {
-                var filtered = selectedLegendItems.indexOf(d[chart.config.status_col]) === -1;
+            var filtered_data = context.raw_data.filter(function(d) {
+                var filtered = selectedLegendItems.indexOf(d[context.config.status_col]) === -1;
 
-                chart.filters
+                context.filters
                     .filter(function(filter) {
-                        return filter.col !== chart.config.status_col;
+                        return filter.col !== context.config.status_col;
                     })
                     .forEach(function(filter) {
                         if (filtered === false && filter.val !== 'All')
@@ -814,22 +757,22 @@ var queryOverview = (function(webcharts) {
 
                 return !filtered;
             }); // define filtered data
-            chart.filters.filter(function(filter) {
-                return filter.col === chart.config.status_col;
+            context.filters.filter(function(filter) {
+                return filter.col === context.config.status_col;
             })[0].val = selectedLegendItems; // update chart's status filter object
-            chart.draw(filtered_data);
+            context.draw(filtered_data);
 
             //Clear bar highlighting.
-            chart.svg.selectAll('.bar').classed('selected', false).style({
+            context.svg.selectAll('.bar').classed('selected', false).style({
                 'stroke-width': '1px',
                 fill: function fill(d) {
-                    return chart.colorScale(d.key);
+                    return context.colorScale(d.key);
                 }
             });
 
             //Remove listing and display listing instruction.
-            chart.listing.wrap.selectAll('*').remove();
-            chart.wrap.select('#listing-instruction').style('display', 'block');
+            context.listing.wrap.selectAll('*').remove();
+            context.wrap.select('#listing-instruction').style('display', 'block');
         });
 
         //Add y-tick-label tooltips.
@@ -870,17 +813,13 @@ var queryOverview = (function(webcharts) {
     }
 
     function onInit$1() {
-        var listing = this;
+        var context = this;
     }
 
     function onLayout$1() {
-        var listing = this;
-    }
-
-    function onDraw$1() {
         var _this = this;
 
-        var listing = this;
+        var context = this;
 
         this.chart.wrap.select('#listing-instruction').style('display', 'none');
         this.wrap
@@ -903,32 +842,31 @@ var queryOverview = (function(webcharts) {
                 });
                 _this.chart.wrap.select('#listing-instruction').style('display', 'block');
             });
+        this.table.style('width', '100%').style('display', 'table');
+    }
+
+    function onDraw$1() {
+        var context = this;
     }
 
     function onDestroy$1() {
-        var listing = this;
+        var context = this;
     }
 
     //chart callbacks
     //listing callbacks
     function queryOverview$1(element, settings) {
-        //merge user's settings with defaults
-        var mergedSettings = Object.assign({}, defaultSettings, settings);
+        var mergedSettings = Object.assign({}, defaultSettings, settings),
+            syncedSettings = syncSettings(mergedSettings),
+            syncedControlInputs = syncControlInputs(controlInputs, syncedSettings),
+            controls = webcharts.createControls(element, {
+                location: 'top',
+                inputs: syncedControlInputs
+            }),
+            chart = webcharts.createChart(element, syncedSettings, controls),
+            listing = webcharts.createTable(element, { exportable: syncedSettings.exportable });
 
-        //keep settings in sync with the data mappings
-        mergedSettings = syncSettings(mergedSettings);
-        var initialSettings = clone(mergedSettings);
-
-        //keep control inputs in sync and create controls object
-        var syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
-        var controls = webcharts.createControls(element, {
-            location: 'top',
-            inputs: syncedControlInputs
-        });
-
-        //create chart
-        var chart = webcharts.createChart(element, mergedSettings, controls);
-        chart.initialSettings = initialSettings;
+        chart.initialSettings = clone(mergedSettings);
         chart.on('init', onInit);
         chart.on('layout', onLayout);
         chart.on('preprocess', onPreprocess);
@@ -936,8 +874,6 @@ var queryOverview = (function(webcharts) {
         chart.on('draw', onDraw);
         chart.on('resize', onResize);
 
-        //create listing
-        var listing = webcharts.createTable(element, {});
         listing.on('init', onInit$1);
         listing.on('layout', onLayout$1);
         listing.on('draw', onDraw$1);

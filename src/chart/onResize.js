@@ -1,22 +1,22 @@
 export default function onResize() {
-    var chart = this;
+    const context = this;
 
     //Hide bars that aren't in first N groups.
     this.svg.select('g.bar-supergroup').selectAll('g.bar-group').attr('display', function(d, i) {
-        return chart.y_dom.indexOf(d.key) > -1 ? null : 'none';
+        return context.y_dom.indexOf(d.key) > -1 ? null : 'none';
     });
 
     //Annotate # of Queries.
     this.svg.selectAll('.number-of-queries').remove();
     if (this.config.marks[0].arrange === 'stacked') {
         this.current_data.forEach(d => {
-            if (chart.y_dom.indexOf(d.key) > -1) {
-                chart.svg
+            if (context.y_dom.indexOf(d.key) > -1) {
+                context.svg
                     .append('text')
                     .classed('number-of-queries', true)
                     .attr({
-                        x: chart.x(d.total),
-                        y: chart.y(d.key) + chart.y.rangeBand() / 2,
+                        x: context.x(d.total),
+                        y: context.y(d.key) + context.y.rangeBand() / 2,
                         dx: '0.25em',
                         dy: '0.3em'
                     })
@@ -26,16 +26,16 @@ export default function onResize() {
         });
     } else {
         this.current_data.forEach(d => {
-            if (chart.y_dom.indexOf(d.key) > -1) {
+            if (context.y_dom.indexOf(d.key) > -1) {
                 d.values.forEach(di => {
-                    chart.svg
+                    context.svg
                         .append('text')
                         .classed('number-of-queries', true)
                         .attr({
-                            x: chart.x(di.values.x),
-                            y: chart.y(d.key) +
-                                chart.y.rangeBand() *
-                                    (3 - chart.config.status_order.indexOf(di.key)) /
+                            x: context.x(di.values.x),
+                            y: context.y(d.key) +
+                                context.y.rangeBand() *
+                                    (3 - context.config.status_order.indexOf(di.key)) /
                                     4,
                             dx: '0.25em',
                             dy: '1em'
@@ -70,8 +70,8 @@ export default function onResize() {
             this.filters.filter(filter => filter.col === this.config.form_col)[0].val = yLabel;
 
             this.draw(this.filtered_data.filter(d => d[this.config.form_col] === yLabel));
-            chart.listing.wrap.selectAll('*').remove();
-            chart.wrap.select('listing-instruction').style('display', 'block');
+            context.listing.wrap.selectAll('*').remove();
+            context.wrap.select('listing-instruction').style('display', 'block');
         });
     }
 
@@ -84,7 +84,7 @@ export default function onResize() {
         },
         mouseoutStyle = {
             'stroke-width': '1px',
-            fill: d => chart.colorScale(d.key)
+            fill: d => context.colorScale(d.key)
         };
     bars
         .style('cursor', 'pointer')
@@ -105,8 +105,8 @@ export default function onResize() {
         .on('click', function(d) {
             bars.classed('selected', false).style(mouseoutStyle);
             d3.select(this).classed('selected', true).style(mouseoverStyle);
-            chart.listing.wrap.selectAll('*').remove();
-            chart.listing.init(d.values.raw);
+            context.listing.wrap.selectAll('*').remove();
+            context.listing.init(d.values.raw);
         });
 
     //Filter data by clicking on legend.
@@ -138,11 +138,11 @@ export default function onResize() {
             .property('selected', false)
             .filter(d => selectedLegendItems.indexOf(d) > -1)
             .property('selected', true); // set selected property of status options corresponding to selected statuses to true
-        const filtered_data = chart.raw_data.filter(d => {
-            let filtered = selectedLegendItems.indexOf(d[chart.config.status_col]) === -1;
+        const filtered_data = context.raw_data.filter(d => {
+            let filtered = selectedLegendItems.indexOf(d[context.config.status_col]) === -1;
 
-            chart.filters
-                .filter(filter => filter.col !== chart.config.status_col)
+            context.filters
+                .filter(filter => filter.col !== context.config.status_col)
                 .forEach(filter => {
                     if (filtered === false && filter.val !== 'All')
                         filtered = typeof filter.val === 'string'
@@ -152,20 +152,20 @@ export default function onResize() {
 
             return !filtered;
         }); // define filtered data
-        chart.filters.filter(filter => filter.col === chart.config.status_col)[
-            0
-        ].val = selectedLegendItems; // update chart's status filter object
-        chart.draw(filtered_data);
+        context.filters.filter(
+            filter => filter.col === context.config.status_col
+        )[0].val = selectedLegendItems; // update chart's status filter object
+        context.draw(filtered_data);
 
         //Clear bar highlighting.
-        chart.svg.selectAll('.bar').classed('selected', false).style({
+        context.svg.selectAll('.bar').classed('selected', false).style({
             'stroke-width': '1px',
-            fill: d => chart.colorScale(d.key)
+            fill: d => context.colorScale(d.key)
         });
 
         //Remove listing and display listing instruction.
-        chart.listing.wrap.selectAll('*').remove();
-        chart.wrap.select('#listing-instruction').style('display', 'block');
+        context.listing.wrap.selectAll('*').remove();
+        context.wrap.select('#listing-instruction').style('display', 'block');
     });
 
     //Add y-tick-label tooltips.

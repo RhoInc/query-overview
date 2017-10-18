@@ -1,3 +1,3 @@
 export default function onDestroy() {
-    const listing = this;
+    const context = this;
 }

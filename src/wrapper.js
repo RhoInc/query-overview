@@ -24,23 +24,17 @@ import onDrawL from './listing/onDraw';
 import onDestroyL from './listing/onDestroy';
 
 export default function queryOverview(element, settings) {
-    //merge user's settings with defaults
-    let mergedSettings = Object.assign({}, defaultSettings, settings);
+    const mergedSettings = Object.assign({}, defaultSettings, settings),
+        syncedSettings = syncSettings(mergedSettings),
+        syncedControlInputs = syncControlInputs(controlInputs, syncedSettings),
+        controls = createControls(element, {
+            location: 'top',
+            inputs: syncedControlInputs
+        }),
+        chart = createChart(element, syncedSettings, controls),
+        listing = createTable(element, { exportable: syncedSettings.exportable });
 
-    //keep settings in sync with the data mappings
-    mergedSettings = syncSettings(mergedSettings);
-    const initialSettings = clone(mergedSettings);
-
-    //keep control inputs in sync and create controls object
-    let syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
-    let controls = createControls(element, {
-        location: 'top',
-        inputs: syncedControlInputs
-    });
-
-    //create chart
-    let chart = createChart(element, mergedSettings, controls);
-    chart.initialSettings = initialSettings;
+    chart.initialSettings = clone(mergedSettings);
     chart.on('init', onInit);
     chart.on('layout', onLayout);
     chart.on('preprocess', onPreprocess);
@@ -48,8 +42,6 @@ export default function queryOverview(element, settings) {
     chart.on('draw', onDraw);
     chart.on('resize', onResize);
 
-    //create listing
-    let listing = createTable(element, {});
     listing.on('init', onInitL);
     listing.on('layout', onLayoutL);
     listing.on('draw', onDrawL);
