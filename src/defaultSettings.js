@@ -15,7 +15,7 @@ export default {
     details: null, //array of detail columns
     cutoff: 10,
     alphabetize: false,
-    exportData: false,
+    exportable: false,
 
     //webcharts settings
     x: {
