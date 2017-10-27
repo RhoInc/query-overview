@@ -1,6 +1,6 @@
 {
   "name": "query-overview",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Interactive bar chart for exploration of query data from clinical trials",
   "main": "./build/queryOverview.js",
   "author": "Rho, Inc.",
@@ -10,8 +10,10 @@
     "webcharts": "~1.7"
   },
   "scripts": {
-    "format": "prettier --print-width=100 --tab-width=4 --single-quote --write \"src/**/*.js\"",
-    "build": "npm run format && rollup -c",
+    "build": "rollup -c && npm run format",
+    "format": "npm run format-src && npm run format-build",
+        "format-build": "prettier --print-width=100 --tab-width=4 --single-quote --write ./build/queryOverview.js",
+        "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"src/**/*.js\"",
     "watch": "rollup -c -w"
   },
   "devDependencies": {

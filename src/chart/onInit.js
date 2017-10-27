@@ -1,5 +1,5 @@
 export default function onInit() {
-    var chart = this;
+    const context = this;
 
     //Define detail listing settings.
     this.listing.config.cols = this.config.details
@@ -11,6 +11,6 @@ export default function onInit() {
 
     //Define new variables.
     this.raw_data.forEach(function(d) {
-        d['Form: Field'] = d[chart.config.form_col] + ': ' + d[chart.config.field_col];
+        d['Form: Field'] = d[context.config.form_col] + ': ' + d[context.config.field_col];
     });
 }

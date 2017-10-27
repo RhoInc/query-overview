@@ -1,5 +1,5 @@
 export default function onPreprocess() {
-    var chart = this;
+    const context = this;
 
     const barArrangementControl = this.controls.wrap
         .selectAll('.control-group')
