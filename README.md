@@ -1,7 +1,7 @@
 
+# Query Overview Bar Charts
 
-
-# Overview
+## Overview
 
 ![alt tag](https://user-images.githubusercontent.com/31038805/34172985-d388587a-e4c1-11e7-9ca7-0b2d24de0dbc.gif)
 **query-overview** is a JavaScript library built using **Webcharts** ([1](https://github.com/RhoInc/Webcharts), [2](https://github.com/RhoInc/webcharts-wrapper-boilerplate)) that creates an interactive bar chart showing the distribution of queries that have been issued regarding data collected in a clinical trial.
@@ -17,7 +17,7 @@ The library expects a dataset with a form, field, and status column.
 Users can specify additional columns by which to group and filter the data.
 Full details about chart configuration are [here](Configuration).
 
-# Typical Usage
+## Typical Usage
 
 Provided the input data matches the default column names the library expects, the code to initialize the chart looks like this: 
 
@@ -56,7 +56,7 @@ The chart can be configured to facilitate non-standard data formats and to alter
 
 Click [here](https://rhoinc.github.io/viz-library/examples/0013-query-overview/) to open an interactive example of query-overview.
 
-# Examples
+## Examples
 
 - [query-overview using default settings](https://rhoinc.github.io/viz-library/examples/0013-query-overview
 
