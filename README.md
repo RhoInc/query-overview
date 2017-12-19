@@ -57,9 +57,13 @@ The chart can be configured to facilitate non-standard data formats and to alter
     });
 ```
 
-Click [here](https://rhoinc.github.io/viz-library/examples/0013-query-overview/) to open an interactive example of query-overview.
+Click [here](https://rhoinc.github.io/viz-library/examples/0013-query-overview/example.html) to open an interactive example of query-overview.
 
-## Examples
+## Links
 
-- [query-overview using default settings](https://rhoinc.github.io/viz-library/examples/0013-query-overview
+- [Interactive Example](https://rhoinc.github.io/viz-library/examples/0013-query-overview/example.html)
+- [Configuration](https://github.com/RhoInc/query-overview/wiki/Configuration) 
+- [API](https://github.com/RhoInc/query-overview/wiki/API)
+- [Technical Documentation](https://github.com/RhoInc/query-overview/wiki/Technical-Documentation) 
+- [Data Guidelines](https://github.com/RhoInc/query-overview/wiki/Data-Guidelines)
 
