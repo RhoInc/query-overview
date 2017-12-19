@@ -15,10 +15,10 @@ Clicking on a bar outputs a listing of the queries themselves:
 
 ![Listing](https://github.com/RhoInc/query-overview/wiki/img/listing.PNG)
 
-Users can group, rearrange, and sort the bars and filter the data; the full functionality is described [here](https://github.com/RhoInc/query-overview/wiki/User-Requirements).
+Users can group, rearrange, and sort the bars and filter the data; the full functionality is described [here](https://github.com/RhoInc/query-overview/wiki/Technical-Documentation).
 The library expects a dataset with a form, field, and status column.
 Users can specify additional columns by which to group and filter the data.
-Full details about chart configuration are [here](Configuration).
+Full details about chart configuration are [here](https://github.com/RhoInc/query-overview/wiki/Configuration).
 
 ## Typical Usage
 
