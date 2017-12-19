@@ -7,8 +7,8 @@
 
 ## Overview
 
-**query-overview** is a JavaScript library built using **Webcharts** ([1](https://github.com/RhoInc/Webcharts), [2](https://github.com/RhoInc/webcharts-wrapper-boilerplate)) that creates an interactive bar chart showing the distribution of queries that have been issued regarding data collected in a clinical trial.
-A typical chart created with query-overview looks like this:
+Query Overview is a JavaScript library built using Webcharts ([1](https://github.com/RhoInc/Webcharts), [2](https://github.com/RhoInc/webcharts-wrapper-boilerplate)) that creates an interactive bar chart showing the distribution of queries that have been issued regarding data collected in a clinical trial.
+A typical chart created with query-overview looks like the chart pictured above. 
 
 
 Clicking on a bar outputs a listing of the queries themselves: 
