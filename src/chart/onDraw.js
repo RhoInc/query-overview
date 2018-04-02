@@ -14,8 +14,8 @@ export default function onDraw() {
         return order.indexOf(b) < order.indexOf(a)
             ? -1
             : order.indexOf(b) > order.indexOf(a)
-                  ? 1
-                  : order.indexOf(b) >= order.indexOf(a) ? 0 : NaN;
+                ? 1
+                : order.indexOf(b) >= order.indexOf(a) ? 0 : NaN;
     });
 
     //Limit y-domain to key values in summarized data.

@@ -2,9 +2,12 @@ export default function onResize() {
     const context = this;
 
     //Hide bars that aren't in first N groups.
-    this.svg.select('g.bar-supergroup').selectAll('g.bar-group').attr('display', function(d, i) {
-        return context.y_dom.indexOf(d.key) > -1 ? null : 'none';
-    });
+    this.svg
+        .select('g.bar-supergroup')
+        .selectAll('g.bar-group')
+        .attr('display', function(d, i) {
+            return context.y_dom.indexOf(d.key) > -1 ? null : 'none';
+        });
 
     //Annotate # of Queries.
     this.svg.selectAll('.number-of-queries').remove();
@@ -33,7 +36,8 @@ export default function onResize() {
                         .classed('number-of-queries', true)
                         .attr({
                             x: context.x(di.values.x),
-                            y: context.y(d.key) +
+                            y:
+                                context.y(d.key) +
                                 context.y.rangeBand() *
                                     (3 - context.config.status_order.indexOf(di.key)) /
                                     4,
@@ -104,18 +108,21 @@ export default function onResize() {
         })
         .on('click', function(d) {
             bars.classed('selected', false).style(mouseoutStyle);
-            d3.select(this).classed('selected', true).style(mouseoverStyle);
+            d3
+                .select(this)
+                .classed('selected', true)
+                .style(mouseoverStyle);
             context.listing.wrap.selectAll('*').remove();
             context.listing.init(d.values.raw);
         });
 
     //Filter data by clicking on legend.
     const legendItems = this.wrap.selectAll('.legend-item').style({
-        cursor: 'pointer',
-        'border-radius': '4px',
-        padding: '5px',
-        'padding-left': '8px'
-    }), // legend items
+            cursor: 'pointer',
+            'border-radius': '4px',
+            padding: '5px',
+            'padding-left': '8px'
+        }), // legend items
         statusOptions = this.controls.wrap
             .selectAll('.control-group')
             .filter(d => d.label === 'Status')
@@ -145,9 +152,10 @@ export default function onResize() {
                 .filter(filter => filter.col !== context.config.status_col)
                 .forEach(filter => {
                     if (filtered === false && filter.val !== 'All')
-                        filtered = typeof filter.val === 'string'
-                            ? d[filter.col] !== filter.val
-                            : filter.val.indexOf(d[filter.col]) === -1;
+                        filtered =
+                            typeof filter.val === 'string'
+                                ? d[filter.col] !== filter.val
+                                : filter.val.indexOf(d[filter.col]) === -1;
                 });
 
             return !filtered;
@@ -158,10 +166,13 @@ export default function onResize() {
         context.draw(filtered_data);
 
         //Clear bar highlighting.
-        context.svg.selectAll('.bar').classed('selected', false).style({
-            'stroke-width': '1px',
-            fill: d => context.colorScale(d.key)
-        });
+        context.svg
+            .selectAll('.bar')
+            .classed('selected', false)
+            .style({
+                'stroke-width': '1px',
+                fill: d => context.colorScale(d.key)
+            });
 
         //Remove listing and display listing instruction.
         context.listing.wrap.selectAll('*').remove();
@@ -176,7 +187,9 @@ export default function onResize() {
             .append('title')
             .text(
                 form =>
-                    `Form: ${this.raw_data.filter(d => d[this.config.form_col] === form)[0][this.config.formDescription_col] || form}`
+                    `Form: ${this.raw_data.filter(d => d[this.config.form_col] === form)[0][
+                        this.config.formDescription_col
+                    ] || form}`
             );
     if (this.config.y.column === 'Form: Field')
         this.svg
@@ -186,6 +199,9 @@ export default function onResize() {
             .append('title')
             .text(field => {
                 const datum = this.raw_data.filter(d => d['Form: Field'] === field)[0];
-                return `Form: ${datum[this.config.formDescription_col] || datum[this.config.form_col]}\nField: ${datum[this.config.fieldDescription_col] || datum[this.config.field_col]}`;
+                return `Form: ${datum[this.config.formDescription_col] ||
+                    datum[this.config.form_col]}\nField: ${datum[
+                    this.config.fieldDescription_col
+                ] || datum[this.config.field_col]}`;
             });
 }
