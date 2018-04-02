@@ -1,8 +1,6 @@
 import clone from './util/clone';
 
-export default {
-    //custom settings
-
+export const rendererSpecificSettings = {
     form_col: 'Datastr',
     formDescription_col: 'Form',
     field_col: 'Field Name',
@@ -10,14 +8,15 @@ export default {
     status_col: 'Query Status',
     status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
     site_col: 'Site Name',
-    groups: null, // array of objects with value_col/label properties
+    groups: null,
     filters: null,
-    details: null, //array of detail columns
+    details: null,
     cutoff: 10,
     alphabetize: false,
     exportable: false,
+};
 
-    //webcharts settings
+export const webchartsSettings = {
     x: {
         label: '# of Queries',
         behavior: 'flex'
@@ -49,6 +48,8 @@ export default {
     range_band: 15,
     margin: { right: '50' } // room for count annotation
 };
+
+export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 // Replicate settings in multiple places in the settings object
 export function syncSettings(settings) {
