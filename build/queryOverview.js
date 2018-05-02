@@ -210,9 +210,7 @@
         throw new Error('Unable to copy [obj]! Its type is not supported.');
     }
 
-    var defaultSettings = {
-        //custom settings
-
+    var rendererSpecificSettings = {
         form_col: 'Datastr',
         formDescription_col: 'Form',
         field_col: 'Field Name',
@@ -220,14 +218,15 @@
         status_col: 'Query Status',
         status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
         site_col: 'Site Name',
-        groups: null, // array of objects with value_col/label properties
+        groups: null,
         filters: null,
-        details: null, //array of detail columns
+        details: null,
         cutoff: 10,
         alphabetize: false,
-        exportable: false,
+        exportable: false
+    };
 
-        //webcharts settings
+    var webchartsSettings = {
         x: {
             label: '# of Queries',
             behavior: 'flex'
@@ -259,6 +258,8 @@
         range_band: 15,
         margin: { right: '50' } // room for count annotation
     };
+
+    var defaultSettings = Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
     // Replicate settings in multiple places in the settings object
     function syncSettings(settings) {
@@ -672,7 +673,9 @@
                 ? -1
                 : order.indexOf(b) > order.indexOf(a)
                     ? 1
-                    : order.indexOf(b) >= order.indexOf(a) ? 0 : NaN;
+                    : order.indexOf(b) >= order.indexOf(a)
+                        ? 0
+                        : NaN;
         });
 
         //Limit y-domain to key values in summarized data.
