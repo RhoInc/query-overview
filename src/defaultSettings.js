@@ -13,7 +13,7 @@ export const rendererSpecificSettings = {
     details: null,
     cutoff: 10,
     alphabetize: false,
-    exportable: false,
+    exportable: false
 };
 
 export const webchartsSettings = {
