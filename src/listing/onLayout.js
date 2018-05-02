@@ -14,10 +14,13 @@ export default function onLayout() {
         .text('Clear listing')
         .on('click', () => {
             this.wrap.selectAll('*').remove();
-            this.chart.svg.selectAll('.bar').classed('selected', false).style({
-                'stroke-width': '1px',
-                fill: d => this.chart.colorScale(d.key)
-            });
+            this.chart.svg
+                .selectAll('.bar')
+                .classed('selected', false)
+                .style({
+                    'stroke-width': '1px',
+                    fill: d => this.chart.colorScale(d.key)
+                });
             this.chart.wrap.select('#listing-instruction').style('display', 'block');
         });
     this.table.style('width', '100%').style('display', 'table');

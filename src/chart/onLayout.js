@@ -32,10 +32,13 @@ export default function onLayout() {
         .filter(control => ['dropdown', 'subsetter'].indexOf(control.type) > -1)
         .on('change', function(d) {
             //Clear bar highlighting.
-            context.svg.selectAll('.bar').classed('selected', false).style({
-                'stroke-width': '1px',
-                fill: d => context.colorScale(d.key)
-            });
+            context.svg
+                .selectAll('.bar')
+                .classed('selected', false)
+                .style({
+                    'stroke-width': '1px',
+                    fill: d => context.colorScale(d.key)
+                });
 
             //Reset listing.
             context.listing.wrap.selectAll('*').remove();
@@ -51,7 +54,8 @@ export default function onLayout() {
                         .classed('selected', true); // sync legend items with status options
 
                 legendItems.each(function() {
-                    const legendItem = d3.select(this), selected = legendItem.classed('selected');
+                    const legendItem = d3.select(this),
+                        selected = legendItem.classed('selected');
                     legendItem.style({ background: selected ? 'lightgray' : 'white' });
                 });
             }
@@ -103,7 +107,10 @@ export default function onLayout() {
         .selectAll('.control-group')
         .filter(d => d.label === 'Group by')
         .on('change', function() {
-            const label = d3.select(this).select('option:checked').text(),
+            const label = d3
+                    .select(this)
+                    .select('option:checked')
+                    .text(),
                 value_col =
                     context.config.groups[context.config.groups.map(d => d.label).indexOf(label)]
                         .value_col;

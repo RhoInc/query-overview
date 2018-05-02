@@ -1,9 +1,17 @@
-var queryOverview = (function(webcharts) {
+(function(global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined'
+        ? (module.exports = factory(require('webcharts')))
+        : typeof define === 'function' && define.amd
+            ? define(['webcharts'], factory)
+            : (global.queryOverview = factory(global.webCharts));
+})(this, function(webcharts) {
     'use strict';
+
     if (typeof Object.assign != 'function') {
         (function() {
             Object.assign = function(target) {
                 'use strict';
+
                 if (target === undefined || target === null) {
                     throw new TypeError('Cannot convert undefined or null to object');
                 }
@@ -37,18 +45,135 @@ var queryOverview = (function(webcharts) {
         });
     };
 
-    var _typeof = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
-        ? function(obj) {
-              return typeof obj;
-          }
-        : function(obj) {
-              return obj &&
-                  typeof Symbol === 'function' &&
-                  obj.constructor === Symbol &&
-                  obj !== Symbol.prototype
-                  ? 'symbol'
-                  : typeof obj;
-          };
+    var _typeof =
+        typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
+            ? function(obj) {
+                  return typeof obj;
+              }
+            : function(obj) {
+                  return obj &&
+                      typeof Symbol === 'function' &&
+                      obj.constructor === Symbol &&
+                      obj !== Symbol.prototype
+                      ? 'symbol'
+                      : typeof obj;
+              };
+
+    var asyncGenerator = (function() {
+        function AwaitValue(value) {
+            this.value = value;
+        }
+
+        function AsyncGenerator(gen) {
+            var front, back;
+
+            function send(key, arg) {
+                return new Promise(function(resolve, reject) {
+                    var request = {
+                        key: key,
+                        arg: arg,
+                        resolve: resolve,
+                        reject: reject,
+                        next: null
+                    };
+
+                    if (back) {
+                        back = back.next = request;
+                    } else {
+                        front = back = request;
+                        resume(key, arg);
+                    }
+                });
+            }
+
+            function resume(key, arg) {
+                try {
+                    var result = gen[key](arg);
+                    var value = result.value;
+
+                    if (value instanceof AwaitValue) {
+                        Promise.resolve(value.value).then(
+                            function(arg) {
+                                resume('next', arg);
+                            },
+                            function(arg) {
+                                resume('throw', arg);
+                            }
+                        );
+                    } else {
+                        settle(result.done ? 'return' : 'normal', result.value);
+                    }
+                } catch (err) {
+                    settle('throw', err);
+                }
+            }
+
+            function settle(type, value) {
+                switch (type) {
+                    case 'return':
+                        front.resolve({
+                            value: value,
+                            done: true
+                        });
+                        break;
+
+                    case 'throw':
+                        front.reject(value);
+                        break;
+
+                    default:
+                        front.resolve({
+                            value: value,
+                            done: false
+                        });
+                        break;
+                }
+
+                front = front.next;
+
+                if (front) {
+                    resume(front.key, front.arg);
+                } else {
+                    back = null;
+                }
+            }
+
+            this._invoke = send;
+
+            if (typeof gen.return !== 'function') {
+                this.return = undefined;
+            }
+        }
+
+        if (typeof Symbol === 'function' && Symbol.asyncIterator) {
+            AsyncGenerator.prototype[Symbol.asyncIterator] = function() {
+                return this;
+            };
+        }
+
+        AsyncGenerator.prototype.next = function(arg) {
+            return this._invoke('next', arg);
+        };
+
+        AsyncGenerator.prototype.throw = function(arg) {
+            return this._invoke('throw', arg);
+        };
+
+        AsyncGenerator.prototype.return = function(arg) {
+            return this._invoke('return', arg);
+        };
+
+        return {
+            wrap: function(fn) {
+                return function() {
+                    return new AsyncGenerator(fn.apply(this, arguments));
+                };
+            },
+            await: function(value) {
+                return new AwaitValue(value);
+            }
+        };
+    })();
 
     function clone(obj) {
         var copy = void 0;
@@ -85,9 +210,7 @@ var queryOverview = (function(webcharts) {
         throw new Error('Unable to copy [obj]! Its type is not supported.');
     }
 
-    var defaultSettings = {
-        //custom settings
-
+    var rendererSpecificSettings = {
         form_col: 'Datastr',
         formDescription_col: 'Form',
         field_col: 'Field Name',
@@ -95,14 +218,15 @@ var queryOverview = (function(webcharts) {
         status_col: 'Query Status',
         status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
         site_col: 'Site Name',
-        groups: null, // array of objects with value_col/label properties
+        groups: null,
         filters: null,
-        details: null, //array of detail columns
+        details: null,
         cutoff: 10,
         alphabetize: false,
-        exportable: false,
+        exportable: false
+    };
 
-        //webcharts settings
+    var webchartsSettings = {
         x: {
             label: '# of Queries',
             behavior: 'flex'
@@ -134,6 +258,8 @@ var queryOverview = (function(webcharts) {
         range_band: 15,
         margin: { right: '50' } // room for count annotation
     };
+
+    var defaultSettings = Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
     // Replicate settings in multiple places in the settings object
     function syncSettings(settings) {
@@ -360,9 +486,8 @@ var queryOverview = (function(webcharts) {
         groupToggles.property('checked', function(d, i) {
             return d == context.config.cutoff;
         });
-        this.config.cutoff = this.config.cutoff === 'All'
-            ? this.raw_data.length
-            : +this.config.cutoff;
+        this.config.cutoff =
+            this.config.cutoff === 'All' ? this.raw_data.length : +this.config.cutoff;
         groupToggles.on('change', function() {
             var value = groupToggles
                 .filter(function(f) {
@@ -381,12 +506,15 @@ var queryOverview = (function(webcharts) {
             })
             .on('change', function(d) {
                 //Clear bar highlighting.
-                context.svg.selectAll('.bar').classed('selected', false).style({
-                    'stroke-width': '1px',
-                    fill: function fill(d) {
-                        return context.colorScale(d.key);
-                    }
-                });
+                context.svg
+                    .selectAll('.bar')
+                    .classed('selected', false)
+                    .style({
+                        'stroke-width': '1px',
+                        fill: function fill(d) {
+                            return context.colorScale(d.key);
+                        }
+                    });
 
                 //Reset listing.
                 context.listing.wrap.selectAll('*').remove();
@@ -408,7 +536,8 @@ var queryOverview = (function(webcharts) {
                             .classed('selected', true); // sync legend items with status options
 
                     legendItems.each(function() {
-                        var legendItem = d3.select(this), selected = legendItem.classed('selected');
+                        var legendItem = d3.select(this),
+                            selected = legendItem.classed('selected');
                         legendItem.style({ background: selected ? 'lightgray' : 'white' });
                     });
                 }
@@ -462,7 +591,10 @@ var queryOverview = (function(webcharts) {
                 return d.label === 'Group by';
             })
             .on('change', function() {
-                var label = d3.select(this).select('option:checked').text(),
+                var label = d3
+                        .select(this)
+                        .select('option:checked')
+                        .text(),
                     value_col =
                         context.config.groups[
                             context.config.groups
@@ -480,8 +612,6 @@ var queryOverview = (function(webcharts) {
 
     function onPreprocess() {
         var _this = this;
-
-        var context = this;
 
         var barArrangementControl = this.controls.wrap
             .selectAll('.control-group')
@@ -524,9 +654,7 @@ var queryOverview = (function(webcharts) {
         }
     }
 
-    function onDataTransform() {
-        var context = this;
-    }
+    function onDataTransform() {}
 
     function onDraw() {
         var context = this;
@@ -544,8 +672,10 @@ var queryOverview = (function(webcharts) {
             return order.indexOf(b) < order.indexOf(a)
                 ? -1
                 : order.indexOf(b) > order.indexOf(a)
-                      ? 1
-                      : order.indexOf(b) >= order.indexOf(a) ? 0 : NaN;
+                    ? 1
+                    : order.indexOf(b) >= order.indexOf(a)
+                        ? 0
+                        : NaN;
         });
 
         //Limit y-domain to key values in summarized data.
@@ -612,7 +742,8 @@ var queryOverview = (function(webcharts) {
                             .classed('number-of-queries', true)
                             .attr({
                                 x: context.x(di.values.x),
-                                y: context.y(d.key) +
+                                y:
+                                    context.y(d.key) +
                                     context.y.rangeBand() *
                                         (3 - context.config.status_order.indexOf(di.key)) /
                                         4,
@@ -699,18 +830,21 @@ var queryOverview = (function(webcharts) {
             })
             .on('click', function(d) {
                 bars.classed('selected', false).style(mouseoutStyle);
-                d3.select(this).classed('selected', true).style(mouseoverStyle);
+                d3
+                    .select(this)
+                    .classed('selected', true)
+                    .style(mouseoverStyle);
                 context.listing.wrap.selectAll('*').remove();
                 context.listing.init(d.values.raw);
             });
 
         //Filter data by clicking on legend.
         var legendItems = this.wrap.selectAll('.legend-item').style({
-            cursor: 'pointer',
-            'border-radius': '4px',
-            padding: '5px',
-            'padding-left': '8px'
-        }),
+                cursor: 'pointer',
+                'border-radius': '4px',
+                padding: '5px',
+                'padding-left': '8px'
+            }),
             // legend items
             statusOptions = this.controls.wrap
                 .selectAll('.control-group')
@@ -750,9 +884,10 @@ var queryOverview = (function(webcharts) {
                     })
                     .forEach(function(filter) {
                         if (filtered === false && filter.val !== 'All')
-                            filtered = typeof filter.val === 'string'
-                                ? d[filter.col] !== filter.val
-                                : filter.val.indexOf(d[filter.col]) === -1;
+                            filtered =
+                                typeof filter.val === 'string'
+                                    ? d[filter.col] !== filter.val
+                                    : filter.val.indexOf(d[filter.col]) === -1;
                     });
 
                 return !filtered;
@@ -763,12 +898,15 @@ var queryOverview = (function(webcharts) {
             context.draw(filtered_data);
 
             //Clear bar highlighting.
-            context.svg.selectAll('.bar').classed('selected', false).style({
-                'stroke-width': '1px',
-                fill: function fill(d) {
-                    return context.colorScale(d.key);
-                }
-            });
+            context.svg
+                .selectAll('.bar')
+                .classed('selected', false)
+                .style({
+                    'stroke-width': '1px',
+                    fill: function fill(d) {
+                        return context.colorScale(d.key);
+                    }
+                });
 
             //Remove listing and display listing instruction.
             context.listing.wrap.selectAll('*').remove();
@@ -812,14 +950,10 @@ var queryOverview = (function(webcharts) {
                 });
     }
 
-    function onInit$1() {
-        var context = this;
-    }
+    function onInit$1() {}
 
     function onLayout$1() {
         var _this = this;
-
-        var context = this;
 
         this.chart.wrap.select('#listing-instruction').style('display', 'none');
         this.wrap
@@ -834,24 +968,23 @@ var queryOverview = (function(webcharts) {
             .text('Clear listing')
             .on('click', function() {
                 _this.wrap.selectAll('*').remove();
-                _this.chart.svg.selectAll('.bar').classed('selected', false).style({
-                    'stroke-width': '1px',
-                    fill: function fill(d) {
-                        return _this.chart.colorScale(d.key);
-                    }
-                });
+                _this.chart.svg
+                    .selectAll('.bar')
+                    .classed('selected', false)
+                    .style({
+                        'stroke-width': '1px',
+                        fill: function fill(d) {
+                            return _this.chart.colorScale(d.key);
+                        }
+                    });
                 _this.chart.wrap.select('#listing-instruction').style('display', 'block');
             });
         this.table.style('width', '100%').style('display', 'table');
     }
 
-    function onDraw$1() {
-        var context = this;
-    }
+    function onDraw$1() {}
 
-    function onDestroy$1() {
-        var context = this;
-    }
+    function onDestroy$1() {}
 
     //chart callbacks
     //listing callbacks
@@ -886,4 +1019,4 @@ var queryOverview = (function(webcharts) {
     }
 
     return queryOverview$1;
-})(webCharts);
+});
