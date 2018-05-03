@@ -50,5 +50,6 @@ export default function queryOverview(element, settings) {
     chart.listing = listing;
     listing.chart = chart;
 
+    
     return chart;
 }

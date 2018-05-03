@@ -11,7 +11,7 @@ export default function onLayout() {
             float: 'left',
             display: 'block'
         })
-        .text('Clear listing')
+        .text('Reset listing')
         .on('click', () => {
             this.wrap.selectAll('*').remove();
             this.chart.svg
@@ -21,6 +21,7 @@ export default function onLayout() {
                     'stroke-width': '1px',
                     fill: d => this.chart.colorScale(d.key)
                 });
+            context.chart.listing.init(context.chart.filtered_data);
             this.chart.wrap.select('#listing-instruction').style('display', 'block');
         });
     this.table.style('width', '100%').style('display', 'table');

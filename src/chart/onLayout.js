@@ -26,6 +26,8 @@ export default function onLayout() {
         context.draw();
     });
 
+
+
     //Clear listing when controls change.
     this.controls.wrap
         .selectAll('.control-group')
@@ -59,6 +61,7 @@ export default function onLayout() {
                     legendItem.style({ background: selected ? 'lightgray' : 'white' });
                 });
             }
+            context.listing.init(context.filtered_data);
         });
 
     //Add download link.
@@ -119,4 +122,5 @@ export default function onLayout() {
             context.config.marks[0].per = [value_col];
             context.draw();
         });
+
 }

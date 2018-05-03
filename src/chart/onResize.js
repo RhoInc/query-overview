@@ -177,6 +177,7 @@ export default function onResize() {
         //Remove listing and display listing instruction.
         context.listing.wrap.selectAll('*').remove();
         context.wrap.select('#listing-instruction').style('display', 'block');
+        context.listing.init(filtered_data);
     });
 
     //Add y-tick-label tooltips.
@@ -204,4 +205,6 @@ export default function onResize() {
                     this.config.fieldDescription_col
                 ] || datum[this.config.field_col]}`;
             });
+            console.log(context);
+
 }
