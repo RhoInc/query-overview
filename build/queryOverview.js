@@ -212,7 +212,7 @@ var rendererSpecificSettings = {
     details: null,
     cutoff: 10,
     alphabetize: false,
-    exportable: false
+    exportable: true
 };
 
 var webchartsSettings = {
