@@ -1,7 +1,6 @@
 export default function onLayout() {
     const context = this;
 
-    this.chart.wrap.select('#listing-instruction').style('display', 'none');
     this.wrap
         .insert('button', ':first-child')
         .attr('id', 'clear-listing')

@@ -26,8 +26,6 @@ export default function onLayout() {
         context.draw();
     });
 
-
-
     //Clear listing when controls change.
     this.controls.wrap
         .selectAll('.control-group')
@@ -122,5 +120,4 @@ export default function onLayout() {
             context.config.marks[0].per = [value_col];
             context.draw();
         });
-
 }

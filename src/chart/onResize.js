@@ -1,3 +1,5 @@
+import flatMap from '../util/flatMap';
+
 export default function onResize() {
     const context = this;
 
@@ -80,6 +82,7 @@ export default function onResize() {
     }
 
     //Add bar click-ability.
+
     const barGroups = this.svg.selectAll('.bar-group'),
         bars = this.svg.selectAll('.bar'),
         mouseoverStyle = {
@@ -107,13 +110,14 @@ export default function onResize() {
                 .moveToFront();
         })
         .on('click', function(d) {
-            bars.classed('selected', false).style(mouseoutStyle);
             d3
                 .select(this)
-                .classed('selected', true)
+                .classed('selected', d3.select(this).classed('selected') ? false : true)
                 .style(mouseoverStyle);
             context.listing.wrap.selectAll('*').remove();
-            context.listing.init(d.values.raw);
+            // feed listing data for all selected bars
+            context.listing.init(flatMap(d3.selectAll('rect.selected').data(), d => d.values.raw));
+            context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
         });
 
     //Filter data by clicking on legend.
@@ -205,6 +209,4 @@ export default function onResize() {
                     this.config.fieldDescription_col
                 ] || datum[this.config.field_col]}`;
             });
-            console.log(context);
-
 }

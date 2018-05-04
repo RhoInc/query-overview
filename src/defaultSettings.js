@@ -133,7 +133,8 @@ export const controlInputs = [
         type: 'subsetter',
         value_col: null, // set in syncControlInputs()
         label: 'Form',
-        description: 'filter'
+        description: 'filter',
+        multiple: true
     },
     {
         type: 'subsetter',
@@ -182,7 +183,7 @@ export function syncControlInputs(controlInputs, settings) {
     syncedControlInputs.filter(controlInput => controlInput.label === 'Form')[0].value_col =
         settings.form_col;
 
-    //Set value_col of Form filter.
+    //Set value_col of Site filter.
     syncedControlInputs.filter(controlInput => controlInput.label === 'Site')[0].value_col =
         settings.site_col;
 
