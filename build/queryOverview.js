@@ -1097,6 +1097,15 @@
             .text('Reset listing')
             .on('click', function() {
                 _this.wrap.selectAll('*').remove();
+                // revert selected bars back to regular width and start
+                _this.chart.svg.selectAll('.bar.selected').attr({
+                    width: function width(d) {
+                        return this.getBBox().width + 2.5;
+                    },
+                    x: function x(d) {
+                        return this.getBBox().x - 2.5;
+                    }
+                });
                 _this.chart.svg
                     .selectAll('.bar')
                     .classed('selected', false)

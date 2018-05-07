@@ -13,6 +13,15 @@ export default function onLayout() {
         .text('Reset listing')
         .on('click', () => {
             this.wrap.selectAll('*').remove();
+            // revert selected bars back to regular width and start
+            this.chart.svg.selectAll('.bar.selected').attr({
+                width: function(d) {
+                    return this.getBBox().width + 2.5;
+                },
+                x: function(d) {
+                    return this.getBBox().x - 2.5;
+                }
+            });
             this.chart.svg
                 .selectAll('.bar')
                 .classed('selected', false)
