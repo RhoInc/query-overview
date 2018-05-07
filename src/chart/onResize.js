@@ -85,9 +85,27 @@ export default function onResize() {
 
     const barGroups = this.svg.selectAll('.bar-group'),
         bars = this.svg.selectAll('.bar'),
+        // will subtract and add to bar to offset increase in stroke-width and prevent bars
+        // from overlapping as much when neighbors are both selected.
+        mouseoverAttrib = {
+            width: function(d) {
+                return this.getBBox().width - 2.5;
+            },
+            x: function(d) {
+                return this.getBBox().x + 2.5;
+            }
+        },
         mouseoverStyle = {
             'stroke-width': '5px',
             fill: 'black'
+        },
+        mouseoutAttrib = {
+            width: function(d) {
+                return this.getBBox().width + 2.5;
+            },
+            x: function(d) {
+                return this.getBBox().x - 2.5;
+            }
         },
         mouseoutStyle = {
             'stroke-width': '1px',
@@ -96,13 +114,14 @@ export default function onResize() {
     bars
         .style('cursor', 'pointer')
         .on('mouseover', function() {
-            d3.select(this).style(mouseoverStyle);
-
+            if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoverStyle);
+            if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoverAttrib);
             //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
             if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
         })
         .on('mouseout', function() {
             if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
+            if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoutAttrib);
             bars
                 .filter(function() {
                     return d3.select(this).classed('selected');
@@ -110,10 +129,8 @@ export default function onResize() {
                 .moveToFront();
         })
         .on('click', function(d) {
-            d3
-                .select(this)
-                .classed('selected', d3.select(this).classed('selected') ? false : true)
-                .style(mouseoverStyle);
+            // this doesn't need a style because mouseout isn't applied when the bar is selected
+            d3.select(this).classed('selected', d3.select(this).classed('selected') ? false : true);
             context.listing.wrap.selectAll('*').remove();
             // feed listing data for all selected bars
             context.listing.init(flatMap(d3.selectAll('rect.selected').data(), d => d.values.raw));
