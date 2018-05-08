@@ -135,6 +135,12 @@ export default function onResize() {
             // feed listing data for all selected bars
             context.listing.init(flatMap(d3.selectAll('rect.selected').data(), d => d.values.raw));
             context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
+            // display filtered data if no bars are selected
+            if (d3.selectAll('rect.selected')[0].length === 0) {
+                context.listing.wrap.selectAll('*').remove();
+                context.wrap.select('#listing-instruction').style('display', 'block');
+                context.listing.init(context.filtered_data);
+            }
         });
 
     //Filter data by clicking on legend.

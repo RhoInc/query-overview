@@ -13,7 +13,8 @@ export const rendererSpecificSettings = {
     details: null,
     cutoff: 10,
     alphabetize: false,
-    exportable: true
+    exportable: true,
+    nRowsPerPage: 10
 };
 
 export const webchartsSettings = {

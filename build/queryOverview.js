@@ -275,7 +275,8 @@
         details: null,
         cutoff: 10,
         alphabetize: false,
-        exportable: true
+        exportable: true,
+        nRowsPerPage: 10
     };
 
     var webchartsSettings = {
@@ -963,6 +964,12 @@
                     })
                 );
                 context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
+                // display filtered data if no bars are selected
+                if (d3.selectAll('rect.selected')[0].length === 0) {
+                    context.listing.wrap.selectAll('*').remove();
+                    context.wrap.select('#listing-instruction').style('display', 'block');
+                    context.listing.init(context.filtered_data);
+                }
             });
 
         //Filter data by clicking on legend.

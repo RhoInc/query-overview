@@ -3,7 +3,7 @@ The most straightforward way to customize query-overview is by using a configura
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each query-overview setting as of version 1.1.3.
+The sections below describe each query-overview setting as of version 1.2.0.
 
 ## settings.form_col
 `string`
@@ -168,10 +168,19 @@ sort groups on the y-axis alphanumerically; by default groups are sorted by desc
 
 allow the export of data to .csv via a button beneath the detail listing
 
-**default:** `false`
+**default:** `true`
+
+
+
+## settings.nRowsPerPage
+`number`
+
+the number of rows displayed per page.
+
+**default:** `10`
 
 # Webcharts settings
-The object below contains each Webcharts setting as of version 1.1.3.
+The object below contains each Webcharts setting as of version 1.2.0.
 
 ```
 {    x: {        label: '# of Queries',        behavior: 'flex'    },    y: {        type: 'ordinal',        column: null, // set in syncSettings()        label: 'Form',        sort: 'total-descending'    },    marks: [        {            type: 'bar',            per: [null], // set in syncSettings()            split: null, // set in syncSettings()            arrange: 'stacked',            summarizeX: 'count',            tooltip: null // set in syncSettings()        }    ],    color_by: null, // set in syncSettings()    color_dom: null, // set in syncSettings()    legend: {        location: 'top',        label: 'Query Status',        order: null // set in syncSettings()    },    range_band: 15,    margin: { right: '50' } // room for count annotation}
