@@ -133,7 +133,12 @@ export default function onResize() {
             d3.select(this).classed('selected', d3.select(this).classed('selected') ? false : true);
             context.listing.wrap.selectAll('*').remove();
             // feed listing data for all selected bars
-            context.listing.init(flatMap(d3.selectAll('rect.selected').data(), d => d.values.raw));
+            context.listing.init(
+                d3
+                    .selectAll('rect.selected')
+                    .data()
+                    .flatMap(d => d.values.raw)
+            );
             context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
             // display filtered data if no bars are selected
             if (d3.selectAll('rect.selected')[0].length === 0) {

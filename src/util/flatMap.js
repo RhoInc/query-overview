@@ -1,14 +1,5 @@
-// from http://2ality.com/2017/04/flatmap.html
+// from https://gist.github.com/samgiles/762ee337dff48623e729
 
-export default function flatMap(arr, mapFunc) {
-    const result = [];
-    for (const [index, elem] of arr.entries()) {
-        const x = mapFunc(elem, index, arr);
-        if (Array.isArray(x)) {
-            result.push(...x);
-        } else {
-            result.push(x);
-        }
-    }
-    return result;
-}
+export default (Array.prototype.flatMap = function(lambda) {
+    return Array.prototype.concat.apply([], this.map(lambda));
+});

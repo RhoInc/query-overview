@@ -175,58 +175,6 @@
         };
     })();
 
-    var slicedToArray = (function() {
-        function sliceIterator(arr, i) {
-            var _arr = [];
-            var _n = true;
-            var _d = false;
-            var _e = undefined;
-
-            try {
-                for (
-                    var _i = arr[Symbol.iterator](), _s;
-                    !(_n = (_s = _i.next()).done);
-                    _n = true
-                ) {
-                    _arr.push(_s.value);
-
-                    if (i && _arr.length === i) break;
-                }
-            } catch (err) {
-                _d = true;
-                _e = err;
-            } finally {
-                try {
-                    if (!_n && _i['return']) _i['return']();
-                } finally {
-                    if (_d) throw _e;
-                }
-            }
-
-            return _arr;
-        }
-
-        return function(arr, i) {
-            if (Array.isArray(arr)) {
-                return arr;
-            } else if (Symbol.iterator in Object(arr)) {
-                return sliceIterator(arr, i);
-            } else {
-                throw new TypeError('Invalid attempt to destructure non-iterable instance');
-            }
-        };
-    })();
-
-    var toConsumableArray = function(arr) {
-        if (Array.isArray(arr)) {
-            for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-            return arr2;
-        } else {
-            return Array.from(arr);
-        }
-    };
-
     function clone(obj) {
         var copy = void 0;
 
@@ -759,51 +707,11 @@
             this.y_dom.length;
     }
 
-    // from http://2ality.com/2017/04/flatmap.html
+    // from https://gist.github.com/samgiles/762ee337dff48623e729
 
-    function flatMap(arr, mapFunc) {
-        var result = [];
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-            for (
-                var _iterator = arr.entries()[Symbol.iterator](), _step;
-                !(_iteratorNormalCompletion = (_step = _iterator.next()).done);
-                _iteratorNormalCompletion = true
-            ) {
-                var _ref = _step.value;
-
-                var _ref2 = slicedToArray(_ref, 2);
-
-                var index = _ref2[0];
-                var elem = _ref2[1];
-
-                var x = mapFunc(elem, index, arr);
-                if (Array.isArray(x)) {
-                    result.push.apply(result, toConsumableArray(x));
-                } else {
-                    result.push(x);
-                }
-            }
-        } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
-                }
-            } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
-                }
-            }
-        }
-
-        return result;
-    }
+    Array.prototype.flatMap = function(lambda) {
+        return Array.prototype.concat.apply([], this.map(lambda));
+    };
 
     function onResize() {
         var _this = this;
@@ -959,9 +867,12 @@
                 context.listing.wrap.selectAll('*').remove();
                 // feed listing data for all selected bars
                 context.listing.init(
-                    flatMap(d3.selectAll('rect.selected').data(), function(d) {
-                        return d.values.raw;
-                    })
+                    d3
+                        .selectAll('rect.selected')
+                        .data()
+                        .flatMap(function(d) {
+                            return d.values.raw;
+                        })
                 );
                 context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
                 // display filtered data if no bars are selected
