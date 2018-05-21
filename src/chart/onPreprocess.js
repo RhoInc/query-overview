@@ -1,6 +1,17 @@
 export default function onPreprocess() {
     const context = this;
 
+    console.log(context);
+
+    this.controls.config.inputs.filter(
+        controlInput => controlInput.label === 'Status'
+    )[0].value_col =
+        context.config.marks[0].split;
+
+    this.filters[1].col = context.config.marks[0].split;
+
+    console.log(context);
+
     const barArrangementControl = this.controls.wrap
         .selectAll('.control-group')
         .filter(d => d.label === 'Bar Arrangement');
@@ -13,8 +24,9 @@ export default function onPreprocess() {
             .property('checked', true);
         barArrangementControl.selectAll('input').property('disabled', true);
     } else barArrangementControl.selectAll('input').property('disabled', false);
-
     //Change rangeBand() depending on bar arrangement.
+
+    console.log('cats');
     let max = 0;
     let test = d3
         .nest()

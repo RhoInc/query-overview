@@ -215,10 +215,15 @@
         formDescription_col: 'Form',
         field_col: 'Field Name',
         fieldDescription_col: 'Field',
-        status_col: 'Query Status',
-        status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
+        //    status_col: 'Query Age Category',
+        //    status_col: ,
+        //    status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
         site_col: 'Site Name',
         groups: null,
+        status_groups: [
+            { value_col: 'Query Age Category', label: 'Query Age' },
+            { value_col: 'Query Status', label: 'Query Status' }
+        ],
         filters: null,
         details: null,
         cutoff: 10,
@@ -253,7 +258,8 @@
         color_dom: null, // set in syncSettings()
         legend: {
             location: 'top',
-            label: 'Query Status',
+            //  label: 'Query Status',
+            label: null,
             order: null // set in syncSettings()
         },
         range_band: 15,
@@ -266,19 +272,33 @@
 
     // Replicate settings in multiple places in the settings object
     function syncSettings(settings) {
-        var syncedSettings = clone(settings),
-            groups = [
-                { value_col: settings.form_col, label: 'Form' },
-                { value_col: 'Form: Field', label: 'Form: Field' },
-                { value_col: settings.status_col, label: 'Status' },
-                { value_col: settings.site_col, label: 'Site' }
-            ];
+        var syncedSettings = clone(settings);
+
+        syncedSettings.color_by = settings.status_groups[0].value_col
+            ? settings.status_groups[0].value_col
+            : settings.status_groups[0];
+
+        var groups = [
+            { value_col: settings.form_col, label: 'Form' },
+            { value_col: 'Form: Field', label: 'Form: Field' },
+            { value_col: settings.status_groups[1].value_col, label: 'Status' },
+            { value_col: settings.site_col, label: 'Site' }
+        ];
+
+        syncedSettings.status_groups = settings.status_groups.map(function(group) {
+            return {
+                value_col: group.value_col || group,
+                label: group.label || group.value_col || group
+            };
+        });
+
+        syncedSettings.status_col = syncedSettings.color_by;
+
+        syncedSettings.marks[0].split = syncedSettings.color_by;
+        syncedSettings.marks[0].per[0] = syncedSettings.form_col;
 
         syncedSettings.y.column = syncedSettings.form_col;
-        syncedSettings.marks[0].per[0] = syncedSettings.form_col;
-        syncedSettings.marks[0].split = syncedSettings.status_col;
         syncedSettings.marks[0].tooltip = '[' + syncedSettings.status_col + '] - $x queries';
-        syncedSettings.color_by = syncedSettings.status_col;
         syncedSettings.color_dom = syncedSettings.status_order;
         syncedSettings.legend.order = syncedSettings.status_order;
 
@@ -299,6 +319,26 @@
             });
         syncedSettings.groups = groups;
 
+        //add filters for groups
+        if (syncedSettings.status_groups) {
+            syncedSettings.filters = [];
+            syncedSettings.status_groups.forEach(function(group) {
+                var value_col = group.value_col || group;
+                var label = group.label || group.value_col || filter;
+                if (
+                    syncedSettings.filters
+                        .map(function(d) {
+                            return d.value_col;
+                        })
+                        .indexOf(value_col) === -1
+                )
+                    syncedSettings.filters.push({
+                        value_col: value_col,
+                        label: label
+                    });
+            });
+        }
+
         //Add filters to group-by control.
         if (syncedSettings.filters) {
             syncedSettings.filters.forEach(function(filter) {
@@ -312,6 +352,26 @@
                         .indexOf(value_col) === -1
                 )
                     syncedSettings.groups.push({
+                        value_col: value_col,
+                        label: label
+                    });
+            });
+        }
+
+        // add filters for status groups
+
+        if (syncedSettings.filters) {
+            syncedSettings.filters.forEach(function(filter) {
+                var value_col = filter.value_col || filter;
+                var label = filter.label || filter.value_col || filter;
+                if (
+                    syncedSettings.status_groups
+                        .map(function(d) {
+                            return d.value_col;
+                        })
+                        .indexOf(value_col) === -1
+                )
+                    syncedSettings.status_groups.push({
                         value_col: value_col,
                         label: label
                     });
@@ -348,6 +408,15 @@
             label: 'Group by',
             description: 'variable toggle',
             values: [], // set in syncControlInputs
+            require: true
+        },
+        {
+            type: 'dropdown',
+            label: 'Status Group',
+            description: 'stratification',
+            options: ['marks.0.split', 'color_by', 'legend.label', 'status_col'], // will want to change tooltip too
+            start: null, // set in syncControlInputs()
+            values: [], // set in syncControlInputs()
             require: true
         },
         {
@@ -402,6 +471,27 @@
             return groupByControl.values.push(group.label);
         });
 
+        var statusControl = syncedControlInputs.filter(function(controlInput) {
+            return controlInput.label === 'Status Group';
+        })[0];
+        settings.status_groups.forEach(function(group) {
+            return statusControl.values.push(group.value_col);
+        });
+
+        //   //  Sync group control.
+        //     const groupControl = controlInputs.filter(controlInput => controlInput.label === 'Status Group')[0];
+        //     groupControl.start = settings.color_by;
+        //     settings.status_groups.filter(group => group.value_col !== 'NONE').forEach(group => {
+        //     groupControl.values.push(group.value_col);
+        // });
+
+        //Set value_col of m filter.Status
+
+        syncedControlInputs.filter(function(controlInput) {
+            return controlInput.label === 'Status';
+        })[0].value_col =
+            settings.status_col;
+
         //Set value_col of Form filter.
         syncedControlInputs.filter(function(controlInput) {
             return controlInput.label === 'Form';
@@ -429,10 +519,8 @@
         }
 
         //Set value_col of Status filter.
-        syncedControlInputs.filter(function(controlInput) {
-            return controlInput.label === 'Status';
-        })[0].value_col =
-            settings.status_col;
+        // syncedControlInputs.filter(controlInput => controlInput.label === 'Status')[0].value_col =
+        //     settings.color_by;
 
         //Add cutoff argument to Show first N groups control if not already a default value.
         var nGroupsControl = syncedControlInputs.filter(function(controlInput) {
@@ -615,10 +703,27 @@
                 context.config.marks[0].per = [value_col];
                 context.draw();
             });
+
+        // change options ins ubsetter based on status filter
+
+        //subsetter.data(legendItem).enter().append('option').text(d => d)
     }
 
     function onPreprocess() {
         var _this = this;
+
+        var context = this;
+
+        console.log(context);
+
+        this.controls.config.inputs.filter(function(controlInput) {
+            return controlInput.label === 'Status';
+        })[0].value_col =
+            context.config.marks[0].split;
+
+        this.filters[1].col = context.config.marks[0].split;
+
+        console.log(context);
 
         var barArrangementControl = this.controls.wrap
             .selectAll('.control-group')
@@ -636,8 +741,9 @@
                 .property('checked', true);
             barArrangementControl.selectAll('input').property('disabled', true);
         } else barArrangementControl.selectAll('input').property('disabled', false);
-
         //Change rangeBand() depending on bar arrangement.
+
+        console.log('cats');
         var max = 0;
         var test = d3
             .nest()
@@ -712,6 +818,156 @@
     Array.prototype.flatMap = function(lambda) {
         return Array.prototype.concat.apply([], this.map(lambda));
     };
+
+    function filter$1() {
+        var context = this;
+
+        //Sync status filter with legend items.
+        this.controls.wrap
+            .selectAll('.control-group')
+            .filter(function(control) {
+                return ['dropdown', 'subsetter'].indexOf(control.type) > -1;
+            })
+            .on('change', function(d) {
+                //grab the filter corresponding to the current status group
+                //const currentfilter = context.filters.filter(filter => filter.col == context.config.marks[0].split)
+
+                var desiredControl = context.controls.config.inputs.findIndex(function(filter) {
+                    return (
+                        filter.value_col == context.config.marks[0].split &&
+                        filter.label !== 'Status'
+                    );
+                });
+
+                var ind = context.controls.config.inputs.findIndex(function(input) {
+                    return input.label == 'Status';
+                });
+
+                console.log(desiredControl);
+
+                console.log(ind);
+                context.controls.config.inputs.splice(
+                    ind,
+                    1,
+                    context.controls.config.inputs[desiredControl]
+                );
+
+                console.log(context);
+                //Clear bar highlighting.
+                context.svg
+                    .selectAll('.bar')
+                    .classed('selected', false)
+                    .style({
+                        'stroke-width': '1px',
+                        fill: function fill(d) {
+                            return context.colorScale(d.key);
+                        }
+                    });
+
+                //Reset listing.
+                context.listing.wrap.selectAll('*').remove();
+                context.wrap.select('#listing-instruction').style('display', 'block');
+
+                //Sync status filter with legend items.
+                if (d.value_col === context.config.marks[0].split) {
+                    var statusFilter = d3.select(this),
+                        selectedOptions = statusFilter.selectAll('.changer option:checked').data(),
+                        // selected statuses
+                        _legendItems = context.wrap
+                            .selectAll('.legend-item')
+                            .classed('selected', false),
+                        // de-select all legend items
+                        selectedLegendItems = _legendItems
+                            .filter(function(d) {
+                                return selectedOptions.indexOf(d.label) > -1;
+                            })
+                            .classed('selected', true); // sync legend items with status options
+
+                    _legendItems.each(function() {
+                        var legendItem = d3.select(this),
+                            selected = legendItem.classed('selected');
+                        legendItem.style({ background: selected ? 'lightgray' : 'white' });
+                    });
+                }
+                context.listing.init(context.filtered_data);
+            });
+
+        //Filter data by clicking on legend.
+        var legendItems = this.wrap.selectAll('.legend-item').style({
+                cursor: 'pointer',
+                'border-radius': '4px',
+                padding: '5px',
+                'padding-left': '8px'
+            }),
+            // legend items
+            statusOptions = this.controls.wrap
+                .selectAll('.control-group')
+                .filter(function(d) {
+                    return d.value_col === context.config.marks[0].split;
+                })
+                .selectAll('.changer option'); // status filter options
+        legendItems.selectAll('.legend-mark-text').remove(); // don't need 'em
+        legendItems.on('click', function(d) {
+            var legendItem = d3.select(this),
+                // clicked legend item
+                selected = !legendItem.classed('selected'); // selected boolean
+            legendItem.classed('selected', selected); // toggle selected class
+            var selectedLegendItems = legendItems
+                .filter(function() {
+                    return d3.select(this).classed('selected');
+                })
+                .data()
+                .map(function(d) {
+                    return d.label;
+                }); // selected statuses
+            legendItem.style({
+                background: selected ? 'lightgray' : 'white'
+            }); // set background of legend items corresponding to selected statuses to light gray
+            statusOptions
+                .property('selected', false)
+                .filter(function(d) {
+                    return selectedLegendItems.indexOf(d) > -1;
+                })
+                .property('selected', true); // set selected property of status options corresponding to selected statuses to true
+            var filtered_data = context.raw_data.filter(function(d) {
+                var filtered = selectedLegendItems.indexOf(d[context.config.marks[0].split]) === -1;
+
+                context.filters
+                    .filter(function(filter) {
+                        return filter.col !== context.config.marks[0].split;
+                    })
+                    .forEach(function(filter) {
+                        if (filtered === false && filter.val !== 'All')
+                            filtered =
+                                typeof filter.val === 'string'
+                                    ? d[filter.col] !== filter.val
+                                    : filter.val.indexOf(d[filter.col]) === -1;
+                    });
+
+                return !filtered;
+            }); // define filtered data
+
+            context.filters.filter(function(filter) {
+                return filter.col === context.config.marks[0].split;
+            })[0].val = selectedLegendItems;
+
+            //Clear bar highlighting.
+            context.svg
+                .selectAll('.bar')
+                .classed('selected', false)
+                .style({
+                    'stroke-width': '1px',
+                    fill: function fill(d) {
+                        return context.colorScale(d.key);
+                    }
+                });
+
+            //Remove listing and display listing instruction.
+            context.listing.wrap.selectAll('*').remove();
+            context.wrap.select('#listing-instruction').style('display', 'block');
+            context.listing.init(filtered_data);
+        });
+    }
 
     function onResize() {
         var _this = this;
@@ -796,8 +1052,8 @@
                     .property('selected', function(d) {
                         return d === yLabel;
                     });
-                _this.filters.filter(function(filter) {
-                    return filter.col === _this.config.form_col;
+                _this.filters.filter(function(filter$$1) {
+                    return filter$$1.col === _this.config.form_col;
                 })[0].val = yLabel;
 
                 _this.draw(
@@ -883,81 +1139,13 @@
                 }
             });
 
-        //Filter data by clicking on legend.
-        var legendItems = this.wrap.selectAll('.legend-item').style({
-                cursor: 'pointer',
-                'border-radius': '4px',
-                padding: '5px',
-                'padding-left': '8px'
-            }),
-            // legend items
-            statusOptions = this.controls.wrap
-                .selectAll('.control-group')
-                .filter(function(d) {
-                    return d.label === 'Status';
-                })
-                .selectAll('.changer option'); // status filter options
-        legendItems.selectAll('.legend-mark-text').remove(); // don't need 'em
-        legendItems.on('click', function(d) {
-            var legendItem = d3.select(this),
-                // clicked legend item
-                selected = !legendItem.classed('selected'); // selected boolean
-            legendItem.classed('selected', selected); // toggle selected class
-            var selectedLegendItems = legendItems
-                .filter(function() {
-                    return d3.select(this).classed('selected');
-                })
-                .data()
-                .map(function(d) {
-                    return d.label;
-                }); // selected statuses
-            legendItem.style({
-                background: selected ? 'lightgray' : 'white'
-            }); // set background of legend items corresponding to selected statuses to light gray
-            statusOptions
-                .property('selected', false)
-                .filter(function(d) {
-                    return selectedLegendItems.indexOf(d) > -1;
-                })
-                .property('selected', true); // set selected property of status options corresponding to selected statuses to true
-            var filtered_data = context.raw_data.filter(function(d) {
-                var filtered = selectedLegendItems.indexOf(d[context.config.status_col]) === -1;
+        filter$1.call(this);
 
-                context.filters
-                    .filter(function(filter) {
-                        return filter.col !== context.config.status_col;
-                    })
-                    .forEach(function(filter) {
-                        if (filtered === false && filter.val !== 'All')
-                            filtered =
-                                typeof filter.val === 'string'
-                                    ? d[filter.col] !== filter.val
-                                    : filter.val.indexOf(d[filter.col]) === -1;
-                    });
-
-                return !filtered;
-            }); // define filtered data
-            context.filters.filter(function(filter) {
-                return filter.col === context.config.status_col;
-            })[0].val = selectedLegendItems; // update chart's status filter object
-            context.draw(filtered_data);
-
-            //Clear bar highlighting.
-            context.svg
-                .selectAll('.bar')
-                .classed('selected', false)
-                .style({
-                    'stroke-width': '1px',
-                    fill: function fill(d) {
-                        return context.colorScale(d.key);
-                    }
-                });
-
-            //Remove listing and display listing instruction.
-            context.listing.wrap.selectAll('*').remove();
-            context.wrap.select('#listing-instruction').style('display', 'block');
-            context.listing.init(filtered_data);
-        });
+        // bob[0].forEach(function (d, i) {
+        //   console.log(d);
+        //     d.__data__ = legendItem
+        //
+        // });
 
         //Add y-tick-label tooltips.
         if (this.config.y.column === this.config.form_col)

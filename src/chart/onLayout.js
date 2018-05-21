@@ -120,4 +120,8 @@ export default function onLayout() {
             context.config.marks[0].per = [value_col];
             context.draw();
         });
+
+    // change options ins ubsetter based on status filter
+
+    //subsetter.data(legendItem).enter().append('option').text(d => d)
 }
