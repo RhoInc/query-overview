@@ -46,8 +46,8 @@ export default function syncSettings(settings) {
 
     //filters
     const defaultFilters = [
-        { value_col: syncedSettings.form_col, label: 'Form' },
-        { value_col: syncedSettings.site_col, label: 'Site' },
+        { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
+        { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
     ];
     syncedSettings.status_groups
         .forEach(status_group => {

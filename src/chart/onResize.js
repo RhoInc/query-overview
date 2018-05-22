@@ -79,6 +79,7 @@ export default function onResize() {
             this.draw(this.filtered_data.filter(d => d[this.config.form_col] === yLabel));
             context.listing.wrap.selectAll('*').remove();
             context.wrap.select('listing-instruction').style('display', 'block');
+            context.listing.init(context.filtered_data);
         });
     }
 

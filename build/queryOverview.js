@@ -306,7 +306,7 @@ function syncSettings(settings) {
     syncedSettings.marks[0].tooltip = '[' + syncedSettings.color_by + '] - $x queries';
 
     //filters
-    var defaultFilters = [{ value_col: syncedSettings.form_col, label: 'Form' }, { value_col: syncedSettings.site_col, label: 'Site' }];
+    var defaultFilters = [{ value_col: syncedSettings.form_col, label: 'Form', multiple: true }, { value_col: syncedSettings.site_col, label: 'Site', multiple: true }];
     syncedSettings.status_groups.forEach(function (status_group) {
         status_group.multiple = true;
         defaultFilters.push(clone(status_group));
@@ -749,6 +749,7 @@ function onResize() {
             }));
             context.listing.wrap.selectAll('*').remove();
             context.wrap.select('listing-instruction').style('display', 'block');
+            context.listing.init(context.filtered_data);
         });
     }
 
