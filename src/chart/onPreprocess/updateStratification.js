@@ -7,4 +7,5 @@ export default function updateStratification() {
     this.config.colors = stratification.colors;
     this.config.legend.label = stratification.label;
     this.config.legend.order = this.config.color_dom.slice();
+    this.config.marks[0].tooltip = `[${this.config.color_by}] - $x queries`;
 }
