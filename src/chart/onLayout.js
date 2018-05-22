@@ -62,22 +62,6 @@ export default function onLayout() {
             context.listing.init(context.filtered_data);
         });
 
-    //Add download link.
-    if (this.config.exportData)
-        this.controls.wrap
-            .insert('a', ':first-child')
-            .attr('id', 'downloadCSV')
-            .style({
-                'text-decoration': 'underline',
-                color: 'blue',
-                cursor: 'pointer',
-                float: 'right',
-                margin: '5px',
-                padding: '5px',
-                clear: 'right'
-            })
-            .text('Download Query Data');
-
     //Add reset button.
     this.controls.wrap
         .insert('button', ':first-child')

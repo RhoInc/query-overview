@@ -3,8 +3,7 @@ import './util/moveToFront';
 import './util/moveToBack';
 import clone from './util/clone';
 
-import defaultSettings from './defaultSettings';
-import { controlInputs, syncControlInputs, syncSettings } from './defaultSettings';
+import configuration from './configuration/index';
 
 import { createControls, createChart, createTable } from 'webcharts';
 
@@ -24,15 +23,17 @@ import onDrawL from './listing/onDraw';
 import onDestroyL from './listing/onDestroy';
 
 export default function queryOverview(element, settings) {
-    const mergedSettings = Object.assign({}, defaultSettings, settings),
-        syncedSettings = syncSettings(mergedSettings),
-        syncedControlInputs = syncControlInputs(controlInputs, syncedSettings),
-        controls = createControls(element, {
+    const mergedSettings = Object.assign({}, configuration.settings, settings);
+    const syncedSettings = configuration.syncSettings(mergedSettings);
+    const syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs, syncedSettings);
+    const controls = createControls(
+        element,
+        {
             location: 'top',
             inputs: syncedControlInputs
-        }),
-        chart = createChart(element, syncedSettings, controls),
-        listing = createTable(element, { exportable: syncedSettings.exportable });
+        });
+    const chart = createChart(element, syncedSettings, controls);
+    const listing = createTable(element, { exportable: syncedSettings.exportable });
 
     chart.initialSettings = clone(mergedSettings);
     chart.on('init', onInit);

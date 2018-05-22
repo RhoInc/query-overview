@@ -1,5 +1,5 @@
 import flatMap from '../util/flatMap';
-import filter from './filter';
+import legendFilter from './onResize/legendFilter';
 
 export default function onResize() {
     const context = this;
@@ -149,7 +149,7 @@ export default function onResize() {
             }
         });
 
-    filter.call(this);
+    legendFilter.call(this);
 
     // bob[0].forEach(function (d, i) {
     //   console.log(d);

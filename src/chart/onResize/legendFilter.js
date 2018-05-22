@@ -1,4 +1,4 @@
-export default function filter() {
+export default function legendFilter() {
     const context = this;
 
     //Sync status filter with legend items.
@@ -58,13 +58,21 @@ export default function filter() {
         });
 
     //Filter data by clicking on legend.
+    const statusFilter = this.filters
+        .find(filter => filter.col === this.config.color_by);
+    console.log(statusFilter);
     const legendItems = this.wrap.selectAll('.legend-item').style({
             cursor: 'pointer',
             'border-radius': '4px',
             padding: '5px',
             'padding-left': '8px'
-        }), // legend items
-        statusOptions = this.controls.wrap
+        })
+        .classed('selected', d => statusFilter.val === 'All' || statusFilter.val.indexOf(d.label) > -1)
+        .style('background', d => statusFilter.val === 'All' || statusFilter.val.indexOf(d.label) > -1
+            ? 'lightgray'
+            : 'white'
+        );
+    const statusOptions = this.controls.wrap
             .selectAll('.control-group')
             .filter(d => d.value_col === context.config.marks[0].split)
             .selectAll('.changer option'); // status filter options
@@ -114,6 +122,7 @@ export default function filter() {
                 'stroke-width': '1px',
                 fill: d => context.colorScale(d.key)
             });
+        context.draw();
 
         //Remove listing and display listing instruction.
         context.listing.wrap.selectAll('*').remove();
