@@ -5,17 +5,6 @@ export default function onPreprocess() {
 
     updateStratification.call(this);
 
-    //console.log(context);
-
-    //this.controls.config.inputs.filter(
-    //    controlInput => controlInput.label === 'Status'
-    //)[0].value_col =
-    //    context.config.marks[0].split;
-
-    //this.filters[1].col = context.config.marks[0].split;
-
-    //console.log(context);
-
     const barArrangementControl = this.controls.wrap
         .selectAll('.control-group')
         .filter(d => d.label === 'Bar Arrangement');

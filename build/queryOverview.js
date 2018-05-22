@@ -486,6 +486,8 @@ function onLayout() {
         context.listing.init(context.filtered_data);
     });
 
+    //where did download link go...
+
     //Add reset button.
     this.controls.wrap.insert('button', ':first-child').attr('id', 'reset-chart').style({
         margin: '5px',
@@ -516,10 +518,6 @@ function onLayout() {
         context.config.marks[0].per = [value_col];
         context.draw();
     });
-
-    // change options ins ubsetter based on status filter
-
-    //subsetter.data(legendItem).enter().append('option').text(d => d)
 }
 
 function updateStratification() {
@@ -540,17 +538,6 @@ function onPreprocess() {
     var _this = this;
 
     updateStratification.call(this);
-
-    //console.log(context);
-
-    //this.controls.config.inputs.filter(
-    //    controlInput => controlInput.label === 'Status'
-    //)[0].value_col =
-    //    context.config.marks[0].split;
-
-    //this.filters[1].col = context.config.marks[0].split;
-
-    //console.log(context);
 
     var barArrangementControl = this.controls.wrap.selectAll('.control-group').filter(function (d) {
         return d.label === 'Bar Arrangement';
@@ -588,7 +575,6 @@ function onDataTransform() {
 
 function onDraw() {
     var context = this;
-
     //Sort summarized data by descending total.
     this.current_data.sort(function (a, b) {
         return b.total < a.total ? -1 : b.total > a.total ? 1 : b.total >= a.total ? 0 : NaN;
@@ -610,7 +596,8 @@ function onDraw() {
     });
 
     //Limit y-domain to first [chart.config.cutoff] values.
-    this.y_dom = this.y_dom.filter(function (d, i) {
+    if (context.config.cutoff !== 'All') this.y_dom = this.y_dom.filter(function (d, i) {
+
         return i >= context.y_dom.length - context.config.cutoff;
     });
 

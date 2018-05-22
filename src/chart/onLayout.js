@@ -3,6 +3,8 @@ import clone from '../util/clone';
 export default function onLayout() {
     const context = this;
 
+
+
     this.wrap.style('overflow', 'hidden');
 
     //Handle y-domain length control
@@ -62,6 +64,8 @@ export default function onLayout() {
             context.listing.init(context.filtered_data);
         });
 
+        //where did download link go...
+
     //Add reset button.
     this.controls.wrap
         .insert('button', ':first-child')
@@ -105,7 +109,4 @@ export default function onLayout() {
             context.draw();
         });
 
-    // change options ins ubsetter based on status filter
-
-    //subsetter.data(legendItem).enter().append('option').text(d => d)
 }

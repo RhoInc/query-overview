@@ -1,6 +1,5 @@
 export default function onDraw() {
     const context = this;
-
     //Sort summarized data by descending total.
     this.current_data.sort(function(a, b) {
         return b.total < a.total ? -1 : b.total > a.total ? 1 : b.total >= a.total ? 0 : NaN;
@@ -30,9 +29,12 @@ export default function onDraw() {
     });
 
     //Limit y-domain to first [chart.config.cutoff] values.
+    if (context.config.cutoff !== 'All')
     this.y_dom = this.y_dom.filter(function(d, i) {
+
         return i >= context.y_dom.length - context.config.cutoff;
     });
+
 
     this.y_dom = this.config.alphabetize ? this.y_dom.sort(d3.descending) : this.y_dom;
 
