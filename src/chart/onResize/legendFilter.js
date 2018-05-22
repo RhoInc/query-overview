@@ -1,66 +1,9 @@
 export default function legendFilter() {
     const context = this;
 
-    //Sync status filter with legend items.
-    this.controls.wrap
-        .selectAll('.control-group')
-        .filter(control => ['dropdown', 'subsetter'].indexOf(control.type) > -1)
-        .on('change', function(d) {
-            //grab the filter corresponding to the current status group
-            //const currentfilter = context.filters.filter(filter => filter.col == context.config.marks[0].split)
-
-            const desiredControl = context.controls.config.inputs.findIndex(
-                filter =>
-                    filter.value_col == context.config.marks[0].split && filter.label !== 'Status'
-            );
-
-            const ind = context.controls.config.inputs.findIndex(input => input.label == 'Status');
-
-            console.log(desiredControl);
-
-            console.log(ind);
-            context.controls.config.inputs.splice(
-                ind,
-                1,
-                context.controls.config.inputs[desiredControl]
-            );
-
-            console.log(context);
-            //Clear bar highlighting.
-            context.svg
-                .selectAll('.bar')
-                .classed('selected', false)
-                .style({
-                    'stroke-width': '1px',
-                    fill: d => context.colorScale(d.key)
-                });
-
-            //Reset listing.
-            context.listing.wrap.selectAll('*').remove();
-            context.wrap.select('#listing-instruction').style('display', 'block');
-
-            //Sync status filter with legend items.
-            if (d.value_col === context.config.marks[0].split) {
-                const statusFilter = d3.select(this),
-                    selectedOptions = statusFilter.selectAll('.changer option:checked').data(), // selected statuses
-                    legendItems = context.wrap.selectAll('.legend-item').classed('selected', false), // de-select all legend items
-                    selectedLegendItems = legendItems
-                        .filter(d => selectedOptions.indexOf(d.label) > -1)
-                        .classed('selected', true); // sync legend items with status options
-
-                legendItems.each(function() {
-                    const legendItem = d3.select(this),
-                        selected = legendItem.classed('selected');
-                    legendItem.style({ background: selected ? 'lightgray' : 'white' });
-                });
-            }
-            context.listing.init(context.filtered_data);
-        });
-
     //Filter data by clicking on legend.
     const statusFilter = this.filters
         .find(filter => filter.col === this.config.color_by);
-    console.log(statusFilter);
     const legendItems = this.wrap.selectAll('.legend-item').style({
             cursor: 'pointer',
             'border-radius': '4px',

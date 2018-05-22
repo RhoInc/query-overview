@@ -151,12 +151,6 @@ export default function onResize() {
 
     legendFilter.call(this);
 
-    // bob[0].forEach(function (d, i) {
-    //   console.log(d);
-    //     d.__data__ = legendItem
-    //
-    // });
-
     //Add y-tick-label tooltips.
     if (this.config.y.column === this.config.form_col)
         this.svg

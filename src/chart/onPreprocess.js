@@ -30,7 +30,6 @@ export default function onPreprocess() {
     } else barArrangementControl.selectAll('input').property('disabled', false);
     //Change rangeBand() depending on bar arrangement.
 
-    console.log('cats');
     let max = 0;
     let test = d3
         .nest()

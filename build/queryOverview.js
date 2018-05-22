@@ -249,8 +249,8 @@ var webchartsSettings = {
         order: null // set in syncSettings()
     },
     range_band: 15,
-    margin: { right: '50' } // room for count annotation
-};
+    margin: { right: '50' // room for count annotation
+    } };
 
 function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
     var validSetting = userDefinedVariables instanceof Array && userDefinedVariables.length ? d3$1.merge([defaultVariables, userDefinedVariables.filter(function (item) {
@@ -564,7 +564,6 @@ function onPreprocess() {
     } else barArrangementControl.selectAll('input').property('disabled', false);
     //Change rangeBand() depending on bar arrangement.
 
-    console.log('cats');
     var max = 0;
     var test = d3.nest().key(function (d) {
         return d[_this.config.y.column];
@@ -632,64 +631,10 @@ function legendFilter() {
 
     var context = this;
 
-    //Sync status filter with legend items.
-    this.controls.wrap.selectAll('.control-group').filter(function (control) {
-        return ['dropdown', 'subsetter'].indexOf(control.type) > -1;
-    }).on('change', function (d) {
-        //grab the filter corresponding to the current status group
-        //const currentfilter = context.filters.filter(filter => filter.col == context.config.marks[0].split)
-
-        var desiredControl = context.controls.config.inputs.findIndex(function (filter) {
-            return filter.value_col == context.config.marks[0].split && filter.label !== 'Status';
-        });
-
-        var ind = context.controls.config.inputs.findIndex(function (input) {
-            return input.label == 'Status';
-        });
-
-        console.log(desiredControl);
-
-        console.log(ind);
-        context.controls.config.inputs.splice(ind, 1, context.controls.config.inputs[desiredControl]);
-
-        console.log(context);
-        //Clear bar highlighting.
-        context.svg.selectAll('.bar').classed('selected', false).style({
-            'stroke-width': '1px',
-            fill: function fill(d) {
-                return context.colorScale(d.key);
-            }
-        });
-
-        //Reset listing.
-        context.listing.wrap.selectAll('*').remove();
-        context.wrap.select('#listing-instruction').style('display', 'block');
-
-        //Sync status filter with legend items.
-        if (d.value_col === context.config.marks[0].split) {
-            var _statusFilter = d3.select(this),
-                selectedOptions = _statusFilter.selectAll('.changer option:checked').data(),
-                // selected statuses
-            _legendItems = context.wrap.selectAll('.legend-item').classed('selected', false),
-                // de-select all legend items
-            selectedLegendItems = _legendItems.filter(function (d) {
-                return selectedOptions.indexOf(d.label) > -1;
-            }).classed('selected', true); // sync legend items with status options
-
-            _legendItems.each(function () {
-                var legendItem = d3.select(this),
-                    selected = legendItem.classed('selected');
-                legendItem.style({ background: selected ? 'lightgray' : 'white' });
-            });
-        }
-        context.listing.init(context.filtered_data);
-    });
-
     //Filter data by clicking on legend.
     var statusFilter = this.filters.find(function (filter) {
         return filter.col === _this.config.color_by;
     });
-    console.log(statusFilter);
     var legendItems = this.wrap.selectAll('.legend-item').style({
         cursor: 'pointer',
         'border-radius': '4px',
@@ -881,12 +826,6 @@ function onResize() {
     });
 
     legendFilter.call(this);
-
-    // bob[0].forEach(function (d, i) {
-    //   console.log(d);
-    //     d.__data__ = legendItem
-    //
-    // });
 
     //Add y-tick-label tooltips.
     if (this.config.y.column === this.config.form_col) this.svg.selectAll('.y.axis .tick').filter(function (form) {
