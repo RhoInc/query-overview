@@ -18,16 +18,19 @@ export default function syncSettings(settings) {
             value_col: syncedSettings.status_col,
             label: 'Query Status',
             order: syncedSettings.status_order,
-            colors: syncedSettings.status_colors,
+            colors: syncedSettings.status_colors
         },
         {
             value_col: syncedSettings.aging_col,
             label: 'Query Age',
             order: syncedSettings.aging_order,
-            colors: syncedSettings.aging_colors,
-        },
+            colors: syncedSettings.aging_colors
+        }
     ];
-    syncedSettings.status_groups = arrayOfVariablesCheck(defaultStatusGroups, settings.status_groups);
+    syncedSettings.status_groups = arrayOfVariablesCheck(
+        defaultStatusGroups,
+        settings.status_groups
+    );
 
     //y-axis
     syncedSettings.y.column = syncedSettings.form_col;
@@ -47,13 +50,12 @@ export default function syncSettings(settings) {
     //filters
     const defaultFilters = [
         { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
-        { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
+        { value_col: syncedSettings.site_col, label: 'Site', multiple: true }
     ];
-    syncedSettings.status_groups
-        .forEach(status_group => {
-            status_group.multiple = true;
-            defaultFilters.push(clone(status_group));
-        });
+    syncedSettings.status_groups.forEach(status_group => {
+        status_group.multiple = true;
+        defaultFilters.push(clone(status_group));
+    });
     syncedSettings.filters = arrayOfVariablesCheck(defaultFilters, settings.filters);
 
     //cutoff
@@ -62,8 +64,7 @@ export default function syncSettings(settings) {
 
     //details
     syncedSettings.details = arrayOfVariablesCheck([], settings.details);
-    if (syncedSettings.details.length === 0)
-        delete syncedSettings.details;
+    if (syncedSettings.details.length === 0) delete syncedSettings.details;
 
     return syncedSettings;
 }

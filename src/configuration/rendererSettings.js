@@ -5,20 +5,10 @@ export default {
     fieldDescription_col: 'Field',
     status_col: 'Query Status',
     status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
-    status_colors: [
-        '#fb9a99',
-        '#fdbf6f',
-        '#1f78b4',
-        'gray'
-    ],
+    status_colors: ['#fb9a99', '#fdbf6f', '#1f78b4', 'gray'],
     aging_col: 'Query Age Category',
     aging_order: null,
-    aging_colors: [
-        '#fcae91',
-        '#fb6a4a',
-        '#de2d26',
-        '#a50f15',
-    ],
+    aging_colors: ['#fcae91', '#fb6a4a', '#de2d26', '#a50f15'],
     groups: null,
     status_groups: null,
     site_col: 'Site Name',

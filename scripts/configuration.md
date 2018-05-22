@@ -67,12 +67,55 @@ an array of query statuses that dictates how they are ordered in the legend and 
 
 
 
-## settings.site_col
+## settings.status_colors
+`array`
+
+an array of colors that determines the colors for query statuses
+
+**default:** 
+```
+[
+  "#fb9a99",
+  "#fdbf6f",
+  "#1f78b4",
+  "gray"
+]
+```
+
+
+
+## settings.aging_col
 `string`
 
-site variable name
+query age variable name
 
-**default:** `"Site Name"`
+**default:** `"Query Age Category"`
+
+
+
+## settings.aging_order
+`array`
+
+an array of query age categories that dictates how they are ordered in the legend and chart
+
+**default:** none
+
+
+
+## settings.aging_colors
+`array`
+
+an array of colors that determines the colors for query age categories
+
+**default:** 
+```
+[
+  "#fcae91",
+  "#fb6a4a",
+  "#de2d26",
+  "#a50f15"
+]
+```
 
 
 
@@ -96,6 +139,52 @@ Group-by Variable
 Group-by Label
 
 **default:** none
+
+
+
+## settings.status_groups
+`array`
+
+an array of Stratification variables by which to stratify the stacked bars
+
+**default:** none
+
+### settings.status_groups[].value_col
+`string`
+
+Stratification Variable
+
+**default:** none
+
+### settings.status_groups[].label
+`string`
+
+Stratification Label
+
+**default:** none
+
+### settings.status_groups[].order
+`array`
+
+Stratification Order
+
+**default:** none
+
+### settings.status_groups[].colors
+`array`
+
+Stratification Colors
+
+**default:** none
+
+
+
+## settings.site_col
+`string`
+
+site variable name
+
+**default:** `"Site Name"`
 
 
 
@@ -183,5 +272,5 @@ the number of rows displayed per page.
 The object below contains each Webcharts setting as of version 1.2.0.
 
 ```
-{    x: {        label: '# of Queries',        behavior: 'flex'    },    y: {        type: 'ordinal',        column: null, // set in syncSettings()        label: 'Form',        sort: 'total-descending'    },    marks: [        {            type: 'bar',            per: [null], // set in syncSettings()            split: null, // set in syncSettings()            arrange: 'stacked',            summarizeX: 'count',            tooltip: null // set in syncSettings()        }    ],    color_by: null, // set in syncSettings()    color_dom: null, // set in syncSettings()    legend: {        location: 'top',        //  label: 'Query Status',        label: null,        order: null // set in syncSettings()    },    range_band: 15,    margin: { right: '50' } // room for count annotation}
+{    x: {        label: '# of Queries',        behavior: 'flex'    },    y: {        type: 'ordinal',        column: null, // set in syncSettings()        label: 'Form',        sort: 'total-descending'    },    marks: [        {            type: 'bar',            per: [null], // set in syncSettings()            split: null, // set in syncSettings()            arrange: 'stacked',            summarizeX: 'count',            tooltip: null // set in syncSettings()        }    ],    color_by: null, // set in syncSettings()    color_dom: null, // set in syncSettings()    legend: {        location: 'top',        //  label: 'Query Status',        label: null,        order: null // set in syncSettings()    },    range_band: 15,    margin: { right: '50' } // room for count annotation};}
 ```

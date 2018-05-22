@@ -30,11 +30,9 @@ export default function onDraw() {
 
     //Limit y-domain to first [chart.config.cutoff] values.
     if (context.config.cutoff !== 'All')
-    this.y_dom = this.y_dom.filter(function(d, i) {
-
-        return i >= context.y_dom.length - context.config.cutoff;
-    });
-
+        this.y_dom = this.y_dom.filter(function(d, i) {
+            return i >= context.y_dom.length - context.config.cutoff;
+        });
 
     this.y_dom = this.config.alphabetize ? this.y_dom.sort(d3.descending) : this.y_dom;
 

@@ -51,11 +51,53 @@
                 "Cancelled"
             ]
         },
-        "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
+        "status_colors": {
+            "title": "Query Status Color",
+            "description": "an array of colors that determines the colors for query statuses",
+            "type": "array",
+            "items": {
+                "title": "Query Status",
+                "description": "query status value",
+                "type": "string"
+            },
+            "defaultObject": [
+                "#fb9a99",
+                "#fdbf6f",
+                "#1f78b4",
+                "gray"
+            ]
+        },
+        "aging_col": {
+            "title": "Query Age Variable",
+            "description": "query age variable name",
             "type": "string",
-            "default": "Site Name"
+            "default": "Query Age Category"
+        },
+        "aging_order": {
+            "title": "Query Age Category Order",
+            "description": "an array of query age categories that dictates how they are ordered in the legend and chart",
+            "type": "array",
+            "items": {
+                "title": "Query Age Category",
+                "description": "query age value",
+                "type": "string"
+            }
+        },
+        "aging_colors": {
+            "title": "Query Age Category Color",
+            "description": "an array of colors that determines the colors for query age categories",
+            "type": "array",
+            "items": {
+                "title": "Query Age Category",
+                "description": "query age value",
+                "type": "string"
+            },
+            "defaultObject": [
+              "#fcae91",
+              "#fb6a4a",
+              "#de2d26",
+              "#a50f15"
+            ]
         },
         "groups": {
             "title": "Group-by Variables",
@@ -74,8 +116,44 @@
                         "description": "group-by variable label",
                         "type": "string"
                     }
+                 }
+              }
+        },
+        "status_groups": {
+            "title": "Stratification Variables",
+            "description": "an array of Stratification variables by which to stratify the stacked bars",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value_col": {
+                        "title": "Stratification Variable",
+                        "description": "Stratification variable name",
+                        "type": "string"
+                    },
+                    "label": {
+                        "title": "Stratification Label",
+                        "description": "Stratification variable label",
+                        "type": "string"
+                    },
+                    "order": {
+                        "title": "Stratification Order",
+                        "description": "Stratification variable order",
+                        "type": "array"
+                    },
+                    "colors": {
+                        "title": "Stratification Colors",
+                        "description": "Stratification variable colors",
+                        "type": "array"
+                    }
                 }
             }
+        },
+        "site_col": {
+            "title": "Site Variable",
+            "description": "site variable name",
+            "type": "string",
+            "default": "Site Name"
         },
         "filters": {
             "title": "Filter Variables",

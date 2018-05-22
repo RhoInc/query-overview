@@ -3,8 +3,6 @@ import clone from '../util/clone';
 export default function onLayout() {
     const context = this;
 
-
-
     this.wrap.style('overflow', 'hidden');
 
     //Handle y-domain length control
@@ -45,26 +43,10 @@ export default function onLayout() {
             //Reset listing.
             context.listing.wrap.selectAll('*').remove();
             context.wrap.select('#listing-instruction').style('display', 'block');
-
-            //Sync status filter with legend items.
-            if (d.label === 'Status') {
-                const statusFilter = d3.select(this),
-                    selectedOptions = statusFilter.selectAll('.changer option:checked').data(), // selected statuses
-                    legendItems = context.wrap.selectAll('.legend-item').classed('selected', false), // de-select all legend items
-                    selectedLegendItems = legendItems
-                        .filter(d => selectedOptions.indexOf(d.label) > -1)
-                        .classed('selected', true); // sync legend items with status options
-
-                legendItems.each(function() {
-                    const legendItem = d3.select(this),
-                        selected = legendItem.classed('selected');
-                    legendItem.style({ background: selected ? 'lightgray' : 'white' });
-                });
-            }
             context.listing.init(context.filtered_data);
         });
 
-        //where did download link go...
+    //where did download link go...
 
     //Add reset button.
     this.controls.wrap
@@ -108,5 +90,4 @@ export default function onLayout() {
             context.config.marks[0].per = [value_col];
             context.draw();
         });
-
 }

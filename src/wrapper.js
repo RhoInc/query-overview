@@ -25,13 +25,14 @@ import onDestroyL from './listing/onDestroy';
 export default function queryOverview(element, settings) {
     const mergedSettings = Object.assign({}, configuration.settings, settings);
     const syncedSettings = configuration.syncSettings(mergedSettings);
-    const syncedControlInputs = configuration.syncControlInputs(configuration.controlInputs, syncedSettings);
-    const controls = createControls(
-        element,
-        {
-            location: 'top',
-            inputs: syncedControlInputs
-        });
+    const syncedControlInputs = configuration.syncControlInputs(
+        configuration.controlInputs,
+        syncedSettings
+    );
+    const controls = createControls(element, {
+        location: 'top',
+        inputs: syncedControlInputs
+    });
     const chart = createChart(element, syncedSettings, controls);
     const listing = createTable(element, { exportable: syncedSettings.exportable });
 

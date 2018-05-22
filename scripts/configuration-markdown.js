@@ -96,17 +96,8 @@ function setDefault(setting) {
 \------------------------------------------------------------------------------------------------*/
 
     var webchartsSettingsFlag = 0,
-        webchartsSettings = fs.readFileSync('./src/defaultSettings.js', 'utf8')
+        webchartsSettings = fs.readFileSync('./src/configuration/webchartsSettings.js', 'utf8')
             .split('\n')
-            .filter(line => {
-                if (line.indexOf('const webchartsSettings') > -1)
-                    webchartsSettingsFlag = 1;
-
-                if (webchartsSettingsFlag === 1 && /};/.test(line))
-                    webchartsSettingsFlag = 0;
-
-                return webchartsSettingsFlag;
-            });
         webchartsSettings.splice(0,1,'{\r');
         webchartsSettings.push('}');
 
