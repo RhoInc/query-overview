@@ -10,23 +10,14 @@ export default function customizeMultiSelects() {
             return Math.min(context.config.dropdown_size, this.querySelectorAll('option').length);
         })
         .style('overflow-y', function() {
-            return (
-                this.size < this.querySelectorAll('option').length
-                    ? 'scroll'
-                    : 'hidden'
-            );
+            return this.size < this.querySelectorAll('option').length ? 'scroll' : 'hidden';
         })
         .each(function(d) {
-            const filter = context.filters
-                .find(filter => filter.col === d.value_col);
+            const filter = context.filters.find(filter => filter.col === d.value_col);
             d3.select(this)
                 .selectAll('option')
-                .sort((a,b) => (
-                    d.order
-                        ? d.order.indexOf(a) - d.order.indexOf(b)
-                        : a < b
-                            ? -1
-                            : 1
-                ));
+                .sort(
+                    (a, b) => (d.order ? d.order.indexOf(a) - d.order.indexOf(b) : a < b ? -1 : 1)
+                );
         });
 }

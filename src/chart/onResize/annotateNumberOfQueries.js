@@ -29,11 +29,13 @@ export default function annotateNumberOfQueries() {
                             x: context.x(di.values.x),
                             y:
                                 context.y(d.key) +
-                                context.y.rangeBand() *
-                                    ((context.config.color_dom.length - 1) - context.config.color_dom.indexOf(di.key)) /
+                                (context.y.rangeBand() *
+                                    (context.config.color_dom.length -
+                                        1 -
+                                        context.config.color_dom.indexOf(di.key))) /
                                     context.config.color_dom.length,
                             dx: '0.25em',
-                            dy: '1em',
+                            dy: '1em'
                         })
                         .style('font-size', '80%')
                         .text(di.values.x);

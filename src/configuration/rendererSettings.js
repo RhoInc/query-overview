@@ -24,5 +24,5 @@ export default {
     cutoff: 10,
     alphabetize: false,
     exportable: true,
-    nRowsPerPage: 10,
+    nRowsPerPage: 10
 };

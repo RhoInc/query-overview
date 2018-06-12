@@ -18,14 +18,14 @@ export default function syncSettings(settings) {
             value_col: syncedSettings.age_category_col,
             label: 'Query Age Category',
             order: syncedSettings.age_category_order,
-            colors: syncedSettings.age_category_colors,
+            colors: syncedSettings.age_category_colors
         },
         {
             value_col: syncedSettings.status_col,
             label: 'Query Status',
             order: syncedSettings.status_order,
-            colors: syncedSettings.status_colors,
-        },
+            colors: syncedSettings.status_colors
+        }
     ];
     syncedSettings.status_groups = arrayOfVariablesCheck(
         defaultStatusGroups,

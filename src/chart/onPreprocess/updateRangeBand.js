@@ -12,7 +12,7 @@ export default function updateRangeBand() {
         this.config.range_band = 15;
         this.config.x.domain = [0, null];
     } else {
-        this.config.range_band = 15*this.config.color_dom.length;
+        this.config.range_band = 15 * this.config.color_dom.length;
         this.config.x.domain = [0, max];
     }
 }
