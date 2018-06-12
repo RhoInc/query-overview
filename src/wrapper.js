@@ -1,6 +1,6 @@
-import './util/object-assign';
-import './util/moveToFront';
-import './util/moveToBack';
+import './util/polyfills';
+import './util/d3-selection-moveToFront';
+import './util/d3-selection-moveToBack';
 import clone from './util/clone';
 
 import configuration from './configuration/index';

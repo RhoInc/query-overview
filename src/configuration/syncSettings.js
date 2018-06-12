@@ -15,17 +15,17 @@ export default function syncSettings(settings) {
     //status_groups
     const defaultStatusGroups = [
         {
+            value_col: syncedSettings.age_category_col,
+            label: 'Query Age Category',
+            order: syncedSettings.age_category_order,
+            colors: syncedSettings.age_category_colors,
+        },
+        {
             value_col: syncedSettings.status_col,
             label: 'Query Status',
             order: syncedSettings.status_order,
-            colors: syncedSettings.status_colors
+            colors: syncedSettings.status_colors,
         },
-        {
-            value_col: syncedSettings.aging_col,
-            label: 'Query Age',
-            order: syncedSettings.aging_order,
-            colors: syncedSettings.aging_colors
-        }
     ];
     syncedSettings.status_groups = arrayOfVariablesCheck(
         defaultStatusGroups,
@@ -37,10 +37,14 @@ export default function syncSettings(settings) {
 
     //stratification
     syncedSettings.color_by = syncedSettings.status_groups[0].value_col;
-    syncedSettings.color_dom = syncedSettings.status_groups[0].order.slice();
+    syncedSettings.color_dom = syncedSettings.status_groups[0].order
+        ? syncedSettings.status_groups[0].order.slice()
+        : null;
     syncedSettings.colors = syncedSettings.status_groups[0].colors;
     syncedSettings.legend.label = syncedSettings.status_groups[0].label;
-    syncedSettings.legend.order = syncedSettings.status_groups[0].order.slice();
+    syncedSettings.legend.order = syncedSettings.status_groups[0].order
+        ? syncedSettings.status_groups[0].order.slice()
+        : null;
 
     //mark settings
     syncedSettings.marks[0].per[0] = syncedSettings.form_col;
