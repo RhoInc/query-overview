@@ -13,4 +13,6 @@ export default function onInit() {
     this.raw_data.forEach(function(d) {
         d['Form: Field'] = d[context.config.form_col] + ': ' + d[context.config.field_col];
     });
+
+    context.listing.init(context.raw_data);
 }

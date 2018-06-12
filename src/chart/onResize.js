@@ -1,3 +1,5 @@
+import flatMap from '../util/flatMap';
+
 export default function onResize() {
     const context = this;
 
@@ -80,11 +82,30 @@ export default function onResize() {
     }
 
     //Add bar click-ability.
+
     const barGroups = this.svg.selectAll('.bar-group'),
         bars = this.svg.selectAll('.bar'),
+        // will subtract and add to bar to offset increase in stroke-width and prevent bars
+        // from overlapping as much when neighbors are both selected.
+        mouseoverAttrib = {
+            width: function(d) {
+                return this.getBBox().width - 2.5;
+            },
+            x: function(d) {
+                return this.getBBox().x + 2.5;
+            }
+        },
         mouseoverStyle = {
             'stroke-width': '5px',
             fill: 'black'
+        },
+        mouseoutAttrib = {
+            width: function(d) {
+                return this.getBBox().width + 2.5;
+            },
+            x: function(d) {
+                return this.getBBox().x - 2.5;
+            }
         },
         mouseoutStyle = {
             'stroke-width': '1px',
@@ -93,13 +114,14 @@ export default function onResize() {
     bars
         .style('cursor', 'pointer')
         .on('mouseover', function() {
-            d3.select(this).style(mouseoverStyle);
-
+            if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoverStyle);
+            if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoverAttrib);
             //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
             if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
         })
         .on('mouseout', function() {
             if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
+            if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoutAttrib);
             bars
                 .filter(function() {
                     return d3.select(this).classed('selected');
@@ -107,13 +129,23 @@ export default function onResize() {
                 .moveToFront();
         })
         .on('click', function(d) {
-            bars.classed('selected', false).style(mouseoutStyle);
-            d3
-                .select(this)
-                .classed('selected', true)
-                .style(mouseoverStyle);
+            // this doesn't need a style because mouseout isn't applied when the bar is selected
+            d3.select(this).classed('selected', d3.select(this).classed('selected') ? false : true);
             context.listing.wrap.selectAll('*').remove();
-            context.listing.init(d.values.raw);
+            // feed listing data for all selected bars
+            context.listing.init(
+                d3
+                    .selectAll('rect.selected')
+                    .data()
+                    .flatMap(d => d.values.raw)
+            );
+            context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
+            // display filtered data if no bars are selected
+            if (d3.selectAll('rect.selected')[0].length === 0) {
+                context.listing.wrap.selectAll('*').remove();
+                context.wrap.select('#listing-instruction').style('display', 'block');
+                context.listing.init(context.filtered_data);
+            }
         });
 
     //Filter data by clicking on legend.
@@ -177,6 +209,7 @@ export default function onResize() {
         //Remove listing and display listing instruction.
         context.listing.wrap.selectAll('*').remove();
         context.wrap.select('#listing-instruction').style('display', 'block');
+        context.listing.init(filtered_data);
     });
 
     //Add y-tick-label tooltips.

@@ -223,7 +223,8 @@
         details: null,
         cutoff: 10,
         alphabetize: false,
-        exportable: false
+        exportable: true,
+        nRowsPerPage: 10
     };
 
     var webchartsSettings = {
@@ -256,7 +257,9 @@
             order: null // set in syncSettings()
         },
         range_band: 15,
-        margin: { right: '50' } // room for count annotation
+        margin: {
+            right: '50' // room for count annotation
+        }
     };
 
     var defaultSettings = Object.assign({}, rendererSpecificSettings, webchartsSettings);
@@ -351,7 +354,8 @@
             type: 'subsetter',
             value_col: null, // set in syncControlInputs()
             label: 'Form',
-            description: 'filter'
+            description: 'filter',
+            multiple: true
         },
         {
             type: 'subsetter',
@@ -404,7 +408,7 @@
         })[0].value_col =
             settings.form_col;
 
-        //Set value_col of Form filter.
+        //Set value_col of Site filter.
         syncedControlInputs.filter(function(controlInput) {
             return controlInput.label === 'Site';
         })[0].value_col =
@@ -467,6 +471,8 @@
         this.raw_data.forEach(function(d) {
             d['Form: Field'] = d[context.config.form_col] + ': ' + d[context.config.field_col];
         });
+
+        context.listing.init(context.raw_data);
     }
 
     function onLayout() {
@@ -541,6 +547,7 @@
                         legendItem.style({ background: selected ? 'lightgray' : 'white' });
                     });
                 }
+                context.listing.init(context.filtered_data);
             });
 
         //Add download link.
@@ -673,9 +680,7 @@
                 ? -1
                 : order.indexOf(b) > order.indexOf(a)
                     ? 1
-                    : order.indexOf(b) >= order.indexOf(a)
-                        ? 0
-                        : NaN;
+                    : order.indexOf(b) >= order.indexOf(a) ? 0 : NaN;
         });
 
         //Limit y-domain to key values in summarized data.
@@ -701,6 +706,12 @@
             (+this.config.range_band + this.config.range_band * this.config.padding) *
             this.y_dom.length;
     }
+
+    // from https://gist.github.com/samgiles/762ee337dff48623e729
+
+    Array.prototype.flatMap = function(lambda) {
+        return Array.prototype.concat.apply([], this.map(lambda));
+    };
 
     function onResize() {
         var _this = this;
@@ -800,11 +811,30 @@
         }
 
         //Add bar click-ability.
+
         var barGroups = this.svg.selectAll('.bar-group'),
             bars = this.svg.selectAll('.bar'),
+            // will subtract and add to bar to offset increase in stroke-width and prevent bars
+            // from overlapping as much when neighbors are both selected.
+            mouseoverAttrib = {
+                width: function width(d) {
+                    return this.getBBox().width - 2.5;
+                },
+                x: function x(d) {
+                    return this.getBBox().x + 2.5;
+                }
+            },
             mouseoverStyle = {
                 'stroke-width': '5px',
                 fill: 'black'
+            },
+            mouseoutAttrib = {
+                width: function width(d) {
+                    return this.getBBox().width + 2.5;
+                },
+                x: function x(d) {
+                    return this.getBBox().x - 2.5;
+                }
             },
             mouseoutStyle = {
                 'stroke-width': '1px',
@@ -815,13 +845,14 @@
         bars
             .style('cursor', 'pointer')
             .on('mouseover', function() {
-                d3.select(this).style(mouseoverStyle);
-
+                if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoverStyle);
+                if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoverAttrib);
                 //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
                 if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
             })
             .on('mouseout', function() {
                 if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
+                if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoutAttrib);
                 bars
                     .filter(function() {
                         return d3.select(this).classed('selected');
@@ -829,13 +860,27 @@
                     .moveToFront();
             })
             .on('click', function(d) {
-                bars.classed('selected', false).style(mouseoutStyle);
+                // this doesn't need a style because mouseout isn't applied when the bar is selected
                 d3
                     .select(this)
-                    .classed('selected', true)
-                    .style(mouseoverStyle);
+                    .classed('selected', d3.select(this).classed('selected') ? false : true);
                 context.listing.wrap.selectAll('*').remove();
-                context.listing.init(d.values.raw);
+                // feed listing data for all selected bars
+                context.listing.init(
+                    d3
+                        .selectAll('rect.selected')
+                        .data()
+                        .flatMap(function(d) {
+                            return d.values.raw;
+                        })
+                );
+                context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
+                // display filtered data if no bars are selected
+                if (d3.selectAll('rect.selected')[0].length === 0) {
+                    context.listing.wrap.selectAll('*').remove();
+                    context.wrap.select('#listing-instruction').style('display', 'block');
+                    context.listing.init(context.filtered_data);
+                }
             });
 
         //Filter data by clicking on legend.
@@ -911,6 +956,7 @@
             //Remove listing and display listing instruction.
             context.listing.wrap.selectAll('*').remove();
             context.wrap.select('#listing-instruction').style('display', 'block');
+            context.listing.init(filtered_data);
         });
 
         //Add y-tick-label tooltips.
@@ -955,7 +1001,8 @@
     function onLayout$1() {
         var _this = this;
 
-        this.chart.wrap.select('#listing-instruction').style('display', 'none');
+        var context = this;
+
         this.wrap
             .insert('button', ':first-child')
             .attr('id', 'clear-listing')
@@ -965,9 +1012,18 @@
                 float: 'left',
                 display: 'block'
             })
-            .text('Clear listing')
+            .text('Reset listing')
             .on('click', function() {
                 _this.wrap.selectAll('*').remove();
+                // revert selected bars back to regular width and start
+                _this.chart.svg.selectAll('.bar.selected').attr({
+                    width: function width(d) {
+                        return this.getBBox().width + 2.5;
+                    },
+                    x: function x(d) {
+                        return this.getBBox().x - 2.5;
+                    }
+                });
                 _this.chart.svg
                     .selectAll('.bar')
                     .classed('selected', false)
@@ -977,6 +1033,7 @@
                             return _this.chart.colorScale(d.key);
                         }
                     });
+                context.chart.listing.init(context.chart.filtered_data);
                 _this.chart.wrap.select('#listing-instruction').style('display', 'block');
             });
         this.table.style('width', '100%').style('display', 'table');
@@ -986,8 +1043,6 @@
 
     function onDestroy$1() {}
 
-    //chart callbacks
-    //listing callbacks
     function queryOverview$1(element, settings) {
         var mergedSettings = Object.assign({}, defaultSettings, settings),
             syncedSettings = syncSettings(mergedSettings),

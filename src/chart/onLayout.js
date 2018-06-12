@@ -59,6 +59,7 @@ export default function onLayout() {
                     legendItem.style({ background: selected ? 'lightgray' : 'white' });
                 });
             }
+            context.listing.init(context.filtered_data);
         });
 
     //Add download link.
