@@ -1,3 +1,1 @@
-export default function onDataTransform() {
-    const context = this;
-}
+export default function onDataTransform() {}

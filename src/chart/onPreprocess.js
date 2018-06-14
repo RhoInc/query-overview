@@ -1,5 +1,11 @@
+import updateStratification from './onPreprocess/updateStratification';
+import highlightSelectedOptions from './onPreprocess/highlightSelectedOptions';
+import updateRangeBand from './onPreprocess/updateRangeBand';
+
 export default function onPreprocess() {
-    const context = this;
+    highlightSelectedOptions.call(this);
+    updateStratification.call(this);
+    updateRangeBand.call(this);
 
     const barArrangementControl = this.controls.wrap
         .selectAll('.control-group')
@@ -13,23 +19,4 @@ export default function onPreprocess() {
             .property('checked', true);
         barArrangementControl.selectAll('input').property('disabled', true);
     } else barArrangementControl.selectAll('input').property('disabled', false);
-
-    //Change rangeBand() depending on bar arrangement.
-    let max = 0;
-    let test = d3
-        .nest()
-        .key(d => d[this.config.y.column])
-        .key(d => d[this.config.color_by])
-        .rollup(d => {
-            max = Math.max(max, d.length);
-            return d.length;
-        })
-        .entries(this.raw_data);
-    if (this.config.marks[0].arrange === 'stacked') {
-        this.config.range_band = 15;
-        this.config.x.domain = [0, null];
-    } else {
-        this.config.range_band = 60;
-        this.config.x.domain = [0, max];
-    }
 }
