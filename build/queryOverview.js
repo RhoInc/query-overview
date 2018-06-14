@@ -369,9 +369,7 @@
             order: null // set in syncSettings()
         },
         range_band: 15,
-        margin: {
-            right: '50' // room for count annotation
-        }
+        margin: { right: '50' } // room for count annotation
     };
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
@@ -739,7 +737,8 @@
                 var filter = context.filters.find(function(filter) {
                     return filter.col === d.value_col;
                 });
-                d3.select(this)
+                d3
+                    .select(this)
                     .selectAll('option')
                     .sort(function(a, b) {
                         return d.order ? d.order.indexOf(a) - d.order.indexOf(b) : a < b ? -1 : 1;
@@ -882,7 +881,8 @@
                 var filter = context.filters.find(function(filter) {
                     return filter.col === d.value_col;
                 });
-                d3.select(this)
+                d3
+                    .select(this)
                     .selectAll('option')
                     .property('selected', function(di) {
                         return filter.val === 'All' || filter.val.indexOf(di) > -1;
@@ -894,7 +894,8 @@
         var _this = this;
 
         var max = 0;
-        d3.nest()
+        d3
+            .nest()
             .key(function(d) {
                 return d[_this.config.y.column];
             })
@@ -957,9 +958,7 @@
                 ? -1
                 : order.indexOf(b) > order.indexOf(a)
                     ? 1
-                    : order.indexOf(b) >= order.indexOf(a)
-                        ? 0
-                        : NaN;
+                    : order.indexOf(b) >= order.indexOf(a) ? 0 : NaN;
         });
 
         //Limit y-domain to key values in summarized data.
@@ -1217,10 +1216,10 @@
                                 x: context.x(di.values.x),
                                 y:
                                     context.y(d.key) +
-                                    (context.y.rangeBand() *
+                                    context.y.rangeBand() *
                                         (context.config.color_dom.length -
                                             1 -
-                                            context.config.color_dom.indexOf(di.key))) /
+                                            context.config.color_dom.indexOf(di.key)) /
                                         context.config.color_dom.length,
                                 dx: '0.25em',
                                 dy: '1em'
@@ -1272,7 +1271,8 @@
                 return context.colorScale(d.key);
             }
         };
-        bars.style('cursor', 'pointer')
+        bars
+            .style('cursor', 'pointer')
             .on('mouseover', function() {
                 if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoverStyle);
                 if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoverAttrib);
@@ -1282,16 +1282,17 @@
             .on('mouseout', function() {
                 if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
                 if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoutAttrib);
-                bars.filter(function() {
-                    return d3.select(this).classed('selected');
-                }).moveToFront();
+                bars
+                    .filter(function() {
+                        return d3.select(this).classed('selected');
+                    })
+                    .moveToFront();
             })
             .on('click', function(d) {
                 // this doesn't need a style because mouseout isn't applied when the bar is selected
-                d3.select(this).classed(
-                    'selected',
-                    d3.select(this).classed('selected') ? false : true
-                );
+                d3
+                    .select(this)
+                    .classed('selected', d3.select(this).classed('selected') ? false : true);
                 context.listing.wrap.selectAll('*').remove();
                 // feed listing data for all selected bars
                 context.listing.init(

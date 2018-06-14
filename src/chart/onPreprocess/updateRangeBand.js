@@ -1,6 +1,7 @@
 export default function updateRangeBand() {
     let max = 0;
-    d3.nest()
+    d3
+        .nest()
         .key(d => d[this.config.y.column])
         .key(d => d[this.config.color_by])
         .rollup(d => {

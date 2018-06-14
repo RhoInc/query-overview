@@ -31,7 +31,8 @@ export default function addBarClick() {
         'stroke-width': '1px',
         fill: d => context.colorScale(d.key)
     };
-    bars.style('cursor', 'pointer')
+    bars
+        .style('cursor', 'pointer')
         .on('mouseover', function() {
             if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoverStyle);
             if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoverAttrib);
@@ -41,9 +42,11 @@ export default function addBarClick() {
         .on('mouseout', function() {
             if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
             if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoutAttrib);
-            bars.filter(function() {
-                return d3.select(this).classed('selected');
-            }).moveToFront();
+            bars
+                .filter(function() {
+                    return d3.select(this).classed('selected');
+                })
+                .moveToFront();
         })
         .on('click', function(d) {
             // this doesn't need a style because mouseout isn't applied when the bar is selected
