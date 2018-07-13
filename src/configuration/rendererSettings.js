@@ -11,7 +11,7 @@ export default {
     age_col: 'Query Age',
     age_category_col: 'Query Age Category',
     age_category_order: null,
-    age_category_colors: ['#fcae91', '#fb6a4a', '#de2d26', '#a50f15', '#1f78b4', 'gray'],
+    age_category_colors: ['#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026', '#1f78b4', 'gray'],
 
     //query status settings
     status_col: 'Query Status',
