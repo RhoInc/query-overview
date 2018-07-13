@@ -34,7 +34,7 @@ export default function queryOverview(element, settings) {
         inputs: syncedControlInputs
     });
     const chart = createChart(element, syncedSettings, controls);
-    const listing = createTable(element, { exportable: syncedSettings.exportable });
+    const listing = createTable(element, { sortable: false, exportable: syncedSettings.exportable });
 
     chart.initialSettings = clone(mergedSettings);
     chart.on('init', onInit);

@@ -1,3 +1,5 @@
+import onClick from './onDraw/onClick';
+
 export default function onDraw() {
-    const context = this;
+    onClick.call(this);
 }

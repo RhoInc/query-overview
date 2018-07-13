@@ -8,6 +8,7 @@ export default {
     visit_col: 'Visit/Folder',
 
     //query age settings
+    age_col: 'Query Age',
     age_category_col: 'Query Age Category',
     age_category_order: null,
     age_category_colors: ['#fcae91', '#fb6a4a', '#de2d26', '#a50f15', '#1f78b4', 'gray'],
