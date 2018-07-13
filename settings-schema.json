@@ -29,6 +29,18 @@
             "type": "string",
             "default": "Field"
         },
+        "marking_group_col": {
+            "title": "Marking Group Variable",
+            "description": "query origin variable name",
+            "type": "string",
+            "default": "Query Open By: Marking Group"
+        },
+        "status_col": {
+            "title": "Visit/Folder Variable",
+            "description": "visit/folder variable name",
+            "type": "string",
+            "default": "Visit/Folder"
+        },
         "status_col": {
             "title": "Query Status Variable",
             "description": "query status variable name",
@@ -194,6 +206,12 @@
                     }
                 }
             }
+        },
+        "dropdown_size": {
+            "title": "Number of Options Display in Multi-select Dropdowns",
+            "description": "controls the maximum number of options that appear in the multi-select dropdowns before a scrollbar appears",
+            "type": "number",
+            "default": 6
         },
         "cutoff": {
             "title": "Number of Groups Displayed Initially",

@@ -4,6 +4,8 @@ export default {
     formDescription_col: 'Form',
     field_col: 'Field Name',
     fieldDescription_col: 'Field',
+    marking_group_col: 'Query Open By: Marking Group',
+    visit_col: 'Visit/Folder',
 
     //query age settings
     age_category_col: 'Query Age Category',
@@ -22,7 +24,7 @@ export default {
     details: null,
     dropdown_size: 6,
     cutoff: 10,
-    alphabetize: false,
+    alphabetize: true,
     exportable: true,
     nRowsPerPage: 10
 };

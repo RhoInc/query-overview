@@ -5,7 +5,7 @@ export default [
         label: 'Group by',
         description: 'variable toggle',
         start: null, // set in syncControlInputs()
-        values: null, // set in syncControlInputs
+        values: null, // set in syncControlInputs()
         require: true
     },
     {

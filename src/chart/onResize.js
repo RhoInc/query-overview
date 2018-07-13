@@ -1,6 +1,7 @@
 import legendFilter from './onResize/legendFilter';
 import addYAxisTickTooltips from './onResize/addYAxisTickTooltips';
 import addYAxisTickClick from './onResize/addYAxisTickClick';
+import annotateYAxisInfo from './onResize/annotateYAxisInfo';
 import hideBars from './onResize/hideBars';
 import annotateNumberOfQueries from './onResize/annotateNumberOfQueries';
 import addBarClick from './onResize/addBarClick';
@@ -14,6 +15,9 @@ export default function onResize() {
 
     //Plot data by field when viewing data by form and user clicks y-axis tick label.
     addYAxisTickClick.call(this);
+
+    //Annotate the number of hidden y-axis tick labels.
+    annotateYAxisInfo.call(this);
 
     //Hide bars that aren't in first N groups.
     hideBars.call(this);
