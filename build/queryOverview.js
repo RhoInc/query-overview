@@ -316,6 +316,8 @@
         formDescription_col: 'Form',
         field_col: 'Field Name',
         fieldDescription_col: 'Field',
+        marking_group_col: 'Query Open By: Marking Group',
+        visit_col: 'Visit/Folder',
 
         //query age settings
         age_category_col: 'Query Age Category',
@@ -334,7 +336,7 @@
         details: null,
         dropdown_size: 6,
         cutoff: 10,
-        alphabetize: false,
+        alphabetize: true,
         exportable: true,
         nRowsPerPage: 10
     };
@@ -415,7 +417,9 @@
         var defaultGroups = [
             { value_col: syncedSettings.form_col, label: 'Form' },
             { value_col: 'Form: Field', label: 'Form: Field' },
-            { value_col: syncedSettings.site_col, label: 'Site' }
+            { value_col: syncedSettings.site_col, label: 'Site' },
+            { value_col: syncedSettings.marking_group_col, label: 'Marking Group' },
+            { value_col: syncedSettings.visit_col, label: 'Visit/Folder' }
         ];
         syncedSettings.groups = arrayOfVariablesCheck(defaultGroups, settings.groups);
 
@@ -461,11 +465,13 @@
         //filters
         var defaultFilters = [
             { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
-            { value_col: syncedSettings.site_col, label: 'Site', multiple: true }
+            { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
+            { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
+            { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
         ];
-        syncedSettings.status_groups.forEach(function(status_group) {
+        syncedSettings.status_groups.reverse().forEach(function(status_group) {
             status_group.multiple = true;
-            defaultFilters.push(clone(status_group));
+            defaultFilters.unshift(clone(status_group));
         });
         syncedSettings.filters = arrayOfVariablesCheck(defaultFilters, settings.filters);
 
@@ -487,7 +493,7 @@
             label: 'Group by',
             description: 'variable toggle',
             start: null, // set in syncControlInputs()
-            values: null, // set in syncControlInputs
+            values: null, // set in syncControlInputs()
             require: true
         },
         {
@@ -553,7 +559,7 @@
             nGroupsControl.values.sort(function(a, b) {
                 return a === 'All' ? 1 : b === 'All' ? -1 : +a - +b;
             });
-        } else settings.cutoff = nGroupsControl.values[0];
+        } else settings.cutoff = settings.cutoff.toString() || nGroupsControl.values[0];
 
         return syncedControlInputs;
     }
@@ -697,20 +703,19 @@
                 return d.label === 'Group by';
             })
             .on('change', function() {
+                //Update y-axis label.
                 var label = d3
-                        .select(this)
-                        .select('option:checked')
-                        .text(),
-                    value_col =
-                        context.config.groups[
-                            context.config.groups
-                                .map(function(d) {
-                                    return d.label;
-                                })
-                                .indexOf(label)
-                        ].value_col;
+                    .select(this)
+                    .selectAll('option:checked')
+                    .text();
+                context.config.y.label = label;
 
+                //Update y-axis variable.
+                var value_col = context.config.groups.find(function(group) {
+                    return group.label === label;
+                }).value_col;
                 context.config.y.column = value_col;
+
                 context.config.marks[0].per = [value_col];
                 context.draw();
             });
@@ -724,6 +729,10 @@
             .filter(function() {
                 return this.multiple;
             })
+            .attr(
+                'title',
+                'Hold the CTRL key while clicking to select or deselect a single option.'
+            )
             .property('size', function() {
                 return Math.min(
                     context.config.dropdown_size,
@@ -941,6 +950,21 @@
 
     function onDataTransform() {}
 
+    function setLeftMargin() {
+        var fontSize = parseInt(this.wrap.style('font-size'));
+        this.config.margin.left =
+            Math.max(
+                7,
+                d3.max(this.y_dom, function(d) {
+                    return d.length;
+                })
+            ) *
+                fontSize *
+                0.5 +
+            fontSize * 1.5 * 1.5 +
+            6;
+    }
+
     function setYDomain() {
         var _this = this;
 
@@ -976,10 +1000,12 @@
         this.y_dom = this.config.alphabetize ? this.y_dom.sort(d3.descending) : this.y_dom;
 
         //Limit y-domain to first [chart.config.cutoff] values.
-        if (this.config.cutoff !== 'All')
+        if (this.config.cutoff !== 'All') {
+            this.y_dom_length = this.y_dom.length;
             this.y_dom = this.y_dom.filter(function(d, i) {
                 return i >= _this.y_dom.length - _this.config.cutoff;
             });
+        }
     }
 
     function setChartHeight() {
@@ -990,6 +1016,7 @@
     }
 
     function onDraw() {
+        setLeftMargin.call(this);
         setYDomain.call(this);
         setChartHeight.call(this);
     }
@@ -1174,6 +1201,49 @@
         }
     }
 
+    function annotateYAxisInfo() {
+        var _this = this;
+
+        this.svg.select('#y-axis-info').remove();
+
+        if (this.y_dom.length < this.y_dom_length) {
+            this.svg
+                .append('text')
+                .attr({
+                    id: 'y-axis-info',
+                    x: 0,
+                    dx: -10,
+                    y: this.plot_height,
+                    dy: 15,
+                    'text-anchor': 'end'
+                })
+                .style('cursor', 'help')
+                .text('and ' + (this.y_dom_length - this.y_dom.length) + ' more')
+                .on('mouseover', function() {
+                    _this.controls.wrap
+                        .selectAll('.control-group')
+                        .filter(function(d) {
+                            return d.option === 'cutoff';
+                        })
+                        .style('background', 'lightgray');
+                })
+                .on('mouseout', function() {
+                    _this.controls.wrap
+                        .selectAll('.control-group')
+                        .filter(function(d) {
+                            return d.option === 'cutoff';
+                        })
+                        .style('background', null);
+                })
+                .append('title')
+                .text(
+                    'The number of ' +
+                        this.config.y.label.toLowerCase() +
+                        's can be changed with the Show First N Groups radio buttons.'
+                );
+        }
+    }
+
     function hideBars() {
         var _this = this;
 
@@ -1322,6 +1392,9 @@
 
         //Plot data by field when viewing data by form and user clicks y-axis tick label.
         addYAxisTickClick.call(this);
+
+        //Annotate the number of hidden y-axis tick labels.
+        annotateYAxisInfo.call(this);
 
         //Hide bars that aren't in first N groups.
         hideBars.call(this);

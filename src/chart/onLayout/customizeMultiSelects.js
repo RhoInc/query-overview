@@ -6,6 +6,7 @@ export default function customizeMultiSelects() {
         .filter(function() {
             return this.multiple;
         })
+        .attr('title', 'Hold the CTRL key while clicking to select or deselect a single option.')
         .property('size', function() {
             return Math.min(context.config.dropdown_size, this.querySelectorAll('option').length);
         })

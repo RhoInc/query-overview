@@ -9,7 +9,9 @@ export default function addYAxisTickClick() {
                 .selectAll('.control-group')
                 .filter(d => d.label === 'Group by')
                 .selectAll('option')
-                .property('selected', d => d === 'Form: Field');
+                .property('selected', d => {
+                    return d === 'Form: Field';
+                });
             this.config.y.column = 'Form: Field';
             this.config.y.label = 'Form: Field';
             this.config.marks[0].per[0] = 'Form: Field';

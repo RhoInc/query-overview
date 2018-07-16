@@ -21,6 +21,8 @@ export default function setYDomain() {
     this.y_dom = this.config.alphabetize ? this.y_dom.sort(d3.descending) : this.y_dom;
 
     //Limit y-domain to first [chart.config.cutoff] values.
-    if (this.config.cutoff !== 'All')
+    if (this.config.cutoff !== 'All') {
+        this.y_dom_length = this.y_dom.length;
         this.y_dom = this.y_dom.filter((d, i) => i >= this.y_dom.length - this.config.cutoff);
+    }
 }
