@@ -323,7 +323,15 @@
         age_col: 'Query Age',
         age_category_col: 'Query Age Category',
         age_category_order: null,
-        age_category_colors: ['#fcae91', '#fb6a4a', '#de2d26', '#a50f15', '#1f78b4', 'gray'],
+        age_category_colors: [
+            '#fd8d3c',
+            '#fc4e2a',
+            '#e31a1c',
+            '#bd0026',
+            '#800026',
+            '#1f78b4',
+            'gray'
+        ],
 
         //query status settings
         status_col: 'Query Status',
@@ -596,6 +604,35 @@
 
         this.raw_data.forEach(function(d) {
             d['Form: Field'] = d[_this.config.form_col] + ': ' + d[_this.config.field_col];
+
+            //Define query age category.
+            if (!_this.config.age_category_order) {
+                var queryAge =
+                    /^ *\d+ *$/.test(d[_this.config.age_col]) &&
+                    ['Closed', 'Cancelled'].indexOf(d[_this.config.status_col]) < 0
+                        ? +d[_this.config.age_col]
+                        : NaN;
+                switch (true) {
+                    case queryAge <= 14:
+                        d['Query Age Category'] = '0-2 weeks';
+                        break;
+                    case queryAge <= 28:
+                        d['Query Age Category'] = '2-4 weeks';
+                        break;
+                    case queryAge <= 56:
+                        d['Query Age Category'] = '4-8 weeks';
+                        break;
+                    case queryAge <= 112:
+                        d['Query Age Category'] = '8-16 weeks';
+                        break;
+                    case queryAge > 112:
+                        d['Query Age Category'] = '>16 weeks';
+                        break;
+                    default:
+                        d['Query Age Category'] = d[_this.config.status_col];
+                        break;
+                }
+            }
         });
     }
 
