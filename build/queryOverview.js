@@ -320,6 +320,7 @@
         visit_col: 'Visit/Folder',
 
         //query age settings
+        age_col: 'Query Age',
         age_category_col: 'Query Age Category',
         age_category_order: null,
         age_category_colors: ['#fcae91', '#fb6a4a', '#de2d26', '#a50f15', '#1f78b4', 'gray'],
@@ -929,23 +930,6 @@
         highlightSelectedOptions.call(this);
         updateStratification.call(this);
         updateRangeBand.call(this);
-
-        var barArrangementControl = this.controls.wrap
-            .selectAll('.control-group')
-            .filter(function(d) {
-                return d.label === 'Bar Arrangement';
-            });
-        if (this.config.y.column === 'Status') {
-            this.config.marks[0].arrange = 'stacked';
-            barArrangementControl
-                .selectAll('.radio')
-                .filter(function(d) {
-                    return d === 'stacked';
-                })
-                .select('input')
-                .property('checked', true);
-            barArrangementControl.selectAll('input').property('disabled', true);
-        } else barArrangementControl.selectAll('input').property('disabled', false);
     }
 
     function onDataTransform() {}
@@ -1408,10 +1392,8 @@
 
     function onInit$1() {}
 
-    function onLayout$1() {
+    function resetListing() {
         var _this = this;
-
-        var context = this;
 
         this.wrap
             .insert('button', ':first-child')
@@ -1443,13 +1425,140 @@
                             return _this.chart.colorScale(d.key);
                         }
                     });
-                context.chart.listing.init(context.chart.filtered_data);
+                _this.chart.listing.init(_this.chart.filtered_data);
                 _this.chart.wrap.select('#listing-instruction').style('display', 'block');
             });
+    }
+
+    function onLayout$1() {
+        resetListing.call(this);
+        this.wrap.select('.sortable-container').classed('hidden', false);
         this.table.style('width', '100%').style('display', 'table');
     }
 
-    function onDraw$1() {}
+    function manualSort() {
+        var _this = this;
+
+        this.data.manually_sorted = this.data.raw.sort(function(a, b) {
+            var order = 0;
+
+            _this.sortable.order.forEach(function(item) {
+                var aCell = a[item.col];
+                var bCell = b[item.col];
+                if (item.col !== 'Query Age') {
+                    if (order === 0) {
+                        if (
+                            (item.direction === 'ascending' && aCell < bCell) ||
+                            (item.direction === 'descending' && aCell > bCell)
+                        )
+                            order = -1;
+                        else if (
+                            (item.direction === 'ascending' && aCell > bCell) ||
+                            (item.direction === 'descending' && aCell < bCell)
+                        )
+                            order = 1;
+                    }
+                } else {
+                    if (order === 0) {
+                        if (
+                            (item.direction === 'ascending' && +aCell < +bCell) ||
+                            (item.direction === 'descending' && +aCell > +bCell)
+                        )
+                            order = -1;
+                        else if (
+                            (item.direction === 'ascending' && +aCell > +bCell) ||
+                            (item.direction === 'descending' && +aCell < +bCell)
+                        )
+                            order = 1;
+                    }
+                }
+            });
+
+            return order;
+        });
+        this.draw(this.data.manually_sorted);
+    }
+
+    function onClick() {
+        var context = this;
+
+        this.thead_cells.on('click', function(d) {
+            var th = this;
+            var header = d;
+            var selection = d3.select(th);
+            var col = context.config.cols[context.config.headers.indexOf(header)];
+
+            //Check if column is already a part of current sort order.
+            var sortItem = context.sortable.order.filter(function(item) {
+                return item.col === col;
+            })[0];
+
+            //If it isn't, add it to sort order.
+            if (!sortItem) {
+                sortItem = {
+                    col: col,
+                    direction: 'ascending',
+                    wrap: context.sortable.wrap
+                        .append('div')
+                        .datum({ key: col })
+                        .classed('wc-button sort-box', true)
+                        .text(header)
+                };
+                sortItem.wrap
+                    .append('span')
+                    .classed('sort-direction', true)
+                    .html('&darr;');
+                sortItem.wrap
+                    .append('span')
+                    .classed('remove-sort', true)
+                    .html('&#10060;');
+                context.sortable.order.push(sortItem);
+            } else {
+                //Otherwise reverse its sort direction.
+                sortItem.direction =
+                    sortItem.direction === 'ascending' ? 'descending' : 'ascending';
+                sortItem.wrap
+                    .select('span.sort-direction')
+                    .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
+            }
+
+            //Hide sort instructions.
+            context.sortable.wrap.select('.instruction').classed('hidden', true);
+
+            //Add sort container deletion functionality.
+            context.sortable.order.forEach(function(item, i) {
+                item.wrap.on('click', function(d) {
+                    //Remove column's sort container.
+                    d3.select(this).remove();
+
+                    //Remove column from sort.
+                    context.sortable.order.splice(
+                        context.sortable.order
+                            .map(function(d) {
+                                return d.col;
+                            })
+                            .indexOf(d.key),
+                        1
+                    );
+
+                    //Display sorting instruction.
+                    context.sortable.wrap
+                        .select('.instruction')
+                        .classed('hidden', context.sortable.order.length);
+
+                    //Redraw chart.
+                    manualSort.call(context);
+                });
+            });
+
+            //Redraw chart.
+            manualSort.call(context);
+        });
+    }
+
+    function onDraw$1() {
+        onClick.call(this);
+    }
 
     function onDestroy$1() {}
 
@@ -1467,7 +1576,10 @@
             inputs: syncedControlInputs
         });
         var chart = webcharts.createChart(element, syncedSettings, controls);
-        var listing = webcharts.createTable(element, { exportable: syncedSettings.exportable });
+        var listing = webcharts.createTable(element, {
+            sortable: false,
+            exportable: syncedSettings.exportable
+        });
 
         chart.initialSettings = clone(mergedSettings);
         chart.on('init', onInit);
