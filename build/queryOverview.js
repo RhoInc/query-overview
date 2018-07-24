@@ -316,11 +316,22 @@
         formDescription_col: 'Form',
         field_col: 'Field Name',
         fieldDescription_col: 'Field',
+        marking_group_col: 'Query Open By: Marking Group',
+        visit_col: 'Visit/Folder',
 
         //query age settings
+        age_col: 'Query Age',
         age_category_col: 'Query Age Category',
         age_category_order: null,
-        age_category_colors: ['#fcae91', '#fb6a4a', '#de2d26', '#a50f15', '#1f78b4', 'gray'],
+        age_category_colors: [
+            '#fd8d3c',
+            '#fc4e2a',
+            '#e31a1c',
+            '#bd0026',
+            '#800026',
+            '#1f78b4',
+            'gray'
+        ],
 
         //query status settings
         status_col: 'Query Status',
@@ -334,7 +345,7 @@
         details: null,
         dropdown_size: 6,
         cutoff: 10,
-        alphabetize: false,
+        alphabetize: true,
         exportable: true,
         nRowsPerPage: 10
     };
@@ -415,7 +426,9 @@
         var defaultGroups = [
             { value_col: syncedSettings.form_col, label: 'Form' },
             { value_col: 'Form: Field', label: 'Form: Field' },
-            { value_col: syncedSettings.site_col, label: 'Site' }
+            { value_col: syncedSettings.site_col, label: 'Site' },
+            { value_col: syncedSettings.marking_group_col, label: 'Marking Group' },
+            { value_col: syncedSettings.visit_col, label: 'Visit/Folder' }
         ];
         syncedSettings.groups = arrayOfVariablesCheck(defaultGroups, settings.groups);
 
@@ -461,11 +474,13 @@
         //filters
         var defaultFilters = [
             { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
-            { value_col: syncedSettings.site_col, label: 'Site', multiple: true }
+            { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
+            { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
+            { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
         ];
-        syncedSettings.status_groups.forEach(function(status_group) {
+        syncedSettings.status_groups.reverse().forEach(function(status_group) {
             status_group.multiple = true;
-            defaultFilters.push(clone(status_group));
+            defaultFilters.unshift(clone(status_group));
         });
         syncedSettings.filters = arrayOfVariablesCheck(defaultFilters, settings.filters);
 
@@ -487,7 +502,7 @@
             label: 'Group by',
             description: 'variable toggle',
             start: null, // set in syncControlInputs()
-            values: null, // set in syncControlInputs
+            values: null, // set in syncControlInputs()
             require: true
         },
         {
@@ -553,7 +568,7 @@
             nGroupsControl.values.sort(function(a, b) {
                 return a === 'All' ? 1 : b === 'All' ? -1 : +a - +b;
             });
-        } else settings.cutoff = nGroupsControl.values[0];
+        } else settings.cutoff = settings.cutoff.toString() || nGroupsControl.values[0];
 
         return syncedControlInputs;
     }
@@ -589,6 +604,35 @@
 
         this.raw_data.forEach(function(d) {
             d['Form: Field'] = d[_this.config.form_col] + ': ' + d[_this.config.field_col];
+
+            //Define query age category.
+            if (!_this.config.age_category_order) {
+                var queryAge =
+                    /^ *\d+ *$/.test(d[_this.config.age_col]) &&
+                    ['Closed', 'Cancelled'].indexOf(d[_this.config.status_col]) < 0
+                        ? +d[_this.config.age_col]
+                        : NaN;
+                switch (true) {
+                    case queryAge <= 14:
+                        d['Query Age Category'] = '0-2 weeks';
+                        break;
+                    case queryAge <= 28:
+                        d['Query Age Category'] = '2-4 weeks';
+                        break;
+                    case queryAge <= 56:
+                        d['Query Age Category'] = '4-8 weeks';
+                        break;
+                    case queryAge <= 112:
+                        d['Query Age Category'] = '8-16 weeks';
+                        break;
+                    case queryAge > 112:
+                        d['Query Age Category'] = '>16 weeks';
+                        break;
+                    default:
+                        d['Query Age Category'] = d[_this.config.status_col];
+                        break;
+                }
+            }
         });
     }
 
@@ -697,20 +741,19 @@
                 return d.label === 'Group by';
             })
             .on('change', function() {
+                //Update y-axis label.
                 var label = d3
-                        .select(this)
-                        .select('option:checked')
-                        .text(),
-                    value_col =
-                        context.config.groups[
-                            context.config.groups
-                                .map(function(d) {
-                                    return d.label;
-                                })
-                                .indexOf(label)
-                        ].value_col;
+                    .select(this)
+                    .selectAll('option:checked')
+                    .text();
+                context.config.y.label = label;
 
+                //Update y-axis variable.
+                var value_col = context.config.groups.find(function(group) {
+                    return group.label === label;
+                }).value_col;
                 context.config.y.column = value_col;
+
                 context.config.marks[0].per = [value_col];
                 context.draw();
             });
@@ -724,6 +767,10 @@
             .filter(function() {
                 return this.multiple;
             })
+            .attr(
+                'title',
+                'Hold the CTRL key while clicking to select or deselect a single option.'
+            )
             .property('size', function() {
                 return Math.min(
                     context.config.dropdown_size,
@@ -920,26 +967,24 @@
         highlightSelectedOptions.call(this);
         updateStratification.call(this);
         updateRangeBand.call(this);
-
-        var barArrangementControl = this.controls.wrap
-            .selectAll('.control-group')
-            .filter(function(d) {
-                return d.label === 'Bar Arrangement';
-            });
-        if (this.config.y.column === 'Status') {
-            this.config.marks[0].arrange = 'stacked';
-            barArrangementControl
-                .selectAll('.radio')
-                .filter(function(d) {
-                    return d === 'stacked';
-                })
-                .select('input')
-                .property('checked', true);
-            barArrangementControl.selectAll('input').property('disabled', true);
-        } else barArrangementControl.selectAll('input').property('disabled', false);
     }
 
     function onDataTransform() {}
+
+    function setLeftMargin() {
+        var fontSize = parseInt(this.wrap.style('font-size'));
+        this.config.margin.left =
+            Math.max(
+                7,
+                d3.max(this.y_dom, function(d) {
+                    return d.length;
+                })
+            ) *
+                fontSize *
+                0.5 +
+            fontSize * 1.5 * 1.5 +
+            6;
+    }
 
     function setYDomain() {
         var _this = this;
@@ -976,10 +1021,12 @@
         this.y_dom = this.config.alphabetize ? this.y_dom.sort(d3.descending) : this.y_dom;
 
         //Limit y-domain to first [chart.config.cutoff] values.
-        if (this.config.cutoff !== 'All')
+        if (this.config.cutoff !== 'All') {
+            this.y_dom_length = this.y_dom.length;
             this.y_dom = this.y_dom.filter(function(d, i) {
                 return i >= _this.y_dom.length - _this.config.cutoff;
             });
+        }
     }
 
     function setChartHeight() {
@@ -990,6 +1037,7 @@
     }
 
     function onDraw() {
+        setLeftMargin.call(this);
         setYDomain.call(this);
         setChartHeight.call(this);
     }
@@ -1174,6 +1222,49 @@
         }
     }
 
+    function annotateYAxisInfo() {
+        var _this = this;
+
+        this.svg.select('#y-axis-info').remove();
+
+        if (this.y_dom.length < this.y_dom_length) {
+            this.svg
+                .append('text')
+                .attr({
+                    id: 'y-axis-info',
+                    x: 0,
+                    dx: -10,
+                    y: this.plot_height,
+                    dy: 15,
+                    'text-anchor': 'end'
+                })
+                .style('cursor', 'help')
+                .text('and ' + (this.y_dom_length - this.y_dom.length) + ' more')
+                .on('mouseover', function() {
+                    _this.controls.wrap
+                        .selectAll('.control-group')
+                        .filter(function(d) {
+                            return d.option === 'cutoff';
+                        })
+                        .style('background', 'lightgray');
+                })
+                .on('mouseout', function() {
+                    _this.controls.wrap
+                        .selectAll('.control-group')
+                        .filter(function(d) {
+                            return d.option === 'cutoff';
+                        })
+                        .style('background', null);
+                })
+                .append('title')
+                .text(
+                    'The number of ' +
+                        this.config.y.label.toLowerCase() +
+                        's can be changed with the Show First N Groups radio buttons.'
+                );
+        }
+    }
+
     function hideBars() {
         var _this = this;
 
@@ -1323,6 +1414,9 @@
         //Plot data by field when viewing data by form and user clicks y-axis tick label.
         addYAxisTickClick.call(this);
 
+        //Annotate the number of hidden y-axis tick labels.
+        annotateYAxisInfo.call(this);
+
         //Hide bars that aren't in first N groups.
         hideBars.call(this);
 
@@ -1335,10 +1429,8 @@
 
     function onInit$1() {}
 
-    function onLayout$1() {
+    function resetListing() {
         var _this = this;
-
-        var context = this;
 
         this.wrap
             .insert('button', ':first-child')
@@ -1370,13 +1462,140 @@
                             return _this.chart.colorScale(d.key);
                         }
                     });
-                context.chart.listing.init(context.chart.filtered_data);
+                _this.chart.listing.init(_this.chart.filtered_data);
                 _this.chart.wrap.select('#listing-instruction').style('display', 'block');
             });
+    }
+
+    function onLayout$1() {
+        resetListing.call(this);
+        this.wrap.select('.sortable-container').classed('hidden', false);
         this.table.style('width', '100%').style('display', 'table');
     }
 
-    function onDraw$1() {}
+    function manualSort() {
+        var _this = this;
+
+        this.data.manually_sorted = this.data.raw.sort(function(a, b) {
+            var order = 0;
+
+            _this.sortable.order.forEach(function(item) {
+                var aCell = a[item.col];
+                var bCell = b[item.col];
+                if (item.col !== 'Query Age') {
+                    if (order === 0) {
+                        if (
+                            (item.direction === 'ascending' && aCell < bCell) ||
+                            (item.direction === 'descending' && aCell > bCell)
+                        )
+                            order = -1;
+                        else if (
+                            (item.direction === 'ascending' && aCell > bCell) ||
+                            (item.direction === 'descending' && aCell < bCell)
+                        )
+                            order = 1;
+                    }
+                } else {
+                    if (order === 0) {
+                        if (
+                            (item.direction === 'ascending' && +aCell < +bCell) ||
+                            (item.direction === 'descending' && +aCell > +bCell)
+                        )
+                            order = -1;
+                        else if (
+                            (item.direction === 'ascending' && +aCell > +bCell) ||
+                            (item.direction === 'descending' && +aCell < +bCell)
+                        )
+                            order = 1;
+                    }
+                }
+            });
+
+            return order;
+        });
+        this.draw(this.data.manually_sorted);
+    }
+
+    function onClick() {
+        var context = this;
+
+        this.thead_cells.on('click', function(d) {
+            var th = this;
+            var header = d;
+            var selection = d3.select(th);
+            var col = context.config.cols[context.config.headers.indexOf(header)];
+
+            //Check if column is already a part of current sort order.
+            var sortItem = context.sortable.order.filter(function(item) {
+                return item.col === col;
+            })[0];
+
+            //If it isn't, add it to sort order.
+            if (!sortItem) {
+                sortItem = {
+                    col: col,
+                    direction: 'ascending',
+                    wrap: context.sortable.wrap
+                        .append('div')
+                        .datum({ key: col })
+                        .classed('wc-button sort-box', true)
+                        .text(header)
+                };
+                sortItem.wrap
+                    .append('span')
+                    .classed('sort-direction', true)
+                    .html('&darr;');
+                sortItem.wrap
+                    .append('span')
+                    .classed('remove-sort', true)
+                    .html('&#10060;');
+                context.sortable.order.push(sortItem);
+            } else {
+                //Otherwise reverse its sort direction.
+                sortItem.direction =
+                    sortItem.direction === 'ascending' ? 'descending' : 'ascending';
+                sortItem.wrap
+                    .select('span.sort-direction')
+                    .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
+            }
+
+            //Hide sort instructions.
+            context.sortable.wrap.select('.instruction').classed('hidden', true);
+
+            //Add sort container deletion functionality.
+            context.sortable.order.forEach(function(item, i) {
+                item.wrap.on('click', function(d) {
+                    //Remove column's sort container.
+                    d3.select(this).remove();
+
+                    //Remove column from sort.
+                    context.sortable.order.splice(
+                        context.sortable.order
+                            .map(function(d) {
+                                return d.col;
+                            })
+                            .indexOf(d.key),
+                        1
+                    );
+
+                    //Display sorting instruction.
+                    context.sortable.wrap
+                        .select('.instruction')
+                        .classed('hidden', context.sortable.order.length);
+
+                    //Redraw chart.
+                    manualSort.call(context);
+                });
+            });
+
+            //Redraw chart.
+            manualSort.call(context);
+        });
+    }
+
+    function onDraw$1() {
+        onClick.call(this);
+    }
 
     function onDestroy$1() {}
 
@@ -1394,7 +1613,10 @@
             inputs: syncedControlInputs
         });
         var chart = webcharts.createChart(element, syncedSettings, controls);
-        var listing = webcharts.createTable(element, { exportable: syncedSettings.exportable });
+        var listing = webcharts.createTable(element, {
+            sortable: false,
+            exportable: syncedSettings.exportable
+        });
 
         chart.initialSettings = clone(mergedSettings);
         chart.on('init', onInit);

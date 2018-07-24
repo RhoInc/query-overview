@@ -8,7 +8,9 @@ export default function syncSettings(settings) {
     const defaultGroups = [
         { value_col: syncedSettings.form_col, label: 'Form' },
         { value_col: 'Form: Field', label: 'Form: Field' },
-        { value_col: syncedSettings.site_col, label: 'Site' }
+        { value_col: syncedSettings.site_col, label: 'Site' },
+        { value_col: syncedSettings.marking_group_col, label: 'Marking Group' },
+        { value_col: syncedSettings.visit_col, label: 'Visit/Folder' }
     ];
     syncedSettings.groups = arrayOfVariablesCheck(defaultGroups, settings.groups);
 
@@ -54,11 +56,13 @@ export default function syncSettings(settings) {
     //filters
     const defaultFilters = [
         { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
-        { value_col: syncedSettings.site_col, label: 'Site', multiple: true }
+        { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
+        { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
+        { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
     ];
-    syncedSettings.status_groups.forEach(status_group => {
+    syncedSettings.status_groups.reverse().forEach(status_group => {
         status_group.multiple = true;
-        defaultFilters.push(clone(status_group));
+        defaultFilters.unshift(clone(status_group));
     });
     syncedSettings.filters = arrayOfVariablesCheck(defaultFilters, settings.filters);
 

@@ -41,6 +41,15 @@ field description variable name
 
 
 
+## settings.marking_group_col
+`string`
+
+query origin variable name
+
+**default:** `"Query Open By: Marking Group"`
+
+
+
 ## settings.status_col
 `string`
 
@@ -231,6 +240,15 @@ Detail Listing Variable
 Detail Listing Column Header
 
 **default:** none
+
+
+
+## settings.dropdown_size
+`number`
+
+controls the maximum number of options that appear in the multi-select dropdowns before a scrollbar appears
+
+**default:** `6`
 
 
 

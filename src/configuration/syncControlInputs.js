@@ -29,7 +29,7 @@ export default function syncControlInputs(controlInputs, settings) {
     if (nGroupsControl.values.indexOf(settings.cutoff.toString()) === -1) {
         nGroupsControl.values.push(settings.cutoff.toString());
         nGroupsControl.values.sort((a, b) => (a === 'All' ? 1 : b === 'All' ? -1 : +a - +b));
-    } else settings.cutoff = nGroupsControl.values[0];
+    } else settings.cutoff = settings.cutoff.toString() || nGroupsControl.values[0];
 
     return syncedControlInputs;
 }
