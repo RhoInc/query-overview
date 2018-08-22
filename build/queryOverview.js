@@ -312,15 +312,15 @@
 
     var rendererSettings = {
         //query variables
-        form_col: 'Datastr',
-        formDescription_col: 'Form',
-        field_col: 'Field Name',
-        fieldDescription_col: 'Field',
-        marking_group_col: 'Query Open By: Marking Group',
-        visit_col: 'Visit/Folder',
+        form_col: 'formoid',
+        formDescription_col: 'ecrfpagename',
+        field_col: 'fieldname',
+        fieldDescription_col: 'fieldname', //there is not a dscriptive column in the test data prescribed by heather
+        marking_group_col: 'markinggroup',
+        visit_col: 'folderoid',
 
         //query age settings
-        age_col: 'Query Age',
+        age_col: 'qdays',
         age_category_col: 'Query Age Category',
         age_category_order: null,
         age_category_colors: [
@@ -334,13 +334,13 @@
         ],
 
         //query status settings
-        status_col: 'Query Status',
+        status_col: 'querystatus',
         status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
         status_colors: ['#fb9a99', '#fdbf6f', '#1f78b4', 'gray'],
 
         groups: null,
         status_groups: null,
-        site_col: 'Site Name',
+        site_col: 'sitename',
         filters: null,
         details: null,
         dropdown_size: 6,
@@ -380,7 +380,9 @@
             order: null // set in syncSettings()
         },
         range_band: 15,
-        margin: { right: '50' } // room for count annotation
+        margin: {
+            right: '50' // room for count annotation
+        }
     };
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {

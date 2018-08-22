@@ -2,50 +2,50 @@
     "title": "settings",
     "description": "JSON schema for the configuration of query-overview",
     "overview": "The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "1.2.0",
+    "version": "1.2.2",
     "type": "object",
     "properties": {
         "form_col": {
             "title": "Form Variable",
             "description": "form variable name",
             "type": "string",
-            "default": "Datastr"
+            "default": "formoid"
         },
         "formDescription_col": {
             "title": "Form Description Variable",
             "description": "form description variable name",
             "type": "string",
-            "default": "Form"
+            "default": "ecrfpagename"
         },
         "field_col": {
             "title": "Field Variable",
             "description": "field variable name",
             "type": "string",
-            "default": "Field Name"
+            "default": "fieldname"
         },
         "fieldDescription_col": {
             "title": "Field Description Variable",
             "description": "field description variable name",
             "type": "string",
-            "default": "Field"
+            "default": "fieldname"
         },
         "marking_group_col": {
             "title": "Marking Group Variable",
             "description": "query origin variable name",
             "type": "string",
-            "default": "Query Open By: Marking Group"
+            "default": "markinggroup"
         },
-        "status_col": {
+        "visit_col": {
             "title": "Visit/Folder Variable",
             "description": "visit/folder variable name",
             "type": "string",
-            "default": "Visit/Folder"
+            "default": "folderoid"
         },
         "status_col": {
             "title": "Query Status Variable",
             "description": "query status variable name",
             "type": "string",
-            "default": "Query Status"
+            "default": "querystatus"
         },
         "status_order": {
             "title": "Query Status Order",
@@ -165,7 +165,7 @@
             "title": "Site Variable",
             "description": "site variable name",
             "type": "string",
-            "default": "Site Name"
+            "default": "sitename"
         },
         "filters": {
             "title": "Filter Variables",
