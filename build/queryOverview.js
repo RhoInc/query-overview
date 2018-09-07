@@ -445,7 +445,8 @@
                 value_col: syncedSettings.age_category_col,
                 label: 'Query Age Category',
                 order: syncedSettings.age_category_order,
-                colors: syncedSettings.age_category_colors
+                colors: syncedSettings.age_category_colors,
+                derive_source: syncedSettings.age_col
             },
             {
                 value_col: syncedSettings.status_col,
@@ -480,21 +481,18 @@
 
         //filters
         var defaultFilters = [
+            {
+                value_col: syncedSettings.open_category_col,
+                derive_source: syncedSettings.open_col,
+                label: 'Query Open Time',
+                multiple: true,
+                order: syncedSettings.open_category_order
+            },
             { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
             { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
             { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
             { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
         ];
-
-        // if open caterogy is defined then add filter and place it by the other query filters
-        if (syncedSettings.open_category_col) {
-            defaultFilters.unshift({
-                value_col: syncedSettings.open_category_col,
-                label: 'Query Open Time',
-                multiple: true,
-                order: syncedSettings.open_category_order
-            });
-        }
 
         syncedSettings.status_groups.reverse().forEach(function(status_group) {
             status_group.multiple = true;
@@ -651,25 +649,23 @@
                 }
             }
 
-            if (_this.config.open_col) {
-                //Define query age category.
-                var openTime = /^ *\d+ *$/.test(d[_this.config.open_col])
-                    ? +d[_this.config.open_col]
-                    : NaN;
-                switch (true) {
-                    case openTime <= 7:
-                        d['Query Open Time Category'] = '0-7 days';
-                        break;
-                    case openTime <= 14:
-                        d['Query Open Time Category'] = '8-14 days';
-                        break;
-                    case openTime <= 30:
-                        d['Query Open Time Category'] = '15-30 days';
-                        break;
-                    default:
-                        d['Query Open Time Category'] = '>30 days';
-                        break;
-                }
+            //Define query open time category.
+            var openTime = /^ *\d+ *$/.test(d[_this.config.open_col])
+                ? +d[_this.config.open_col]
+                : NaN;
+            switch (true) {
+                case openTime <= 7:
+                    d['Query Open Time Category'] = '0-7 days';
+                    break;
+                case openTime <= 14:
+                    d['Query Open Time Category'] = '8-14 days';
+                    break;
+                case openTime <= 30:
+                    d['Query Open Time Category'] = '15-30 days';
+                    break;
+                default:
+                    d['Query Open Time Category'] = '>30 days';
+                    break;
             }
         });
     }
@@ -912,6 +908,21 @@
             .text('Click a bar to view its underlying data.');
     }
 
+    function removeInvalidControls() {
+        var context = this;
+
+        // if the variable for the filter or the variable used to derive the filter
+        // are missing from that data -> remove them
+        this.controls.wrap
+            .selectAll('.control-group')
+            .filter(function(d) {
+                return d.derive_source
+                    ? !(d.derive_source in context.raw_data[0])
+                    : d.value_col ? !(d.value_col in context.raw_data[0]) : false;
+            })
+            .remove();
+    }
+
     function onLayout() {
         //Display group label rather than group column name in Group by control.
         updateGroupByOptions.call(this);
@@ -930,6 +941,9 @@
 
         //Add listing instruction.
         addListingInstruction.call(this);
+
+        //hide controls that do not have their variable supplied
+        removeInvalidControls.call(this);
     }
 
     function updateStratification() {
