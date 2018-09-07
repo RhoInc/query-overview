@@ -73,7 +73,7 @@ query status variable name
 
 an array of query statuses that dictates how they are ordered in the legend and chart
 
-**default:**
+**default:** 
 ```
 [
   "Open",
@@ -90,7 +90,7 @@ an array of query statuses that dictates how they are ordered in the legend and 
 
 an array of colors that determines the colors for query statuses
 
-**default:**
+**default:** 
 ```
 [
   "#fb9a99",
@@ -125,7 +125,7 @@ an array of query age categories that dictates how they are ordered in the legen
 
 an array of colors that determines the colors for query age categories
 
-**default:**
+**default:** 
 ```
 [
   "#fcae91",
@@ -296,7 +296,7 @@ the number of rows displayed per page.
 **default:** `10`
 
 # Webcharts settings
-The object below contains each Webcharts setting as of version 1.2.2.
+The object below contains each Webcharts setting as of version 1.2.3.
 
 ```
 {    x: {        label: '# of Queries',        behavior: 'flex'    },    y: {        type: 'ordinal',        column: null, // set in syncSettings()        label: 'Form',        sort: 'total-descending'    },    marks: [        {            type: 'bar',            per: [null], // set in syncSettings()            split: null, // set in syncSettings()            arrange: 'stacked',            summarizeX: 'count',            tooltip: null // set in syncSettings()        }    ],    color_by: null, // set in syncSettings()    color_dom: null, // set in syncSettings()    legend: {        location: 'top',        //  label: 'Query Status',        label: null,        order: null // set in syncSettings()    },    range_band: 15,    margin: { right: '50' } // room for count annotation};}
