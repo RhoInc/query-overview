@@ -60,6 +60,17 @@ export default function syncSettings(settings) {
         { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
         { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
     ];
+
+    // if open caterogy is defined then add filter and place it by the other query filters
+    if (syncedSettings.open_category_col) {
+        defaultFilters.unshift({
+            value_col: syncedSettings.open_category_col,
+            label: 'Query Open Time',
+            multiple: true,
+            order: syncedSettings.open_category_order
+        });
+    }
+
     syncedSettings.status_groups.reverse().forEach(status_group => {
         status_group.multiple = true;
         defaultFilters.unshift(clone(status_group));
@@ -73,6 +84,5 @@ export default function syncSettings(settings) {
     //details
     syncedSettings.details = arrayOfVariablesCheck([], settings.details);
     if (syncedSettings.details.length === 0) delete syncedSettings.details;
-
     return syncedSettings;
 }
