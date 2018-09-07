@@ -3,7 +3,7 @@ The most straightforward way to customize query-overview is by using a configura
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each query-overview setting as of version 1.2.2.
+The sections below describe each query-overview setting as of version 1.2.3.
 
 ## settings.form_col
 `string`
@@ -73,7 +73,7 @@ query status variable name
 
 an array of query statuses that dictates how they are ordered in the legend and chart
 
-**default:** 
+**default:**
 ```
 [
   "Open",
@@ -90,7 +90,7 @@ an array of query statuses that dictates how they are ordered in the legend and 
 
 an array of colors that determines the colors for query statuses
 
-**default:** 
+**default:**
 ```
 [
   "#fb9a99",
@@ -125,7 +125,7 @@ an array of query age categories that dictates how they are ordered in the legen
 
 an array of colors that determines the colors for query age categories
 
-**default:** 
+**default:**
 ```
 [
   "#fcae91",
