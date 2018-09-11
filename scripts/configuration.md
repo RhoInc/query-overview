@@ -73,7 +73,7 @@ query status variable name
 
 an array of query statuses that dictates how they are ordered in the legend and chart
 
-**default:**
+**default:** 
 ```
 [
   "Open",
@@ -90,7 +90,7 @@ an array of query statuses that dictates how they are ordered in the legend and 
 
 an array of colors that determines the colors for query statuses
 
-**default:**
+**default:** 
 ```
 [
   "#fb9a99",
@@ -125,7 +125,7 @@ an array of query age categories that dictates how they are ordered in the legen
 
 an array of colors that determines the colors for query age categories
 
-**default:**
+**default:** 
 ```
 [
   "#fcae91",

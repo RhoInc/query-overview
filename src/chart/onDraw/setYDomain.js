@@ -25,6 +25,6 @@ export default function setYDomain() {
         this.y_dom_length = this.y_dom.length;
         this.y_dom = this.y_dom.filter((d, i) => i >= this.y_dom.length - this.config.cutoff);
     } else {
-        this.y_dom_length = this.y_dom.length; // ensure that "X more items" does not appear on Show All 
+        this.y_dom_length = this.y_dom.length; // ensure that "X more items" does not appear on Show All
     }
 }

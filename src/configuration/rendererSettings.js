@@ -7,6 +7,11 @@ export default {
     marking_group_col: 'markinggroup',
     visit_col: 'folderoid',
 
+    //query open time settings
+    open_col: 'open_time',
+    open_category_col: 'Query Open Time Category',
+    open_category_order: ['0-7 days', '8-14 days', '15-30 days', '>30 days'],
+
     //query age settings
     age_col: 'qdays',
     age_category_col: 'Query Age Category',

@@ -20,7 +20,8 @@ export default function syncSettings(settings) {
             value_col: syncedSettings.age_category_col,
             label: 'Query Age Category',
             order: syncedSettings.age_category_order,
-            colors: syncedSettings.age_category_colors
+            colors: syncedSettings.age_category_colors,
+            derive_source: syncedSettings.age_col
         },
         {
             value_col: syncedSettings.status_col,
@@ -55,11 +56,19 @@ export default function syncSettings(settings) {
 
     //filters
     const defaultFilters = [
+        {
+            value_col: syncedSettings.open_category_col,
+            derive_source: syncedSettings.open_col,
+            label: 'Query Open Time',
+            multiple: true,
+            order: syncedSettings.open_category_order
+        },
         { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
         { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
         { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
         { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
     ];
+
     syncedSettings.status_groups.reverse().forEach(status_group => {
         status_group.multiple = true;
         defaultFilters.unshift(clone(status_group));
@@ -73,6 +82,5 @@ export default function syncSettings(settings) {
     //details
     syncedSettings.details = arrayOfVariablesCheck([], settings.details);
     if (syncedSettings.details.length === 0) delete syncedSettings.details;
-
     return syncedSettings;
 }
