@@ -349,7 +349,7 @@
         filters: null,
         details: null,
         dropdown_size: 6,
-        cutoff: 10,
+        cutoff: 'All',
         alphabetize: true,
         exportable: true,
         nRowsPerPage: 10
@@ -1652,6 +1652,8 @@
 
     function onDestroy$1() {}
 
+    //chart callbacks
+    //listing callbacks
     function queryOverview$1(element, settings) {
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);

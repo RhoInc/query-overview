@@ -29,7 +29,7 @@ export default {
     filters: null,
     details: null,
     dropdown_size: 6,
-    cutoff: 10,
+    cutoff: 'All',
     alphabetize: true,
     exportable: true,
     nRowsPerPage: 10

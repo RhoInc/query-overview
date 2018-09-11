@@ -217,7 +217,7 @@
             "title": "Number of Groups Displayed Initially",
             "description": "a value that limits the number of groups displayed on the y-axis",
             "type": "number",
-            "default": 10
+            "default": "All"
         },
         "alphabetize": {
             "title": "Display Groups Alphanumerically?",
