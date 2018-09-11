@@ -266,7 +266,7 @@ controls the maximum number of options that appear in the multi-select dropdowns
 
 a value that limits the number of groups displayed on the y-axis
 
-**default:** `10`
+**default:** `All`
 
 
 

@@ -349,7 +349,7 @@
         filters: null,
         details: null,
         dropdown_size: 6,
-        cutoff: 10,
+        cutoff: 'All',
         alphabetize: true,
         exportable: true,
         nRowsPerPage: 10
@@ -1072,10 +1072,27 @@
             this.y_dom.length;
     }
 
+    function updateXAxisLabel() {
+        d3
+            .select('.x.axis')
+            .select('.axis-title')
+            .text(
+                this.config.x.label +
+                    ' (' +
+                    String(
+                        d3.sum(this.current_data, function(d) {
+                            return d.total;
+                        })
+                    ) +
+                    ')'
+            );
+    }
+
     function onDraw() {
         setLeftMargin.call(this);
         setYDomain.call(this);
         setChartHeight.call(this);
+        updateXAxisLabel.call(this);
     }
 
     function legendFilter() {
@@ -1635,6 +1652,8 @@
 
     function onDestroy$1() {}
 
+    //chart callbacks
+    //listing callbacks
     function queryOverview$1(element, settings) {
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
