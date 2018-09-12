@@ -1,10 +1,13 @@
 export default function addTableContainer() {
     // Place the table inside of a div so that we can use a css trick
     // to place a horizontal scroll bar on top of the table in defineStyles.js
-    var table = document.querySelector('table');
-    var container = document.createElement('div');
+    const table = this.table.node();
+    this.tableContainer = this.wrap
+        .append('div')
+        .classed('table-container', true)
+        .node();
 
-    table.parentNode.insertBefore(container, table);
-    container.appendChild(table);
-    container.className = 'table-container';
+    table.parentNode.insertBefore(this.tableContainer, table);
+    this.tableContainer.appendChild(table);
+    this.tableContainer.scrollLeft = 9999;
 }
