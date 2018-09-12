@@ -1659,16 +1659,23 @@
         });
     }
 
-    function onDraw$1() {
+    function moveScrollBarLeft() {
         var _this = this;
 
+        this.tableContainer.scrollLeft = 9999;
+        var scrollATadMore = setInterval(function() {
+            return (_this.tableContainer.scrollLeft += 100);
+        }, 10); // for whatever reason the table doesn't scroll all the way left so just give the webpage a 25 milliseconds to load and then nudge the scrollbar the rest of the way
+        setTimeout(function() {
+            return clearInterval(scrollATadMore);
+        }, 10);
+    }
+
+    function onDraw$1() {
         onClick.call(this);
 
         //Move table scrollbar all the way to the left.
-        this.tableContainer.scrollLeft = 9999;
-        setInterval(function() {
-            return (_this.tableContainer.scrollLeft += 100);
-        }, 25); // for whatever reason the table doesn't scroll all the way left so just give the webpage a 25 milliseconds to load and then nudge the scrollbar the rest of the way
+        moveScrollBarLeft.call(this);
     }
 
     function onDestroy$1() {}
