@@ -1520,8 +1520,20 @@
             });
     }
 
+    function addTableContainer() {
+        // Place the table inside of a div so that we can use a css trick
+        // to place a horizontal scroll bar on top of the table in defineStyles.js
+        var table = document.querySelector('table');
+        var container = document.createElement('div');
+
+        table.parentNode.insertBefore(container, table);
+        container.appendChild(table);
+        container.className = 'table-container';
+    }
+
     function onLayout$1() {
         resetListing.call(this);
+        addTableContainer.call(this);
         this.wrap.select('.sortable-container').classed('hidden', false);
         this.table.style('width', '100%').style('display', 'table');
     }
@@ -1652,6 +1664,27 @@
 
     function onDestroy$1() {}
 
+    function defineStyles() {
+        var styles = [
+            '.wc-table .table-container {' +
+                '    overflow-x: auto;' +
+                '    width : 100%;' +
+                '    transform:  rotate(180deg);' +
+                ' -webkit-transform:rotate(180deg); ' +
+                '}',
+            '.wc-table table {' +
+                '    transform:  rotate(180deg);' +
+                '  -webkit-transform:rotate(180deg); ' +
+                '}'
+        ];
+
+        //Attach styles to DOM.
+        this.style = document.createElement('style');
+        this.style.type = 'text/css';
+        this.style.innerHTML = styles.join('\n');
+        document.getElementsByTagName('head')[0].appendChild(this.style);
+    }
+
     //chart callbacks
     //listing callbacks
     function queryOverview$1(element, settings) {
@@ -1686,6 +1719,9 @@
 
         chart.listing = listing;
         listing.chart = chart;
+
+        //add Table stylesheet
+        defineStyles.call(listing);
 
         return chart;
     }
