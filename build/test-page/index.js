@@ -9,10 +9,6 @@ if (window.origin !== 'https://rhoinc.github.io') {
 
 d3.csv(
     'https://rawgit.com/RhoInc/viz-library/master/data/queries/queries.csv',
-    function(d) {
-        delete d.open_time;
-        return d;
-    },
     function(error,data) {
         if (error)
             console.log(error);
