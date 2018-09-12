@@ -59,6 +59,85 @@ visit/folder variable name
 
 
 
+## settings.open_col
+`string`
+
+variable name for how long a query has been open
+
+**default:** `"open_time"`
+
+
+
+## settings.open_category_col
+`string`
+
+Categorical version of query open time variable
+
+**default:** `"Query Open Time Category"`
+
+
+
+## settings.open_category_order
+`array`
+
+an array of query open time that dictates how they are ordered in the chart
+
+**default:** 
+```
+[
+  "0-7 days",
+  "8-14 days",
+  "15-30 days",
+  ">30 days"
+]
+```
+
+
+
+## settings.age_col
+`string`
+
+query age variable name
+
+**default:** `"qdays"`
+
+
+
+## settings.age_category_col
+`string`
+
+Categorical version of query age variable
+
+**default:** `"Query Age Category"`
+
+
+
+## settings.age_category_order
+`array`
+
+an array of query age categories that dictates how they are ordered in the legend and chart
+
+**default:** none
+
+
+
+## settings.age_category_colors
+`array`
+
+an array of colors that determines the colors for query age categories
+
+**default:** 
+```
+[
+  "#fcae91",
+  "#fb6a4a",
+  "#de2d26",
+  "#a50f15"
+]
+```
+
+
+
 ## settings.status_col
 `string`
 
@@ -97,41 +176,6 @@ an array of colors that determines the colors for query statuses
   "#fdbf6f",
   "#1f78b4",
   "gray"
-]
-```
-
-
-
-## settings.aging_col
-`string`
-
-query age variable name
-
-**default:** `"Query Age Category"`
-
-
-
-## settings.aging_order
-`array`
-
-an array of query age categories that dictates how they are ordered in the legend and chart
-
-**default:** none
-
-
-
-## settings.aging_colors
-`array`
-
-an array of colors that determines the colors for query age categories
-
-**default:** 
-```
-[
-  "#fcae91",
-  "#fb6a4a",
-  "#de2d26",
-  "#a50f15"
 ]
 ```
 
@@ -275,7 +319,7 @@ a value that limits the number of groups displayed on the y-axis
 
 sort groups on the y-axis alphanumerically; by default groups are sorted by descending frequency
 
-**default:** `false`
+**default:** `true`
 
 
 
