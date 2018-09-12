@@ -385,9 +385,7 @@
             order: null // set in syncSettings()
         },
         range_band: 15,
-        margin: {
-            right: '50' // room for count annotation
-        }
+        margin: { right: '50' } // room for count annotation
     };
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
@@ -1520,8 +1518,23 @@
             });
     }
 
+    function addTableContainer() {
+        // Place the table inside of a div so that we can use a css trick
+        // to place a horizontal scroll bar on top of the table in defineStyles.js
+        var table = this.table.node();
+        this.tableContainer = this.wrap
+            .append('div')
+            .classed('table-container', true)
+            .node();
+
+        table.parentNode.insertBefore(this.tableContainer, table);
+        this.tableContainer.appendChild(table);
+        this.tableContainer.scrollLeft = 9999;
+    }
+
     function onLayout$1() {
         resetListing.call(this);
+        addTableContainer.call(this);
         this.wrap.select('.sortable-container').classed('hidden', false);
         this.table.style('width', '100%').style('display', 'table');
     }
@@ -1647,10 +1660,39 @@
     }
 
     function onDraw$1() {
+        var _this = this;
+
         onClick.call(this);
+
+        //Move table scrollbar all the way to the left.
+        this.tableContainer.scrollLeft = 9999;
+        setInterval(function() {
+            return (_this.tableContainer.scrollLeft += 100);
+        }, 25); // for whatever reason the table doesn't scroll all the way left so just give the webpage a 25 milliseconds to load and then nudge the scrollbar the rest of the way
     }
 
     function onDestroy$1() {}
+
+    function defineStyles() {
+        var styles = [
+            '.wc-table .table-container {' +
+                '    overflow-x: auto;' +
+                '    width : 100%;' +
+                '    transform:  rotate(180deg);' +
+                ' -webkit-transform:rotate(180deg); ' +
+                '}',
+            '.wc-table table {' +
+                '    transform:  rotate(180deg);' +
+                '  -webkit-transform:rotate(180deg); ' +
+                '}'
+        ];
+
+        //Attach styles to DOM.
+        this.style = document.createElement('style');
+        this.style.type = 'text/css';
+        this.style.innerHTML = styles.join('\n');
+        document.getElementsByTagName('head')[0].appendChild(this.style);
+    }
 
     //chart callbacks
     //listing callbacks
@@ -1686,6 +1728,9 @@
 
         chart.listing = listing;
         listing.chart = chart;
+
+        //add Table stylesheet
+        defineStyles.call(listing);
 
         return chart;
     }
