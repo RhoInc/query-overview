@@ -385,7 +385,9 @@
             order: null // set in syncSettings()
         },
         range_band: 15,
-        margin: { right: '50' } // room for count annotation
+        margin: {
+            right: '50' // room for count annotation
+        }
     };
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
@@ -747,6 +749,20 @@
         queryAgeCategoryGroup.order = queryAgeCategoryOrder;
     }
 
+    function removeInvalidControls() {
+        var context = this;
+
+        // if the variable for the filter or the variable used to derive the filter
+        // are missing from that data -> remove them
+        var updated_inputs = this.controls.config.inputs.filter(function(d) {
+            return d.derive_source
+                ? d.derive_source in context.raw_data[0]
+                : d.value_col ? d.value_col in context.raw_data[0] : true;
+        });
+
+        this.controls.config.inputs = updated_inputs;
+    }
+
     function onInit() {
         //Define new variables.
         defineNewVariables.call(this);
@@ -759,6 +775,9 @@
 
         //Define detail listing settings.
         defineListingSettings.call(this);
+
+        //hide controls that do not have their variable supplied
+        removeInvalidControls.call(this);
 
         //Initialize listing.
         this.listing.init(this.raw_data);
@@ -906,21 +925,6 @@
             .text('Click a bar to view its underlying data.');
     }
 
-    function removeInvalidControls() {
-        var context = this;
-
-        // if the variable for the filter or the variable used to derive the filter
-        // are missing from that data -> remove them
-        this.controls.wrap
-            .selectAll('.control-group')
-            .filter(function(d) {
-                return d.derive_source
-                    ? !(d.derive_source in context.raw_data[0])
-                    : d.value_col ? !(d.value_col in context.raw_data[0]) : false;
-            })
-            .remove();
-    }
-
     function onLayout() {
         //Display group label rather than group column name in Group by control.
         updateGroupByOptions.call(this);
@@ -939,9 +943,6 @@
 
         //Add listing instruction.
         addListingInstruction.call(this);
-
-        //hide controls that do not have their variable supplied
-        removeInvalidControls.call(this);
     }
 
     function updateStratification() {
@@ -1694,8 +1695,6 @@
         document.getElementsByTagName('head')[0].appendChild(this.style);
     }
 
-    //chart callbacks
-    //listing callbacks
     function queryOverview$1(element, settings) {
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
