@@ -1528,6 +1528,8 @@
             .classed('table-container', true)
             .node();
 
+        this.wrap.select('table').classed('query-table', true); // I want to ensure that no other webcharts tables get flipped upside down
+
         table.parentNode.insertBefore(this.tableContainer, table);
         this.tableContainer.appendChild(table);
         this.tableContainer.scrollLeft = 9999;
@@ -1689,7 +1691,7 @@
                 '    transform:  rotate(180deg);' +
                 ' -webkit-transform:rotate(180deg); ' +
                 '}',
-            '.wc-table table {' +
+            '.wc-table .query-table, table {' +
                 '    transform:  rotate(180deg);' +
                 '  -webkit-transform:rotate(180deg); ' +
                 '}'

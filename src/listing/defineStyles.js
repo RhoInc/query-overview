@@ -6,7 +6,7 @@ export default function defineStyles() {
             '    transform:  rotate(180deg);' +
             ' -webkit-transform:rotate(180deg); ' +
             '}',
-        '.wc-table table {' +
+        '.wc-table .query-table, table {' +
             '    transform:  rotate(180deg);' +
             '  -webkit-transform:rotate(180deg); ' +
             '}'

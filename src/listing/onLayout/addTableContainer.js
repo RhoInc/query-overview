@@ -7,6 +7,8 @@ export default function addTableContainer() {
         .classed('table-container', true)
         .node();
 
+    this.wrap.select('table').classed('query-table', true); // I want to ensure that no other webcharts tables get flipped upside down
+
     table.parentNode.insertBefore(this.tableContainer, table);
     this.tableContainer.appendChild(table);
     this.tableContainer.scrollLeft = 9999;
