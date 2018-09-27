@@ -1,12 +1,12 @@
 export default function defineStyles() {
     const styles = [
-        '.wc-table .table-container {' +
+        '.query-table-container {' +
             '    overflow-x: auto;' +
             '    width : 100%;' +
             '    transform:  rotate(180deg);' +
             ' -webkit-transform:rotate(180deg); ' +
             '}',
-        '.wc-table .query-table, table {' +
+        '.query-table {' +
             '    transform:  rotate(180deg);' +
             '  -webkit-transform:rotate(180deg); ' +
             '}'

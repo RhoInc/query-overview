@@ -4,7 +4,7 @@ export default function addTableContainer() {
     const table = this.table.node();
     this.tableContainer = this.wrap
         .append('div')
-        .classed('table-container', true)
+        .classed('query-table-container', true)
         .node();
 
     this.wrap.select('table').classed('query-table', true); // I want to ensure that no other webcharts tables get flipped upside down

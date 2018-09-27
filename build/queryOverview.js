@@ -1525,7 +1525,7 @@
         var table = this.table.node();
         this.tableContainer = this.wrap
             .append('div')
-            .classed('table-container', true)
+            .classed('query-table-container', true)
             .node();
 
         this.wrap.select('table').classed('query-table', true); // I want to ensure that no other webcharts tables get flipped upside down
@@ -1685,13 +1685,13 @@
 
     function defineStyles() {
         var styles = [
-            '.wc-table .table-container {' +
+            '.query-table-container {' +
                 '    overflow-x: auto;' +
                 '    width : 100%;' +
                 '    transform:  rotate(180deg);' +
                 ' -webkit-transform:rotate(180deg); ' +
                 '}',
-            '.wc-table .query-table, table {' +
+            '.query-table {' +
                 '    transform:  rotate(180deg);' +
                 '  -webkit-transform:rotate(180deg); ' +
                 '}'
@@ -1704,6 +1704,8 @@
         document.getElementsByTagName('head')[0].appendChild(this.style);
     }
 
+    //chart callbacks
+    //listing callbacks
     function queryOverview$1(element, settings) {
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
