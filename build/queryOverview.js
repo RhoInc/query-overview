@@ -1545,13 +1545,15 @@
     function manualSort() {
         var _this = this;
 
+        var context = this;
+
         this.data.manually_sorted = this.data.raw.sort(function(a, b) {
             var order = 0;
 
             _this.sortable.order.forEach(function(item) {
                 var aCell = a[item.col];
                 var bCell = b[item.col];
-                if (item.col !== 'Query Age') {
+                if (item.col !== context.chart.initialSettings.age_col) {
                     if (order === 0) {
                         if (
                             (item.direction === 'ascending' && aCell < bCell) ||
