@@ -1553,7 +1553,10 @@
             _this.sortable.order.forEach(function(item) {
                 var aCell = a[item.col];
                 var bCell = b[item.col];
-                if (item.col !== context.chart.initialSettings.age_col) {
+                if (
+                    item.col !== context.chart.initialSettings.age_col &&
+                    item.col !== context.chart.initialSettings.open_col
+                ) {
                     if (order === 0) {
                         if (
                             (item.direction === 'ascending' && aCell < bCell) ||
@@ -1706,8 +1709,6 @@
         document.getElementsByTagName('head')[0].appendChild(this.style);
     }
 
-    //chart callbacks
-    //listing callbacks
     function queryOverview$1(element, settings) {
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);

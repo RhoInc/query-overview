@@ -7,7 +7,10 @@ export default function manualSort() {
         this.sortable.order.forEach(item => {
             const aCell = a[item.col];
             const bCell = b[item.col];
-            if (item.col !== context.chart.initialSettings.age_col) {
+            if (
+                item.col !== context.chart.initialSettings.age_col &&
+                item.col !== context.chart.initialSettings.open_col
+            ) {
                 if (order === 0) {
                     if (
                         (item.direction === 'ascending' && aCell < bCell) ||
