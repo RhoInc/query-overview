@@ -1,11 +1,16 @@
 export default function manualSort() {
+    const context = this;
+
     this.data.manually_sorted = this.data.raw.sort((a, b) => {
         let order = 0;
 
         this.sortable.order.forEach(item => {
             const aCell = a[item.col];
             const bCell = b[item.col];
-            if (item.col !== 'Query Age') {
+            if (
+                item.col !== context.chart.initialSettings.age_col &&
+                item.col !== context.chart.initialSettings.open_col
+            ) {
                 if (order === 0) {
                     if (
                         (item.direction === 'ascending' && aCell < bCell) ||

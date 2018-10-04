@@ -21,6 +21,7 @@ import onInitL from './listing/onInit';
 import onLayoutL from './listing/onLayout';
 import onDrawL from './listing/onDraw';
 import onDestroyL from './listing/onDestroy';
+import defineStyles from './listing/defineStyles';
 
 export default function queryOverview(element, settings) {
     const mergedSettings = Object.assign({}, configuration.settings, settings);
@@ -54,6 +55,9 @@ export default function queryOverview(element, settings) {
 
     chart.listing = listing;
     listing.chart = chart;
+
+    //add Table stylesheet
+    defineStyles.call(listing);
 
     return chart;
 }

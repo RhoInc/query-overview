@@ -1,6 +1,6 @@
 {
   "name": "query-overview",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Interactive bar chart for exploration of query data from clinical trials",
   "main": "./build/queryOverview.js",
   "module": "./src/wrapper.js",

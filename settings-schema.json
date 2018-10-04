@@ -2,7 +2,7 @@
     "title": "settings",
     "description": "JSON schema for the configuration of query-overview",
     "overview": "The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "type": "object",
     "properties": {
         "form_col": {
@@ -41,6 +41,72 @@
             "type": "string",
             "default": "folderoid"
         },
+        "open_col": {
+            "title": "Query Open Time Variable",
+            "description": "variable name for how long a query has been open",
+            "type": "string",
+            "default": "open_time"
+        },
+        "open_category_col": {
+            "title": "Query Open Time Category Variable",
+            "description": "Categorical version of query open time variable",
+            "type": "string",
+            "default": "Query Open Time Category"
+        },
+        "open_category_order": {
+            "title": "Query Open Time Order",
+            "description": "an array of query open time that dictates how they are ordered in the chart",
+            "type": "array",
+            "items": {
+                "title": "Query Open Time Category",
+                "description": "query open time category value",
+                "type": "string"
+            },
+            "defaultObject": [
+                "0-7 days",
+                "8-14 days",
+                "15-30 days",
+                ">30 days"
+            ]
+        },
+        "age_col": {
+            "title": "Query Age Variable",
+            "description": "query age variable name",
+            "type": "string",
+            "default": "qdays"
+        },
+        "age_category_col": {
+            "title": "Query Age Category Variable",
+            "description": "Categorical version of query age variable",
+            "type": "string",
+            "default": "Query Age Category"
+        },
+        "age_category_order": {
+            "title": "Query Age Category Order",
+            "description": "an array of query age categories that dictates how they are ordered in the legend and chart",
+            "type": "array",
+            "items": {
+                "title": "Query Age Category",
+                "description": "query age category value",
+                "type": "string"
+            }
+        },
+        "age_category_colors": {
+            "title": "Query Age Category Color",
+            "description": "an array of colors that determines the colors for query age categories",
+            "type": "array",
+            "items": {
+                "title": "Query Age Category",
+                "description": "query age category value",
+                "type": "string"
+            },
+            "defaultObject": [
+              "#fcae91",
+              "#fb6a4a",
+              "#de2d26",
+              "#a50f15"
+            ]
+        },
         "status_col": {
             "title": "Query Status Variable",
             "description": "query status variable name",
@@ -77,38 +143,6 @@
                 "#fdbf6f",
                 "#1f78b4",
                 "gray"
-            ]
-        },
-        "aging_col": {
-            "title": "Query Age Variable",
-            "description": "query age variable name",
-            "type": "string",
-            "default": "Query Age Category"
-        },
-        "aging_order": {
-            "title": "Query Age Category Order",
-            "description": "an array of query age categories that dictates how they are ordered in the legend and chart",
-            "type": "array",
-            "items": {
-                "title": "Query Age Category",
-                "description": "query age value",
-                "type": "string"
-            }
-        },
-        "aging_colors": {
-            "title": "Query Age Category Color",
-            "description": "an array of colors that determines the colors for query age categories",
-            "type": "array",
-            "items": {
-                "title": "Query Age Category",
-                "description": "query age value",
-                "type": "string"
-            },
-            "defaultObject": [
-              "#fcae91",
-              "#fb6a4a",
-              "#de2d26",
-              "#a50f15"
             ]
         },
         "groups": {
@@ -217,13 +251,13 @@
             "title": "Number of Groups Displayed Initially",
             "description": "a value that limits the number of groups displayed on the y-axis",
             "type": "number",
-            "default": 10
+            "default": "All"
         },
         "alphabetize": {
             "title": "Display Groups Alphanumerically?",
             "description": "sort groups on the y-axis alphanumerically; by default groups are sorted by descending frequency",
             "type": "boolean",
-            "default": false
+            "default": true
         },
         "exportable": {
             "title": "Allow Listing Export?",

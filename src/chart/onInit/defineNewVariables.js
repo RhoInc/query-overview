@@ -30,5 +30,22 @@ export default function defineNewVariables() {
                     break;
             }
         }
+
+        //Define query open time category.
+        const openTime = /^ *\d+ *$/.test(d[this.config.open_col]) ? +d[this.config.open_col] : NaN;
+        switch (true) {
+            case openTime <= 7:
+                d['Query Open Time Category'] = '0-7 days';
+                break;
+            case openTime <= 14:
+                d['Query Open Time Category'] = '8-14 days';
+                break;
+            case openTime <= 30:
+                d['Query Open Time Category'] = '15-30 days';
+                break;
+            default:
+                d['Query Open Time Category'] = '>30 days';
+                break;
+        }
     });
 }

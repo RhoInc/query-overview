@@ -3,7 +3,7 @@ The most straightforward way to customize query-overview is by using a configura
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each query-overview setting as of version 1.2.2.
+The sections below describe each query-overview setting as of version 1.2.3.
 
 ## settings.form_col
 `string`
@@ -59,6 +59,85 @@ visit/folder variable name
 
 
 
+## settings.open_col
+`string`
+
+variable name for how long a query has been open
+
+**default:** `"open_time"`
+
+
+
+## settings.open_category_col
+`string`
+
+Categorical version of query open time variable
+
+**default:** `"Query Open Time Category"`
+
+
+
+## settings.open_category_order
+`array`
+
+an array of query open time that dictates how they are ordered in the chart
+
+**default:** 
+```
+[
+  "0-7 days",
+  "8-14 days",
+  "15-30 days",
+  ">30 days"
+]
+```
+
+
+
+## settings.age_col
+`string`
+
+query age variable name
+
+**default:** `"qdays"`
+
+
+
+## settings.age_category_col
+`string`
+
+Categorical version of query age variable
+
+**default:** `"Query Age Category"`
+
+
+
+## settings.age_category_order
+`array`
+
+an array of query age categories that dictates how they are ordered in the legend and chart
+
+**default:** none
+
+
+
+## settings.age_category_colors
+`array`
+
+an array of colors that determines the colors for query age categories
+
+**default:** 
+```
+[
+  "#fcae91",
+  "#fb6a4a",
+  "#de2d26",
+  "#a50f15"
+]
+```
+
+
+
 ## settings.status_col
 `string`
 
@@ -97,41 +176,6 @@ an array of colors that determines the colors for query statuses
   "#fdbf6f",
   "#1f78b4",
   "gray"
-]
-```
-
-
-
-## settings.aging_col
-`string`
-
-query age variable name
-
-**default:** `"Query Age Category"`
-
-
-
-## settings.aging_order
-`array`
-
-an array of query age categories that dictates how they are ordered in the legend and chart
-
-**default:** none
-
-
-
-## settings.aging_colors
-`array`
-
-an array of colors that determines the colors for query age categories
-
-**default:** 
-```
-[
-  "#fcae91",
-  "#fb6a4a",
-  "#de2d26",
-  "#a50f15"
 ]
 ```
 
@@ -266,7 +310,7 @@ controls the maximum number of options that appear in the multi-select dropdowns
 
 a value that limits the number of groups displayed on the y-axis
 
-**default:** `10`
+**default:** `All`
 
 
 
@@ -275,7 +319,7 @@ a value that limits the number of groups displayed on the y-axis
 
 sort groups on the y-axis alphanumerically; by default groups are sorted by descending frequency
 
-**default:** `false`
+**default:** `true`
 
 
 
@@ -296,7 +340,7 @@ the number of rows displayed per page.
 **default:** `10`
 
 # Webcharts settings
-The object below contains each Webcharts setting as of version 1.2.2.
+The object below contains each Webcharts setting as of version 1.2.3.
 
 ```
 {    x: {        label: '# of Queries',        behavior: 'flex'    },    y: {        type: 'ordinal',        column: null, // set in syncSettings()        label: 'Form',        sort: 'total-descending'    },    marks: [        {            type: 'bar',            per: [null], // set in syncSettings()            split: null, // set in syncSettings()            arrange: 'stacked',            summarizeX: 'count',            tooltip: null // set in syncSettings()        }    ],    color_by: null, // set in syncSettings()    color_dom: null, // set in syncSettings()    legend: {        location: 'top',        //  label: 'Query Status',        label: null,        order: null // set in syncSettings()    },    range_band: 15,    margin: { right: '50' } // room for count annotation};}

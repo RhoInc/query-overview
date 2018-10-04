@@ -319,6 +319,11 @@
         marking_group_col: 'markinggroup',
         visit_col: 'folderoid',
 
+        //query open time settings
+        open_col: 'open_time',
+        open_category_col: 'Query Open Time Category',
+        open_category_order: ['0-7 days', '8-14 days', '15-30 days', '>30 days'],
+
         //query age settings
         age_col: 'qdays',
         age_category_col: 'Query Age Category',
@@ -344,7 +349,7 @@
         filters: null,
         details: null,
         dropdown_size: 6,
-        cutoff: 10,
+        cutoff: 'All',
         alphabetize: true,
         exportable: true,
         nRowsPerPage: 10
@@ -440,7 +445,8 @@
                 value_col: syncedSettings.age_category_col,
                 label: 'Query Age Category',
                 order: syncedSettings.age_category_order,
-                colors: syncedSettings.age_category_colors
+                colors: syncedSettings.age_category_colors,
+                derive_source: syncedSettings.age_col
             },
             {
                 value_col: syncedSettings.status_col,
@@ -475,11 +481,19 @@
 
         //filters
         var defaultFilters = [
+            {
+                value_col: syncedSettings.open_category_col,
+                derive_source: syncedSettings.open_col,
+                label: 'Query Open Time',
+                multiple: true,
+                order: syncedSettings.open_category_order
+            },
             { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
             { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
             { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
             { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
         ];
+
         syncedSettings.status_groups.reverse().forEach(function(status_group) {
             status_group.multiple = true;
             defaultFilters.unshift(clone(status_group));
@@ -493,7 +507,6 @@
         //details
         syncedSettings.details = arrayOfVariablesCheck([], settings.details);
         if (syncedSettings.details.length === 0) delete syncedSettings.details;
-
         return syncedSettings;
     }
 
@@ -635,6 +648,25 @@
                         break;
                 }
             }
+
+            //Define query open time category.
+            var openTime = /^ *\d+ *$/.test(d[_this.config.open_col])
+                ? +d[_this.config.open_col]
+                : NaN;
+            switch (true) {
+                case openTime <= 7:
+                    d['Query Open Time Category'] = '0-7 days';
+                    break;
+                case openTime <= 14:
+                    d['Query Open Time Category'] = '8-14 days';
+                    break;
+                case openTime <= 30:
+                    d['Query Open Time Category'] = '15-30 days';
+                    break;
+                default:
+                    d['Query Open Time Category'] = '>30 days';
+                    break;
+            }
         });
     }
 
@@ -717,6 +749,20 @@
         queryAgeCategoryGroup.order = queryAgeCategoryOrder;
     }
 
+    function removeInvalidControls() {
+        var context = this;
+
+        // if the variable for the filter or the variable used to derive the filter
+        // are missing from that data -> remove them
+        var updated_inputs = this.controls.config.inputs.filter(function(d) {
+            return d.derive_source
+                ? d.derive_source in context.raw_data[0]
+                : d.value_col ? d.value_col in context.raw_data[0] : true;
+        });
+
+        this.controls.config.inputs = updated_inputs;
+    }
+
     function onInit() {
         //Define new variables.
         defineNewVariables.call(this);
@@ -729,6 +775,9 @@
 
         //Define detail listing settings.
         defineListingSettings.call(this);
+
+        //hide controls that do not have their variable supplied
+        removeInvalidControls.call(this);
 
         //Initialize listing.
         this.listing.init(this.raw_data);
@@ -940,28 +989,10 @@
     }
 
     function updateRangeBand() {
-        var _this = this;
-
-        var max = 0;
-        d3
-            .nest()
-            .key(function(d) {
-                return d[_this.config.y.column];
-            })
-            .key(function(d) {
-                return d[_this.config.color_by];
-            })
-            .rollup(function(d) {
-                max = Math.max(max, d.length);
-                return d.length;
-            })
-            .entries(this.raw_data);
         if (this.config.marks[0].arrange === 'stacked') {
             this.config.range_band = 15;
-            this.config.x.domain = [0, null];
         } else {
             this.config.range_band = 15 * this.config.color_dom.length;
-            this.config.x.domain = [0, max];
         }
     }
 
@@ -1028,6 +1059,8 @@
             this.y_dom = this.y_dom.filter(function(d, i) {
                 return i >= _this.y_dom.length - _this.config.cutoff;
             });
+        } else {
+            this.y_dom_length = this.y_dom.length; // ensure that "X more items" does not appear on Show All
         }
     }
 
@@ -1038,10 +1071,27 @@
             this.y_dom.length;
     }
 
+    function updateXAxisLabel() {
+        d3
+            .select('.x.axis')
+            .select('.axis-title')
+            .text(
+                this.config.x.label +
+                    ' (' +
+                    String(
+                        d3.sum(this.current_data, function(d) {
+                            return d.total;
+                        })
+                    ) +
+                    ')'
+            );
+    }
+
     function onDraw() {
         setLeftMargin.call(this);
         setYDomain.call(this);
         setChartHeight.call(this);
+        updateXAxisLabel.call(this);
     }
 
     function legendFilter() {
@@ -1469,8 +1519,25 @@
             });
     }
 
+    function addTableContainer() {
+        // Place the table inside of a div so that we can use a css trick
+        // to place a horizontal scroll bar on top of the table in defineStyles.js
+        var table = this.table.node();
+        this.tableContainer = this.wrap
+            .append('div')
+            .classed('query-table-container', true)
+            .node();
+
+        this.wrap.select('table').classed('query-table', true); // I want to ensure that no other webcharts tables get flipped upside down
+
+        table.parentNode.insertBefore(this.tableContainer, table);
+        this.tableContainer.appendChild(table);
+        this.tableContainer.scrollLeft = 9999;
+    }
+
     function onLayout$1() {
         resetListing.call(this);
+        addTableContainer.call(this);
         this.wrap.select('.sortable-container').classed('hidden', false);
         this.table.style('width', '100%').style('display', 'table');
     }
@@ -1478,13 +1545,18 @@
     function manualSort() {
         var _this = this;
 
+        var context = this;
+
         this.data.manually_sorted = this.data.raw.sort(function(a, b) {
             var order = 0;
 
             _this.sortable.order.forEach(function(item) {
                 var aCell = a[item.col];
                 var bCell = b[item.col];
-                if (item.col !== 'Query Age') {
+                if (
+                    item.col !== context.chart.initialSettings.age_col &&
+                    item.col !== context.chart.initialSettings.open_col
+                ) {
                     if (order === 0) {
                         if (
                             (item.direction === 'ascending' && aCell < bCell) ||
@@ -1595,14 +1667,48 @@
         });
     }
 
+    function moveScrollBarLeft() {
+        var _this = this;
+
+        this.tableContainer.scrollLeft = 9999;
+        var scrollATadMore = setInterval(function() {
+            return (_this.tableContainer.scrollLeft += 100);
+        }, 10); // for whatever reason the table doesn't scroll all the way left so just give the webpage a 25 milliseconds to load and then nudge the scrollbar the rest of the way
+        setTimeout(function() {
+            return clearInterval(scrollATadMore);
+        }, 10);
+    }
+
     function onDraw$1() {
         onClick.call(this);
+
+        //Move table scrollbar all the way to the left.
+        moveScrollBarLeft.call(this);
     }
 
     function onDestroy$1() {}
 
-    //chart callbacks
-    //listing callbacks
+    function defineStyles() {
+        var styles = [
+            '.query-table-container {' +
+                '    overflow-x: auto;' +
+                '    width : 100%;' +
+                '    transform:  rotate(180deg);' +
+                ' -webkit-transform:rotate(180deg); ' +
+                '}',
+            '.query-table {' +
+                '    transform:  rotate(180deg);' +
+                '  -webkit-transform:rotate(180deg); ' +
+                '}'
+        ];
+
+        //Attach styles to DOM.
+        this.style = document.createElement('style');
+        this.style.type = 'text/css';
+        this.style.innerHTML = styles.join('\n');
+        document.getElementsByTagName('head')[0].appendChild(this.style);
+    }
+
     function queryOverview$1(element, settings) {
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
@@ -1635,6 +1741,9 @@
 
         chart.listing = listing;
         listing.chart = chart;
+
+        //add Table stylesheet
+        defineStyles.call(listing);
 
         return chart;
     }
