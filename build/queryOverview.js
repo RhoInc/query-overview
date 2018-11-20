@@ -1,10 +1,10 @@
 (function(global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined'
-        ? (module.exports = factory(require('d3'), require('webcharts')))
+        ? (module.exports = factory(require('webcharts'), require('d3')))
         : typeof define === 'function' && define.amd
-            ? define(['d3', 'webcharts'], factory)
-            : (global.queryOverview = factory(global.d3, global.webCharts));
-})(this, function(d3$1, webcharts) {
+            ? define(['webcharts', 'd3'], factory)
+            : (global.queryOverview = factory(global.webCharts, global.d3));
+})(this, function(webcharts, d3$1) {
     'use strict';
 
     //[].find
@@ -56,9 +56,6 @@
     if (typeof Object.assign != 'function') {
         Object.defineProperty(Object, 'assign', {
             value: function assign(target, varArgs) {
-                // .length of function is 2
-                'use strict';
-
                 if (target == null) {
                     // TypeError if undefined or null
                     throw new TypeError('Cannot convert undefined or null to object');
@@ -158,122 +155,6 @@
                       ? 'symbol'
                       : typeof obj;
               };
-
-    var asyncGenerator = (function() {
-        function AwaitValue(value) {
-            this.value = value;
-        }
-
-        function AsyncGenerator(gen) {
-            var front, back;
-
-            function send(key, arg) {
-                return new Promise(function(resolve, reject) {
-                    var request = {
-                        key: key,
-                        arg: arg,
-                        resolve: resolve,
-                        reject: reject,
-                        next: null
-                    };
-
-                    if (back) {
-                        back = back.next = request;
-                    } else {
-                        front = back = request;
-                        resume(key, arg);
-                    }
-                });
-            }
-
-            function resume(key, arg) {
-                try {
-                    var result = gen[key](arg);
-                    var value = result.value;
-
-                    if (value instanceof AwaitValue) {
-                        Promise.resolve(value.value).then(
-                            function(arg) {
-                                resume('next', arg);
-                            },
-                            function(arg) {
-                                resume('throw', arg);
-                            }
-                        );
-                    } else {
-                        settle(result.done ? 'return' : 'normal', result.value);
-                    }
-                } catch (err) {
-                    settle('throw', err);
-                }
-            }
-
-            function settle(type, value) {
-                switch (type) {
-                    case 'return':
-                        front.resolve({
-                            value: value,
-                            done: true
-                        });
-                        break;
-
-                    case 'throw':
-                        front.reject(value);
-                        break;
-
-                    default:
-                        front.resolve({
-                            value: value,
-                            done: false
-                        });
-                        break;
-                }
-
-                front = front.next;
-
-                if (front) {
-                    resume(front.key, front.arg);
-                } else {
-                    back = null;
-                }
-            }
-
-            this._invoke = send;
-
-            if (typeof gen.return !== 'function') {
-                this.return = undefined;
-            }
-        }
-
-        if (typeof Symbol === 'function' && Symbol.asyncIterator) {
-            AsyncGenerator.prototype[Symbol.asyncIterator] = function() {
-                return this;
-            };
-        }
-
-        AsyncGenerator.prototype.next = function(arg) {
-            return this._invoke('next', arg);
-        };
-
-        AsyncGenerator.prototype.throw = function(arg) {
-            return this._invoke('throw', arg);
-        };
-
-        AsyncGenerator.prototype.return = function(arg) {
-            return this._invoke('return', arg);
-        };
-
-        return {
-            wrap: function(fn) {
-                return function() {
-                    return new AsyncGenerator(fn.apply(this, arguments));
-                };
-            },
-            await: function(value) {
-                return new AwaitValue(value);
-            }
-        };
-    })();
 
     function clone(obj) {
         var copy = void 0;
@@ -385,9 +266,7 @@
             order: null // set in syncSettings()
         },
         range_band: 15,
-        margin: {
-            right: '50' // room for count annotation
-        }
+        margin: { right: '50' } // room for count annotation
     };
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
