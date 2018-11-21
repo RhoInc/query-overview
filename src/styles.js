@@ -132,9 +132,8 @@ export default function styles() {
             '    width: 59.5%;' +
             '    float: right;' +
             '}',
-            '.qo-component--chart .legend {' +
-            '    display: flex !important;' +
-            '    justify-content: space-evenly;' +
+            '.qo-component--chart .legend-title {' +
+            '    cursor: help;' +
             '}',
 
         /***--------------------------------------------------------------------------------------\
