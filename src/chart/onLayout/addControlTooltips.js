@@ -3,7 +3,7 @@ export default function addControlTooltips() {
         //other controls
         'Status Group':
             'This option controls what variable the bars of the graph are stratified by.',
-        'Group By':
+        'Group by':
             'This option controls how queries are grouped down the left side of the graphic.',
         'Bar Arrangement':
             'Stacked=all stratification variables shown in one row; Grouped=separate row for each stratification variable.',
