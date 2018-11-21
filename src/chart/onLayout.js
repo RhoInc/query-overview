@@ -1,5 +1,6 @@
 import classControls from './onLayout/classControls';
 import groupControls from './onLayout/groupControls';
+import addControlTooltips from './onLayout/addControlTooltips';
 import updateGroupByOptions from './onLayout/updateGroupByOptions';
 import customizeMultiSelects from './onLayout/customizeMultiSelects';
 import setYAxisDomainLength from './onLayout/setYAxisDomainLength';
@@ -13,6 +14,9 @@ export default function onLayout() {
 
     //Group controls logically.
     groupControls.call(this);
+
+    //Add tooltips to controls.
+    addControlTooltips.call(this);
 
     //Display group label rather than group column name in Group by control.
     updateGroupByOptions.call(this);

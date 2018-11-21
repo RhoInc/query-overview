@@ -522,6 +522,7 @@
                 '    top: 0;' +
                 '    left: 0;' +
                 '}',
+            '.wc-control-label {' + '    cursor: help;' + '}',
             '.span-description {' + '    display: none !important;' + '}',
 
             /****---------------------------------------------------------------------------------\
@@ -601,6 +602,10 @@
       \--------------------------------------------------------------------------------------***/
 
             '.qo-component--chart {' + '    width: 59.5%;' + '    float: right;' + '}',
+            '.qo-component--chart .legend {' +
+                '    display: flex !important;' +
+                '    justify-content: space-evenly;' +
+                '}',
 
             /***--------------------------------------------------------------------------------------\
         Listing
@@ -863,6 +868,57 @@
         });
     }
 
+    function addControlTooltips() {
+        var tooltips = {
+            //other controls
+            'Status Group':
+                'This option controls what variable the bars of the graph are stratified by.',
+            'Group By':
+                'This option controls how queries are grouped down the left side of the graphic.',
+            'Bar Arrangement':
+                'Stacked=all stratification variables shown in one row; Grouped=separate row for each stratification variable.',
+            'Show First N Groups':
+                'Select to show the first 10, 25, or all of the group variables.',
+            'Order groups alphabetically?':
+                'Uncheck for graph to sort by magnitude (largest to smallest number of queries) instead of alphabetical.',
+
+            //filters
+            'Query Age Category':
+                'Open queries are broken down into how long they have been open. All other queries are classified by status (answered, closed, cancelled).',
+            'Query Status':
+                'Open=site has not responded to the issue; Answered=site has responded to issue, DM needs to review; Closed=Issues resolved; Cancelled=query cancelled by DM.',
+            'Query Open Time':
+                'For queries opened within the last 30 days this is how long ago the query was opened, regardless of current status.',
+            Form:
+                'CRF page abbreviation. Hover over the abbreviation in the graph to see the full name.',
+            Site: 'Name of site',
+            'Marking Group': 'Entity that opened the query',
+            'Visit/Folder':
+                'Visit/folder abbreviation. Hover over the visit/folder abbreviation in the graph to see the full name.'
+        };
+        this.controls.controlGroups.each(function(d) {
+            var tooltip =
+                tooltips[d.label] ||
+                'This ' +
+                    d.type +
+                    ' controls ' +
+                    (d.value_col || d.option || d.options.join(', ')) +
+                    '.';
+            if (tooltips[d.label] === undefined)
+                console.warn(
+                    'The control labeled ' +
+                        d.label +
+                        ' does not have a curated tooltip. Defaulting to ' +
+                        tooltip +
+                        '.'
+                );
+            d3
+                .select(this)
+                .selectAll('.wc-control-label')
+                .attr('title', tooltip);
+        });
+    }
+
     function updateGroupByOptions() {
         var context = this;
 
@@ -1010,6 +1066,9 @@
 
         //Group controls logically.
         groupControls.call(this);
+
+        //Add tooltips to controls.
+        addControlTooltips.call(this);
 
         //Display group label rather than group column name in Group by control.
         updateGroupByOptions.call(this);
