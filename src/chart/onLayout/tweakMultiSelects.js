@@ -10,7 +10,8 @@ export default function tweakMultiSelects() {
                 .select('select')
                 .attr(
                     'size',
-                    context.filters.find(filter => filter.col === d.value_col).choices.length
+                    4
+                    //context.filters.find(filter => filter.col === d.value_col).choices.length
                 )
                 .attr('title', 'Hold the CTRL key to select or deselect a single option.')
                 .selectAll('option')

@@ -1,13 +1,12 @@
 (function(global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined'
-        ? (module.exports = factory(require('webcharts'), require('d3')))
+        ? (module.exports = factory(require('d3'), require('webcharts')))
         : typeof define === 'function' && define.amd
-            ? define(['webcharts', 'd3'], factory)
-            : (global.queryOverview = factory(global.webCharts, global.d3));
-})(this, function(webcharts, d3$1) {
+            ? define(['d3', 'webcharts'], factory)
+            : (global.queryOverview = factory(global.d3, global.webCharts));
+})(this, function(d3$1, webcharts) {
     'use strict';
 
-    //[].find
     if (!Array.prototype.find) {
         Object.defineProperty(Array.prototype, 'find', {
             value: function value(predicate) {
@@ -52,7 +51,6 @@
         });
     }
 
-    //{}.assign
     if (typeof Object.assign != 'function') {
         Object.defineProperty(Object, 'assign', {
             value: function assign(target, varArgs) {
@@ -84,7 +82,6 @@
         });
     }
 
-    //[].findIndex
     if (!Array.prototype.findIndex) {
         Object.defineProperty(Array.prototype, 'findIndex', {
             value: function value(predicate) {
@@ -129,16 +126,16 @@
         });
     }
 
-    d3.selection.prototype.moveToFront = function() {
-        return this.each(function() {
-            this.parentNode.appendChild(this);
-        });
-    };
-
     d3.selection.prototype.moveToBack = function() {
         return this.each(function() {
             var firstChild = this.parentNode.firstChild;
             if (firstChild) this.parentNode.insertBefore(this, firstChild);
+        });
+    };
+
+    d3.selection.prototype.moveToFront = function() {
+        return this.each(function() {
+            this.parentNode.appendChild(this);
         });
     };
 
@@ -266,7 +263,9 @@
             order: null // set in syncSettings()
         },
         range_band: 15,
-        margin: { right: '50' } // room for count annotation
+        margin: {
+            right: '50' // room for count annotation
+        }
     };
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
@@ -392,18 +391,16 @@
     var controlInputs = [
         {
             type: 'dropdown',
-            option: 'y.label',
-            label: 'Group by',
-            description: 'variable toggle',
+            label: 'Status Group',
+            options: ['marks.0.split', 'color_by'], // will want to change tooltip too
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
         },
         {
             type: 'dropdown',
-            label: 'Status Group',
-            description: 'stratification',
-            options: ['marks.0.split', 'color_by'], // will want to change tooltip too
+            option: 'y.label',
+            label: 'Group by',
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
@@ -418,12 +415,12 @@
             type: 'radio',
             option: 'cutoff',
             label: 'Show First N Groups',
-            values: ['10', '25', 'All']
+            values: ['All', '25', '10']
         },
         {
             type: 'checkbox',
             option: 'alphabetize',
-            label: 'Alphabetical?'
+            label: 'Order groups alphabetically?'
         }
     ];
 
@@ -449,7 +446,6 @@
         //filters
         settings.filters.forEach(function(filter, i) {
             filter.type = 'subsetter';
-            filter.description = 'filter';
             syncedControlInputs.splice(2 + i, 0, filter);
         });
 
@@ -475,6 +471,160 @@
         controlInputs: controlInputs,
         syncControlInputs: syncControlInputs
     };
+
+    function layout(element) {
+        var containers = {
+            main: d3
+                .select(element)
+                .append('div')
+                .classed('.query-overview', true)
+        };
+
+        containers.topRow = containers.main.append('div').classed('qo-row qo-row--top', true);
+        containers.controls = containers.topRow
+            .append('div')
+            .classed('qo-component qo-component--controls', true);
+        containers.chart = containers.topRow
+            .append('div')
+            .classed('qo-component qo-component--chart', true);
+        containers.bottomRow = containers.main.append('div').classed('qo-row qo-row--bottom', true);
+        containers.listing = containers.bottomRow
+            .append('div')
+            .classed('qo-component qo-component--listing', true);
+
+        return containers;
+    }
+
+    function styles() {
+        var styles = [
+            /***--------------------------------------------------------------------------------------\
+        Framework
+      \--------------------------------------------------------------------------------------***/
+
+            '.query-overview {' + '    width: 100%;' + '    display: inline-block;' + '}',
+            '.qo-row {' + '    width: 100%;' + '    display: inline-block;' + '}',
+            '.qo-component {' + '    display: inline-block;' + '}',
+            '.qo-row--top {' + '}',
+            '.qo-row--bottom {' + '}',
+
+            /***--------------------------------------------------------------------------------------\
+        Controls
+      \--------------------------------------------------------------------------------------***/
+
+            '.qo-component--controls {' +
+                '    width: 39.5%;' +
+                '    float: left;' +
+                '    position: relative;' +
+                '}',
+            '.qo-control-grouping {' + '    display: inline-block;' + '}',
+            '.qo-button--reset-chart {' +
+                '    position: absolute;' +
+                '    top: 0;' +
+                '    left: 0;' +
+                '}',
+            '.span-description {' + '    display: none !important;' + '}',
+
+            /****---------------------------------------------------------------------------------\
+        Other controls
+      \---------------------------------------------------------------------------------****/
+
+            '.qo-control-grouping--other-controls {' +
+                '    width: 39.5%;' +
+                '    float: right;' +
+                '}',
+            '.qo-control-grouping--other-controls .control-group {' +
+                '    display: inline-block !important;' +
+                '    width: 100%;' +
+                '    margin: 5px 0 0 0 !important;' +
+                '}',
+            '.qo-control-grouping--other-controls .control-group > * {' +
+                '    margin: 0;' +
+                '    padding: 0;' +
+                '}',
+
+            //dropdowns
+            '.qo-dropdown .wc-control-label {' +
+                '    display: inline-block !important;' +
+                '    width: 44%;' +
+                '    text-align: right;' +
+                '}',
+            '.qo-dropdown .changer {' +
+                '    display: inline-block !important;' +
+                '    float: right;' +
+                '    width: 55%;' +
+                '}',
+
+            //radio buttons
+            '.qo-radio .wc-control-label {' + '    width: 100%;' + '    text-align: right;' + '}',
+            '.qo-radio .radio {' +
+                '    display: inline-block !important;' +
+                '    float: right !important;' +
+                '}',
+
+            //checkboxes
+            '.qo-checkbox .wc-control-label {' +
+                '    display: inline-block !important;' +
+                '    text-align: right;' +
+                '    width: 92.5%;' +
+                '}',
+            '.qo-checkbox .changer {' +
+                '    display: inline-block !important;' +
+                '    float: right !important;' +
+                '}',
+
+            /****---------------------------------------------------------------------------------\
+        Filters
+      \---------------------------------------------------------------------------------****/
+
+            '.qo-control-grouping--filters {' +
+                '    width: 59.5%;' +
+                '    float: left;' +
+                '    display: flex;' +
+                '    flex-wrap: wrap;' +
+                '    justify-content: space-evenly;' +
+                '}',
+            '.qo-control-grouping--label {' +
+                '    text-align: center;' +
+                '    width: 100%;' +
+                '    font-size: 24px;' +
+                '    border-bottom: 1px solid #aaa;' +
+                '}',
+            '.qo-subsetter {' + '    margin: 5px 0 0 0 !important;' + '}',
+            '.qo-subsetter .wc-control-label {' +
+                '    margin: 0 5px 3px 0;' +
+                '    text-align: center;' +
+                '}',
+            '.qo-subsetter .changer {' + '    margin: 0 auto;' + '}',
+
+            /***--------------------------------------------------------------------------------------\
+        Chart
+      \--------------------------------------------------------------------------------------***/
+
+            '.qo-component--chart {' + '    width: 59.5%;' + '    float: right;' + '}',
+
+            /***--------------------------------------------------------------------------------------\
+        Listing
+      \--------------------------------------------------------------------------------------***/
+
+            '.qo-component--listing {' + '}',
+            '.query-table-container {' +
+                '    overflow-x: auto;' +
+                '    width: 100%;' +
+                '    transform: rotate(180deg);' +
+                '    -webkit-transform: rotate(180deg); ' +
+                '}',
+            '.query-table {' +
+                '    transform: rotate(180deg);' +
+                '    -webkit-transform: rotate(180deg); ' +
+                '}'
+        ];
+
+        //Attach styles to DOM.
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = styles.join('\n');
+        document.getElementsByTagName('head')[0].appendChild(style);
+    }
 
     function defineListingSettings() {
         this.listing.config.cols = this.config.details
@@ -662,6 +812,57 @@
         this.listing.init(this.raw_data);
     }
 
+    function classControls() {
+        this.controls.controlGroups = this.controls.wrap
+            .selectAll('.control-group')
+            .attr('class', function(d) {
+                return (
+                    'control-group qo-' +
+                    d.type +
+                    ' qo-' +
+                    d.type +
+                    '--' +
+                    d.label.toLowerCase().replace(/[^_a-zA-Z-]/g, '-')
+                );
+            });
+    }
+
+    function groupControls() {
+        var context = this;
+
+        //Group other controls.
+        this.controls.otherControls = {
+            container: this.controls.wrap
+                .insert('div', ':first-child')
+                .classed('qo-control-grouping qo-control-grouping--other-controls', true)
+        };
+        this.controls.otherControls.container
+            .append('div')
+            .classed('qo-control-grouping--label', true)
+            .text('Controls');
+        this.controls.otherControls.controlGroups = this.controls.wrap.selectAll(
+            '.control-group:not(.qo-subsetter)'
+        );
+        this.controls.otherControls.controlGroups.each(function(d) {
+            context.controls.otherControls.container.node().appendChild(this);
+        });
+
+        //Group filters.
+        this.controls.filters = {
+            container: this.controls.wrap
+                .insert('div', '.qo-subsetter')
+                .classed('qo-control-grouping qo-control-grouping--filters', true)
+        };
+        this.controls.filters.container
+            .append('div')
+            .classed('qo-control-grouping--label', true)
+            .text('Filters');
+        this.controls.filters.controlGroups = this.controls.wrap.selectAll('.qo-subsetter');
+        this.controls.filters.controlGroups.each(function(d) {
+            context.controls.filters.container.node().appendChild(this);
+        });
+    }
+
     function updateGroupByOptions() {
         var context = this;
 
@@ -753,19 +954,18 @@
 
         this.controls.wrap
             .insert('button', ':first-child')
-            .attr('id', 'reset-chart')
-            .style({
-                margin: '5px',
-                padding: '5px',
-                float: 'right'
-            })
+            .classed('qo-button--reset-chart', true)
             .text('Reset chart')
             .on('click', function() {
-                var element = clone(_this.div),
-                    settings = clone(_this.initialSettings),
-                    data = clone(_this.raw_data);
+                var element = _this.element;
+                var settings = clone(_this.initialSettings);
+                var data = clone(_this.raw_data);
                 _this.listing.destroy();
                 _this.destroy();
+                d3
+                    .select(_this.element)
+                    .selectAll('*')
+                    .remove();
                 queryOverview(element, settings).init(data);
             });
     }
@@ -805,6 +1005,12 @@
     }
 
     function onLayout() {
+        //Class controls for unique selection.
+        classControls.call(this);
+
+        //Group controls logically.
+        groupControls.call(this);
+
         //Display group label rather than group column name in Group by control.
         updateGroupByOptions.call(this);
 
@@ -1358,271 +1564,55 @@
         addBarClick.call(this);
     }
 
-    function onInit$1() {}
+    function onDestroy() {}
 
-    function resetListing() {
-        var _this = this;
-
-        this.wrap
-            .insert('button', ':first-child')
-            .attr('id', 'clear-listing')
-            .style({
-                margin: '5px',
-                padding: '5px',
-                float: 'left',
-                display: 'block'
-            })
-            .text('Reset listing')
-            .on('click', function() {
-                _this.wrap.selectAll('*').remove();
-                // revert selected bars back to regular width and start
-                _this.chart.svg.selectAll('.bar.selected').attr({
-                    width: function width(d) {
-                        return this.getBBox().width + 2.5;
-                    },
-                    x: function x(d) {
-                        return this.getBBox().x - 2.5;
-                    }
-                });
-                _this.chart.svg
-                    .selectAll('.bar')
-                    .classed('selected', false)
-                    .style({
-                        'stroke-width': '1px',
-                        fill: function fill(d) {
-                            return _this.chart.colorScale(d.key);
-                        }
-                    });
-                _this.chart.listing.init(_this.chart.filtered_data);
-                _this.chart.wrap.select('#listing-instruction').style('display', 'block');
-            });
-    }
-
-    function addTableContainer() {
-        // Place the table inside of a div so that we can use a css trick
-        // to place a horizontal scroll bar on top of the table in defineStyles.js
-        var table = this.table.node();
-        this.tableContainer = this.wrap
-            .append('div')
-            .classed('query-table-container', true)
-            .node();
-
-        this.wrap.select('table').classed('query-table', true); // I want to ensure that no other webcharts tables get flipped upside down
-
-        table.parentNode.insertBefore(this.tableContainer, table);
-        this.tableContainer.appendChild(table);
-        this.tableContainer.scrollLeft = 9999;
-    }
-
-    function onLayout$1() {
-        resetListing.call(this);
-        addTableContainer.call(this);
-        this.wrap.select('.sortable-container').classed('hidden', false);
-        this.table.style('width', '100%').style('display', 'table');
-    }
-
-    function manualSort() {
-        var _this = this;
-
-        var context = this;
-
-        this.data.manually_sorted = this.data.raw.sort(function(a, b) {
-            var order = 0;
-
-            _this.sortable.order.forEach(function(item) {
-                var aCell = a[item.col];
-                var bCell = b[item.col];
-                if (
-                    item.col !== context.chart.initialSettings.age_col &&
-                    item.col !== context.chart.initialSettings.open_col
-                ) {
-                    if (order === 0) {
-                        if (
-                            (item.direction === 'ascending' && aCell < bCell) ||
-                            (item.direction === 'descending' && aCell > bCell)
-                        )
-                            order = -1;
-                        else if (
-                            (item.direction === 'ascending' && aCell > bCell) ||
-                            (item.direction === 'descending' && aCell < bCell)
-                        )
-                            order = 1;
-                    }
-                } else {
-                    if (order === 0) {
-                        if (
-                            (item.direction === 'ascending' && +aCell < +bCell) ||
-                            (item.direction === 'descending' && +aCell > +bCell)
-                        )
-                            order = -1;
-                        else if (
-                            (item.direction === 'ascending' && +aCell > +bCell) ||
-                            (item.direction === 'descending' && +aCell < +bCell)
-                        )
-                            order = 1;
-                    }
-                }
-            });
-
-            return order;
-        });
-        this.draw(this.data.manually_sorted);
-    }
-
-    function onClick() {
-        var context = this;
-
-        this.thead_cells.on('click', function(d) {
-            var th = this;
-            var header = d;
-            var selection = d3.select(th);
-            var col = context.config.cols[context.config.headers.indexOf(header)];
-
-            //Check if column is already a part of current sort order.
-            var sortItem = context.sortable.order.filter(function(item) {
-                return item.col === col;
-            })[0];
-
-            //If it isn't, add it to sort order.
-            if (!sortItem) {
-                sortItem = {
-                    col: col,
-                    direction: 'ascending',
-                    wrap: context.sortable.wrap
-                        .append('div')
-                        .datum({ key: col })
-                        .classed('wc-button sort-box', true)
-                        .text(header)
-                };
-                sortItem.wrap
-                    .append('span')
-                    .classed('sort-direction', true)
-                    .html('&darr;');
-                sortItem.wrap
-                    .append('span')
-                    .classed('remove-sort', true)
-                    .html('&#10060;');
-                context.sortable.order.push(sortItem);
-            } else {
-                //Otherwise reverse its sort direction.
-                sortItem.direction =
-                    sortItem.direction === 'ascending' ? 'descending' : 'ascending';
-                sortItem.wrap
-                    .select('span.sort-direction')
-                    .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
-            }
-
-            //Hide sort instructions.
-            context.sortable.wrap.select('.instruction').classed('hidden', true);
-
-            //Add sort container deletion functionality.
-            context.sortable.order.forEach(function(item, i) {
-                item.wrap.on('click', function(d) {
-                    //Remove column's sort container.
-                    d3.select(this).remove();
-
-                    //Remove column from sort.
-                    context.sortable.order.splice(
-                        context.sortable.order
-                            .map(function(d) {
-                                return d.col;
-                            })
-                            .indexOf(d.key),
-                        1
-                    );
-
-                    //Display sorting instruction.
-                    context.sortable.wrap
-                        .select('.instruction')
-                        .classed('hidden', context.sortable.order.length);
-
-                    //Redraw chart.
-                    manualSort.call(context);
-                });
-            });
-
-            //Redraw chart.
-            manualSort.call(context);
-        });
-    }
-
-    function moveScrollBarLeft() {
-        var _this = this;
-
-        this.tableContainer.scrollLeft = 9999;
-        var scrollATadMore = setInterval(function() {
-            return (_this.tableContainer.scrollLeft += 100);
-        }, 10); // for whatever reason the table doesn't scroll all the way left so just give the webpage a 25 milliseconds to load and then nudge the scrollbar the rest of the way
-        setTimeout(function() {
-            return clearInterval(scrollATadMore);
-        }, 10);
-    }
-
-    function onDraw$1() {
-        onClick.call(this);
-
-        //Move table scrollbar all the way to the left.
-        moveScrollBarLeft.call(this);
-    }
-
-    function onDestroy$1() {}
-
-    function defineStyles() {
-        var styles = [
-            '.query-table-container {' +
-                '    overflow-x: auto;' +
-                '    width : 100%;' +
-                '    transform:  rotate(180deg);' +
-                ' -webkit-transform:rotate(180deg); ' +
-                '}',
-            '.query-table {' +
-                '    transform:  rotate(180deg);' +
-                '  -webkit-transform:rotate(180deg); ' +
-                '}'
-        ];
-
-        //Attach styles to DOM.
-        this.style = document.createElement('style');
-        this.style.type = 'text/css';
-        this.style.innerHTML = styles.join('\n');
-        document.getElementsByTagName('head')[0].appendChild(this.style);
-    }
+    var chartCallbacks = {
+        onInit: onInit,
+        onLayout: onLayout,
+        onPreprocess: onPreprocess,
+        onDataTransform: onDataTransform,
+        onDraw: onDraw,
+        onResize: onResize,
+        onDestroy: onDestroy
+    };
 
     function queryOverview$1(element, settings) {
+        //Settings
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
         var syncedControlInputs = configuration.syncControlInputs(
             configuration.controlInputs,
             syncedSettings
         );
-        var controls = webcharts.createControls(element, {
+
+        //Layout and styles
+        var containers = layout(element);
+        styles();
+
+        //Controls
+        var controls = webcharts.createControls(containers.controls.node(), {
             location: 'top',
             inputs: syncedControlInputs
         });
-        var chart = webcharts.createChart(element, syncedSettings, controls);
-        var listing = webcharts.createTable(element, {
+        controls.element = element;
+
+        //Chart
+        var chart = webcharts.createChart(containers.chart.node(), syncedSettings, controls);
+        chart.element = element;
+        chart.initialSettings = clone(mergedSettings);
+        for (var callback in chartCallbacks) {
+            chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
+        } //Listing
+        var listing = webcharts.createTable(containers.listing.node(), {
             sortable: false,
             exportable: syncedSettings.exportable
         });
-
-        chart.initialSettings = clone(mergedSettings);
-        chart.on('init', onInit);
-        chart.on('layout', onLayout);
-        chart.on('preprocess', onPreprocess);
-        chart.on('datatransform', onDataTransform);
-        chart.on('draw', onDraw);
-        chart.on('resize', onResize);
-
-        listing.on('init', onInit$1);
-        listing.on('layout', onLayout$1);
-        listing.on('draw', onDraw$1);
-        listing.on('destroy', onDestroy$1);
-
+        listing.element = element;
+        for (var _callback in chartCallbacks) {
+            chart.on(_callback.substring(2).toLowerCase(), chartCallbacks[_callback]);
+        } //Intertwine
         chart.listing = listing;
         listing.chart = chart;
-
-        //add Table stylesheet
-        defineStyles.call(listing);
 
         return chart;
     }
