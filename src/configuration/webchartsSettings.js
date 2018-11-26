@@ -7,7 +7,8 @@ export default {
         type: 'ordinal',
         column: null, // set in syncSettings()
         label: 'Form',
-        sort: 'total-descending'
+        sort: 'total-descending',
+        range_band: 25,
     },
     marks: [
         {
@@ -27,6 +28,6 @@ export default {
         label: null,
         order: null // set in syncSettings()
     },
-    range_band: 15,
+    range_band: 25,
     margin: { right: '50' } // room for count annotation
 };

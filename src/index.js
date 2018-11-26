@@ -40,8 +40,8 @@ export default function queryOverview(element, settings) {
         exportable: syncedSettings.exportable
     });
     listing.element = element;
-    for (const callback in chartCallbacks)
-        chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
+    for (const callback in listingCallbacks)
+        listing.on(callback.substring(2).toLowerCase(), listingCallbacks[callback]);
 
     //Intertwine
     chart.listing = listing;

@@ -59,11 +59,9 @@ export default function addBarClick() {
                     .data()
                     .flatMap(d => d.values.raw)
             );
-            context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
             // display filtered data if no bars are selected
             if (d3.selectAll('rect.selected')[0].length === 0) {
                 context.listing.wrap.selectAll('*').remove();
-                context.wrap.select('#listing-instruction').style('display', 'block');
                 context.listing.init(context.filtered_data);
             }
         });

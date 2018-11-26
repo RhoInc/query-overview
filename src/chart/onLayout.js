@@ -8,7 +8,7 @@ import updateFilterEventListeners from './onLayout/updateFilterEventListeners';
 import setYAxisDomainLength from './onLayout/setYAxisDomainLength';
 import addResetButton from './onLayout/addResetButton';
 import clearListingOnChange from './onLayout/clearListingOnChange';
-import addListingInstruction from './onLayout/addListingInstruction';
+import addBarClickFootnote from './onLayout/addBarClickFootnote';
 
 export default function onLayout() {
     //Class controls for unique selection.
@@ -41,6 +41,6 @@ export default function onLayout() {
     //Clear listing when controls change.
     clearListingOnChange.call(this);
 
-    //Add listing instruction.
-    addListingInstruction.call(this);
+    //Add bar click footnote.
+    addBarClickFootnote.call(this);
 }

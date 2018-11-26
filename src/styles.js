@@ -38,6 +38,8 @@ export default function styles() {
             '    top: 0;' +
             '    left: 0;' +
             '}',
+
+            '.qo-control-grouping--label,' +
             '.wc-control-label {' +
             '    cursor: help;' +
             '}',
@@ -135,20 +137,27 @@ export default function styles() {
             '.qo-component--chart .legend-title {' +
             '    cursor: help;' +
             '}',
+            '.qo-footnote {' +
+            '    width: 100%;' +
+            '    text-align: center;' +
+            '    font-style: italic;' +
+            '}',
 
         /***--------------------------------------------------------------------------------------\
           Listing
         \--------------------------------------------------------------------------------------***/
 
             '.qo-component--listing {' +
+            '    width: 100%;' +
             '}',
-            '.query-table-container {' +
+            '.qo-table-container {' +
             '    overflow-x: auto;' +
             '    width: 100%;' +
             '    transform: rotate(180deg);' +
             '    -webkit-transform: rotate(180deg); ' +
             '}',
-            '.query-table {' +
+            '.qo-table {' +
+            '    width: 100%;' +
             '    transform: rotate(180deg);' +
             '    -webkit-transform: rotate(180deg); ' +
             '}',
