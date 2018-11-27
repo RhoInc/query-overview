@@ -1,7 +1,8 @@
 import clone from '../../util/clone';
 
 export default function addResetButton() {
-    this.resetButton = d3.select(this.div)
+    this.resetButton = d3
+        .select(this.div)
         .insert('button', ':first-child')
         .classed('qo-button qo-button--reset-chart', true)
         .text('Reset chart')

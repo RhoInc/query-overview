@@ -7,6 +7,6 @@ export default function addFootnotes() {
         deselectBars: this.wrap
             .append('div')
             .classed('qo-footnote qo-footnote--deselect-bars', true)
-            .text('Click in the white area to deselect all bars.'),
+            .text('Click in the white area to deselect all bars.')
     };
 }

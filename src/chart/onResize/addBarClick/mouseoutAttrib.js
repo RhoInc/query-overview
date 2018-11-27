@@ -6,6 +6,6 @@ export default function mouseoutAttrib(element) {
         },
         x: function(d) {
             return this.getBBox().x - 2.5;
-        },
+        }
     });
 }

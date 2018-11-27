@@ -122,7 +122,7 @@ if (!Array.prototype.findIndex) {
 
 Array.prototype.flatMap = function(lambda) {
     return Array.prototype.concat.apply([], this.map(lambda));
-}
+};
 
 d3.selection.prototype.moveToBack = function() {
     return this.each(function() {

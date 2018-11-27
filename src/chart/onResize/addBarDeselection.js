@@ -1,2 +1,1 @@
-export default function addBarDeselection() {
-}
+export default function addBarDeselection() {}
