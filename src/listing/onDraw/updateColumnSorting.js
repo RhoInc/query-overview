@@ -1,6 +1,6 @@
-import manualSort from './onClick/manualSort';
+import manualSort from './updateColumnSorting/manualSort';
 
-export default function onClick() {
+export default function updateColumnSorting() {
     const context = this;
 
     this.thead_cells.on('click', function(d) {

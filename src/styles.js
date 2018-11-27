@@ -14,7 +14,6 @@ export default function styles() {
             '    display: inline-block;' +
             '}',
             '.qo-component {' +
-            '    display: inline-block;' +
             '}',
             '.qo-row--top {' +
             '}',
@@ -27,15 +26,18 @@ export default function styles() {
 
             '.qo-component--controls {' +
             '    width: 100%;' +
-            '    position: relative;' +
+            '}',
+            '.qo-component--controls .wc-controls {' +
+            '    margin-bottom: 0;' +
             '}',
             '.qo-control-grouping {' +
             '    display: inline-block;' +
             '}',
-            '.qo-button--reset-chart {' +
-            '    position: absolute;' +
-            '    top: 0;' +
-            '    left: 0;' +
+            '.qo-button {' +
+            '    margin: 0 5px;' +
+            '    padding: 3px;' +
+            '    float: left;' +
+            '    display: block;' +
             '}',
             '.qo-control-grouping--label,' +
             '.wc-control-label {' +
@@ -135,8 +137,14 @@ export default function styles() {
         \--------------------------------------------------------------------------------------***/
 
             '.qo-component--chart {' +
-            '    width: 59%;' +
+            '    width: 58%;' +
             '    margin: 0 auto;' +
+            '    position: relative;' +
+            '}',
+            '.qo-button--reset-chart {' +
+            '    position: absolute;' +
+            '    top: 0;' +
+            '    left: 0;' +
             '}',
             '.qo-component--chart .legend-title {' +
             '    cursor: help;' +
@@ -153,6 +161,9 @@ export default function styles() {
 
             '.qo-component--listing {' +
             '    width: 100%;' +
+            '}',
+            '.qo-button--reset-listing {' +
+            '    margin: 10px 5px 10px 0;' +
             '}',
             '.qo-table-container {' +
             '    overflow-x: auto;' +

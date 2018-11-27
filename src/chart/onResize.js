@@ -5,6 +5,7 @@ import annotateYAxisInfo from './onResize/annotateYAxisInfo';
 import hideBars from './onResize/hideBars';
 import annotateNumberOfQueries from './onResize/annotateNumberOfQueries';
 import addBarClick from './onResize/addBarClick';
+import addBarDeselection from './onResize/addBarDeselection';
 
 export default function onResize() {
     //Add filter functionality to legend.
@@ -27,4 +28,7 @@ export default function onResize() {
 
     //Add bar click-ability.
     addBarClick.call(this);
+
+    //Add bar deselection.
+    addBarDeselection.call(this);
 }

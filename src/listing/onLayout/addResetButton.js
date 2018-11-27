@@ -1,13 +1,7 @@
-export default function resetListing() {
-    this.wrap
+export default function addResetButton() {
+    this.resetButton = this.wrap
         .insert('button', ':first-child')
-        .attr('id', 'clear-listing')
-        .style({
-            margin: '5px',
-            padding: '5px',
-            float: 'left',
-            display: 'block'
-        })
+        .classed('qo-button qo-button--reset-listing', true)
         .text('Reset listing')
         .on('click', () => {
             this.wrap.selectAll('*').remove();
@@ -28,6 +22,5 @@ export default function resetListing() {
                     fill: d => this.chart.colorScale(d.key)
                 });
             this.chart.listing.init(this.chart.filtered_data);
-            this.chart.wrap.select('#listing-instruction').style('display', 'block');
         });
 }
