@@ -8,7 +8,7 @@ export default {
         column: null, // set in syncSettings()
         label: 'Form',
         sort: 'total-descending',
-        range_band: 25,
+        range_band: 25
     },
     marks: [
         {

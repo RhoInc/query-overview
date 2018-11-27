@@ -25,7 +25,7 @@ export default [
         type: 'radio',
         option: 'cutoff',
         label: 'Show First N Groups',
-        values: ['All', '25', '10']
+        values: ['10', '25', 'All']
     },
     {
         type: 'checkbox',

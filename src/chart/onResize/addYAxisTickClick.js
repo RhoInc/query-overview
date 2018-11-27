@@ -22,8 +22,7 @@ export default function addYAxisTickClick() {
                 .filter(d => d.label === 'Form')
                 .selectAll('option')
                 .property('selected', d => d === yLabel);
-            const filter = this.filters
-                .find(filter => filter.col === this.config.form_col)
+            const filter = this.filters.find(filter => filter.col === this.config.form_col);
             filter.val = yLabel;
             updateSelectAll.call(
                 this,

@@ -35,8 +35,7 @@ export default function legendFilter() {
     const statusControlGroup = this.controls.wrap
         .selectAll('.control-group')
         .filter(d => d.value_col === context.config.marks[0].split);
-    const statusOptions = statusControlGroup
-        .selectAll('.changer option'); // status filter options
+    const statusOptions = statusControlGroup.selectAll('.changer option'); // status filter options
     legendItems.selectAll('.legend-mark-text').remove(); // don't need 'em
     legendItems.on('click', function(d) {
         const legendItem = d3.select(this), // clicked legend item

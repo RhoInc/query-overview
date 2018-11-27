@@ -4,7 +4,8 @@ d3.csv(
         if (error)
             console.log(error);
 
-        var settings = {};
+        var settings = {
+        };
         var instance = queryOverview(
             '#container',
             settings
