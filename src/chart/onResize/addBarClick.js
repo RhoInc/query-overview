@@ -2,6 +2,7 @@ import mouseoverStyle from './addBarClick/mouseoverStyle';
 import mouseoverAttrib from './addBarClick/mouseoverAttrib';
 import mouseoutStyle from './addBarClick/mouseoutStyle';
 import mouseoutAttrib from './addBarClick/mouseoutAttrib';
+import initListing from './addBarClick/initListing';
 
 export default function addBarClick() {
     const context = this;
@@ -27,20 +28,10 @@ export default function addBarClick() {
                 .moveToFront();
         })
         .on('click', function(d) {
-            // this doesn't need a style because mouseout isn't applied when the bar is selected
-            d3.select(this).classed('selected', d3.select(this).classed('selected') ? false : true);
-            context.listing.wrap.selectAll('*').remove();
-            // feed listing data for all selected bars
-            context.listing.init(
-                d3
-                    .selectAll('rect.selected')
-                    .data()
-                    .flatMap(d => d.values.raw)
-            );
-            // display filtered data if no bars are selected
-            if (d3.selectAll('rect.selected')[0].length === 0) {
-                context.listing.wrap.selectAll('*').remove();
-                context.listing.init(context.filtered_data);
-            }
+            //Update selected class of clicked bar.
+            d3.select(this).classed('selected', !d3.select(this).classed('selected'));
+
+            //Re-initialize listing.
+            initListing.call(context);
         });
 }

@@ -1694,6 +1694,23 @@
         });
     }
 
+    function initListing() {
+        //Clear listing container.
+        this.listing.wrap.selectAll('*').remove();
+
+        //Capture data from selected bars.
+        var selectedData = d3
+            .selectAll('rect.selected')
+            .data()
+            .flatMap(function(d) {
+                return d.values.raw;
+            });
+
+        //Feed data from selected bars into listing.
+        if (selectedData.length > 0) this.listing.init(selectedData);
+        else this.listing.init(this.filtered_data);
+    }
+
     function addBarClick() {
         var context = this;
 
@@ -1704,7 +1721,8 @@
             .style('cursor', 'pointer')
             .on('mouseover', function() {
                 if (!d3.select(this).classed('selected')) mouseoverStyle.call(context, this);
-                if (!d3.select(this).classed('selected')) mouseoverAttrib.call(context, this); //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
+                if (!d3.select(this).classed('selected')) mouseoverAttrib.call(context, this);
+                //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
                 if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
             })
             .on('mouseout', function() {
@@ -1717,29 +1735,27 @@
                     .moveToFront();
             })
             .on('click', function(d) {
-                // this doesn't need a style because mouseout isn't applied when the bar is selected
-                d3
-                    .select(this)
-                    .classed('selected', d3.select(this).classed('selected') ? false : true);
-                context.listing.wrap.selectAll('*').remove();
-                // feed listing data for all selected bars
-                context.listing.init(
-                    d3
-                        .selectAll('rect.selected')
-                        .data()
-                        .flatMap(function(d) {
-                            return d.values.raw;
-                        })
-                );
-                // display filtered data if no bars are selected
-                if (d3.selectAll('rect.selected')[0].length === 0) {
-                    context.listing.wrap.selectAll('*').remove();
-                    context.listing.init(context.filtered_data);
-                }
+                //Update selected class of clicked bar.
+                d3.select(this).classed('selected', !d3.select(this).classed('selected'));
+
+                //Re-initialize listing.
+                initListing.call(context);
             });
     }
 
-    function addBarDeselection() {}
+    function addBarDeselection() {
+        var _this = this;
+
+        var context = this;
+
+        this.overlay.on('click', function() {
+            _this.bars.classed('selected', false).each(function(d) {
+                mouseoutStyle.call(context, this);
+                mouseoutAttrib.call(context, this);
+            });
+            initListing.call(_this);
+        });
+    }
 
     function onResize() {
         //Add filter functionality to legend.
