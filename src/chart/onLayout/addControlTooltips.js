@@ -12,11 +12,11 @@ export default function addControlTooltips() {
             'Uncheck for graph to sort by magnitude (largest to smallest number of queries) instead of alphabetical.',
 
         //filters
-        'Query Age Category':
+        'Query Age':
             'Open queries are broken down into how long they have been open. All other queries are classified by status (answered, closed, cancelled).',
         'Query Status':
             'Open=site has not responded to the issue; Answered=site has responded to issue, DM needs to review; Closed=Issues resolved; Cancelled=query cancelled by DM.',
-        'Query Open Time':
+        'Query Recency':
             'For queries opened within the last 30 days this is how long ago the query was opened, regardless of current status.',
         Form:
             'CRF page abbreviation. Hover over the abbreviation in the graph to see the full name.',

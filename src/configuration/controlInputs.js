@@ -2,10 +2,10 @@ export default [
     {
         type: 'dropdown',
         label: 'Status Group',
-        options: ['marks.0.split', 'color_by'], // will want to change tooltip too
+        option: 'color_by',
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
-        require: true
+        require: true,
     },
     {
         type: 'dropdown',
@@ -13,23 +13,23 @@ export default [
         label: 'Group by',
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
-        require: true
+        require: true,
     },
     {
         type: 'radio',
         option: 'marks.0.arrange',
         label: 'Bar Arrangement',
-        values: ['stacked', 'grouped']
+        values: ['stacked', 'grouped'],
     },
     {
         type: 'radio',
         option: 'cutoff',
         label: 'Show First N Groups',
-        values: ['10', '25', 'All']
+        values: ['10', '25', 'All'],
     },
     {
         type: 'checkbox',
         option: 'alphabetize',
-        label: 'Order groups alphabetically?'
+        label: 'Order groups alphabetically?',
     }
 ];

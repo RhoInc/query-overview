@@ -13,14 +13,14 @@ export default function addBarClick() {
         .selectAll('.bar')
         .style('cursor', 'pointer')
         .on('mouseover', function() {
-            if (!d3.select(this).classed('selected')) mouseoverStyle.call(context, this);
-            if (!d3.select(this).classed('selected')) mouseoverAttrib.call(context, this);
+            mouseoverStyle.call(context, this);
+            mouseoverAttrib.call(context, this);
             //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
             if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
         })
         .on('mouseout', function() {
-            if (!d3.select(this).classed('selected')) mouseoutStyle.call(context, this);
-            if (!d3.select(this).classed('selected')) mouseoutAttrib.call(context, this);
+            mouseoutStyle.call(context, this);
+            mouseoutAttrib.call(context, this);
             context.bars
                 .filter(function() {
                     return d3.select(this).classed('selected');

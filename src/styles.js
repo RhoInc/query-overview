@@ -145,9 +145,20 @@ export default function styles() {
             '    position: absolute;' +
             '    top: 0;' +
             '    left: 0;' +
+            '    z-index: 2;' +
+            '}',
+            '.qo-component--chart .wc-chart {' +
+            '    z-index: 1;' +
             '}',
             '.qo-component--chart .legend-title {' +
             '    cursor: help;' +
+            '}',
+            '.qo-component--chart .legend-item {' +
+            '    cursor: pointer;' +
+            '    border-radius: 4px;' +
+            '    padding: 5px;' +
+            '    padding-left: 8px;' +
+            '    margin-right: 5px !important;' +
             '}',
             '.qo-footnote {' +
             '    width: 100%;' +

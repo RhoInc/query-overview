@@ -1,35 +1,14 @@
-import clone from '../util/clone';
+import syncGroupBy from './syncControlInputs/syncGroupBy';
+import syncStatusGroup from './syncControlInputs/syncStatusGroup';
+import syncFilters from './syncControlInputs/syncFilters';
+import syncShowFirstNGroups from './syncControlInputs/syncShowFirstNGroups';
 
 export default function syncControlInputs(controlInputs, settings) {
-    const syncedControlInputs = clone(controlInputs);
-
-    //Group by
-    const groupByControl = syncedControlInputs.find(
-        controlInput => controlInput.label === 'Group by'
-    );
-    groupByControl.values = settings.groups.map(group => group.label);
-
-    //Status Group
-    const statusGroupControl = syncedControlInputs.find(
-        controlInput => controlInput.label === 'Status Group'
-    );
-    statusGroupControl.values = settings.status_groups.map(status_group => status_group.value_col);
-
-    //filters
-    settings.filters.forEach((filter, i) => {
-        filter.type = 'subsetter';
-        syncedControlInputs.splice(2 + i, 0, filter);
-    });
-
-    //Show First N Groups
-    const nGroupsControl = syncedControlInputs.find(
-        controlInput => controlInput.label === 'Show First N Groups'
-    );
-    if (nGroupsControl.values.indexOf(settings.cutoff.toString()) === -1) {
-        settings.cutoff = settings.cutoff.toString();
-        nGroupsControl.values.push(settings.cutoff.toString());
-        nGroupsControl.values.sort((a, b) => (a === 'All' ? 1 : b === 'All' ? -1 : +a - +b));
-    } else settings.cutoff = settings.cutoff.toString() || nGroupsControl.values[0];
+    const syncedControlInputs = settings.clone(controlInputs);
+    syncGroupBy(syncedControlInputs, settings);
+    syncStatusGroup(syncedControlInputs, settings);
+    syncFilters(syncedControlInputs, settings);
+    syncShowFirstNGroups(syncedControlInputs, settings);
 
     return syncedControlInputs;
 }

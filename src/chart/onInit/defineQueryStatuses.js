@@ -5,7 +5,7 @@ export default function defineQueryStatuses() {
     const queryStatusGroup = this.config.status_groups.find(
         status_group => status_group.value_col === this.config.status_col
     );
-    const queryStatusOrder = Array.isArray(queryStatusGroup.order)
+    const queryStatusOrder = Array.isArray(queryStatusGroup.order) && queryStatusGroup.order.length
         ? queryStatusGroup.order.concat(
               d3
                   .set(this.raw_data.map(d => d[this.config.status_col]))
