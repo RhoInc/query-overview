@@ -1,5 +1,3 @@
-import { set } from 'd3';
-
 export default function updateStratification() {
     const statusGroup = this.controls.wrap
         .selectAll('.qo-dropdown--status-group')

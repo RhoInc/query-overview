@@ -12,9 +12,7 @@ export default function syncWebchartsSettings(settings) {
 
     //stratification
     settings.color_by = settings.status_group.value_col;
-    settings.color_dom = settings.status_group.order
-        ? settings.status_group.order.slice()
-        : null;
+    settings.color_dom = settings.status_group.order ? settings.status_group.order.slice() : null;
     settings.colors = settings.status_group.colors;
 
     //legend

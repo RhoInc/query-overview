@@ -1,7 +1,6 @@
-export default function mouseoutAttrib(element) {
-    const selection = d3.select(element);
-    if (!selection.classed('selected'))
-        selection.attr({
+export default function mouseoutAttrib(bar, selected, clear = false) {
+    if (!(selected || clear) || (selected && clear))
+        bar.attr({
             width: function(d) {
                 return this.getBBox().width + 2.5;
             },

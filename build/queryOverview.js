@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3'), require('webcharts')) :
-    typeof define === 'function' && define.amd ? define(['d3', 'webcharts'], factory) :
-    (global.queryOverview = factory(global.d3,global.webCharts));
-}(this, (function (d3$1,webcharts) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('webcharts')) :
+    typeof define === 'function' && define.amd ? define(['webcharts'], factory) :
+    (global.queryOverview = factory(global.webCharts));
+}(this, (function (webcharts) { 'use strict';
 
     if (!Array.prototype.find) {
         Object.defineProperty(Array.prototype, 'find', {
@@ -190,7 +190,7 @@
         site_col: 'sitename',
         marking_group_col: 'markinggroup',
         visit_col: 'folderoid',
-        color_by: 'Query Age',
+        color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
 
         //query age
         age_statuses: ['Open'],
@@ -255,7 +255,7 @@
     };
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
-        var validSetting = userDefinedVariables instanceof Array && userDefinedVariables.length ? d3$1.merge([defaultVariables, userDefinedVariables.filter(function (item) {
+        var validSetting = userDefinedVariables instanceof Array && userDefinedVariables.length ? d3.merge([defaultVariables, userDefinedVariables.filter(function (item) {
             return !(item instanceof Object && item.hasOwnProperty('value_col') === false) && defaultVariables.map(function (d) {
                 return d.value_col;
             }).indexOf(item.value_col || item) === -1;
@@ -324,7 +324,10 @@
 
         //add custom status groups
         settings.status_groups = settings.arrayOfVariablesCheck(defaultStatusGroups, settings.status_groups);
-        settings.status_group = settings.status_groups[0];
+        console.log(settings.color_by_col);
+        settings.status_group = settings.status_groups.find(function (status_group) {
+            return status_group.value_col === settings.color_by_col;
+        });
     }
 
     function syncWebchartsSettings(settings) {
@@ -420,7 +423,7 @@
     var controlInputs = [{
         type: 'dropdown',
         label: 'Status Group',
-        option: 'color_by',
+        option: 'color_by_col',
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
         require: true
@@ -1209,17 +1212,15 @@
         }
     }
 
-    function mouseoverStyle(element) {
-        var selection = d3.select(element);
-        selection.style({
+    function mouseoverStyle(bar, selected) {
+        if (!selected) bar.style({
             'stroke-width': '5px',
             fill: 'black'
         });
     }
 
-    function mouseoverAttrib(element) {
-        var selection = d3.select(element);
-        if (!selection.classed('selected')) selection.attr({
+    function mouseoverAttrib(bar, selected) {
+        if (!selected) bar.attr({
             width: function width(d) {
                 return this.getBBox().width - 2.5;
             },
@@ -1229,11 +1230,12 @@
         });
     }
 
-    function mouseoutStyle(element) {
+    function mouseoutStyle(bar, selected) {
         var _this = this;
 
-        var selection = d3.select(element);
-        selection.style({
+        var clear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+        if (!(selected || clear) || selected && clear) bar.style({
             'stroke-width': '1px',
             fill: function fill(d) {
                 return _this.colorScale(d.key);
@@ -1241,9 +1243,10 @@
         });
     }
 
-    function mouseoutAttrib(element) {
-        var selection = d3.select(element);
-        if (!selection.classed('selected')) selection.attr({
+    function mouseoutAttrib(bar, selected) {
+        var clear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+        if (!(selected || clear) || selected && clear) bar.attr({
             width: function width(d) {
                 return this.getBBox().width + 2.5;
             },
@@ -1272,19 +1275,33 @@
         // will subtract and add to bar to offset increase in stroke-width and prevent bars
         // from overlapping as much when neighbors are both selected.
         this.bars = this.svg.selectAll('.bar').style('cursor', 'pointer').on('mouseover', function () {
-            mouseoverStyle.call(context, this);
-            mouseoverAttrib.call(context, this);
+            var bar = d3.select(this);
+            var selected = bar.classed('selected');
+
+            //Apply highlight attributes and styles to bar.
+            mouseoverStyle.call(context, bar, selected);
+            mouseoverAttrib.call(context, bar, selected);
+
             //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
             if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
         }).on('mouseout', function () {
-            mouseoutStyle.call(context, this);
-            mouseoutAttrib.call(context, this);
-            context.bars.filter(function () {
+            var bar = d3.select(this);
+            var selected = bar.classed('selected');
+
+            //Apply default attributes and styles to bar.
+            mouseoutStyle.call(context, bar, selected);
+            mouseoutAttrib.call(context, bar, selected);
+
+            //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
+            if (!/trident/i.test(navigator.userAgent)) context.bars.filter(function () {
                 return d3.select(this).classed('selected');
             }).moveToFront();
         }).on('click', function (d) {
+            var bar = d3.select(this);
+            var selected = bar.classed('selected');
+
             //Update selected class of clicked bar.
-            d3.select(this).classed('selected', !d3.select(this).classed('selected'));
+            bar.classed('selected', !selected);
 
             //Re-initialize listing.
             initListing.call(context);
@@ -1297,9 +1314,12 @@
         var context = this;
 
         this.overlay.on('click', function () {
-            _this.bars.classed('selected', false).each(function (d) {
-                mouseoutStyle.call(context, this);
-                mouseoutAttrib.call(context, this);
+            _this.bars.each(function (d) {
+                var bar = d3.select(this);
+                var selected = bar.classed('selected');
+                mouseoutStyle.call(context, bar, selected, true);
+                mouseoutAttrib.call(context, bar, selected, true);
+                bar.classed('selected', false);
             });
             initListing.call(_this);
         });

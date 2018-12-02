@@ -8,7 +8,7 @@ import syncCutoff from './syncSettings/syncCutoff';
 import syncDetails from './syncSettings/syncCutoff';
 
 export default function syncSettings(settings) {
-    const syncedSettings = Object.assign({}, clone(settings), {clone,arrayOfVariablesCheck});
+    const syncedSettings = Object.assign({}, clone(settings), { clone, arrayOfVariablesCheck });
     syncGroups(syncedSettings);
     syncStatusGroups(syncedSettings);
     syncWebchartsSettings(syncedSettings);

@@ -2,14 +2,14 @@ export default {
     x: {
         label: '# of Queries',
         column: null,
-        behavior: 'flex',
+        behavior: 'flex'
     },
     y: {
         type: 'ordinal',
         column: null, // set in syncSettings()
         label: 'Form',
         sort: null, // set in syncSettings()
-        range_band: null, // set in syncSettings()
+        range_band: null // set in syncSettings()
     },
     marks: [
         {
@@ -26,9 +26,9 @@ export default {
     legend: {
         location: 'top',
         label: null, // set in syncSettings()
-        order: null, // set in syncSettings()
+        order: null // set in syncSettings()
     },
     margin: {
-        right: '50', // room for count annotation
-    },
+        right: '50' // room for count annotation
+    }
 };

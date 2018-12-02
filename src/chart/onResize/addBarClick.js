@@ -13,23 +13,38 @@ export default function addBarClick() {
         .selectAll('.bar')
         .style('cursor', 'pointer')
         .on('mouseover', function() {
-            mouseoverStyle.call(context, this);
-            mouseoverAttrib.call(context, this);
+            const bar = d3.select(this);
+            const selected = bar.classed('selected');
+
+            //Apply highlight attributes and styles to bar.
+            mouseoverStyle.call(context, bar, selected);
+            mouseoverAttrib.call(context, bar, selected);
+
             //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
             if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
         })
         .on('mouseout', function() {
-            mouseoutStyle.call(context, this);
-            mouseoutAttrib.call(context, this);
-            context.bars
-                .filter(function() {
-                    return d3.select(this).classed('selected');
-                })
-                .moveToFront();
+            const bar = d3.select(this);
+            const selected = bar.classed('selected');
+
+            //Apply default attributes and styles to bar.
+            mouseoutStyle.call(context, bar, selected);
+            mouseoutAttrib.call(context, bar, selected);
+
+            //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
+            if (!/trident/i.test(navigator.userAgent))
+                context.bars
+                    .filter(function() {
+                        return d3.select(this).classed('selected');
+                    })
+                    .moveToFront();
         })
         .on('click', function(d) {
+            const bar = d3.select(this);
+            const selected = bar.classed('selected');
+
             //Update selected class of clicked bar.
-            d3.select(this).classed('selected', !d3.select(this).classed('selected'));
+            bar.classed('selected', !selected);
 
             //Re-initialize listing.
             initListing.call(context);

@@ -1,7 +1,7 @@
-export default function mouseoutStyle(element) {
-    const selection = d3.select(element);
-    selection.style({
-        'stroke-width': '1px',
-        fill: d => this.colorScale(d.key)
-    });
+export default function mouseoutStyle(bar, selected, clear = false) {
+    if (!(selected || clear) || (selected && clear))
+        bar.style({
+            'stroke-width': '1px',
+            fill: d => this.colorScale(d.key)
+        });
 }

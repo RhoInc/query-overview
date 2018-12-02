@@ -29,6 +29,12 @@
             "type": "string",
             "default": "fieldname"
         },
+        "site_col": {
+            "title": "Site Variable",
+            "description": "site variable name",
+            "type": "string",
+            "default": "sitename"
+        },
         "marking_group_col": {
             "title": "Marking Group Variable",
             "description": "query origin variable name",
@@ -40,6 +46,16 @@
             "description": "visit/folder variable name",
             "type": "string",
             "default": "folderoid"
+        },
+        "color_by_col": {
+            "title": "Status Group Variable",
+            "description": "coloring variable name of the for how long a query has been open",
+            "type": "string",
+            "default": "queryage",
+            "enum": [
+                "queryage",
+                "querystatus"
+            ]
         },
         "open_col": {
             "title": "Query Open Time Variable",
@@ -194,12 +210,6 @@
                     }
                 }
             }
-        },
-        "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
-            "type": "string",
-            "default": "sitename"
         },
         "filters": {
             "title": "Filter Variables",
