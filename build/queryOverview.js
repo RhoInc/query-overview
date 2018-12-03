@@ -225,7 +225,8 @@
         status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
 
         //query recency
-        recency_col: 'open_time',
+        recency_category_col: 'open_time',
+        recency_col: 'odays',
         recency_cutoffs: [7, 14, 30],
 
         //miscellany
