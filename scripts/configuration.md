@@ -41,6 +41,15 @@ field description variable name
 
 
 
+## settings.site_col
+`string`
+
+site variable name
+
+**default:** `"sitename"`
+
+
+
 ## settings.marking_group_col
 `string`
 
@@ -59,36 +68,24 @@ visit/folder variable name
 
 
 
-## settings.open_col
+## settings.color_by_col
 `string`
 
-variable name for how long a query has been open
+coloring variable name of query categorization: query age, query status, or any custom categorication
 
-**default:** `"open_time"`
-
-
-
-## settings.open_category_col
-`string`
-
-Categorical version of query open time variable
-
-**default:** `"Query Open Time Category"`
+**default:** `"queryage"`
 
 
 
-## settings.open_category_order
+## settings.age_statuses
 `array`
 
-an array of query open time that dictates how they are ordered in the chart
+an array of query statuses for which query age will be derived
 
 **default:** 
 ```
 [
-  "0-7 days",
-  "8-14 days",
-  "15-30 days",
-  ">30 days"
+  "Open"
 ]
 ```
 
@@ -97,42 +94,46 @@ an array of query open time that dictates how they are ordered in the chart
 ## settings.age_col
 `string`
 
-query age variable name
+query age variable measured in days between query open date and data snapshot date
 
 **default:** `"qdays"`
 
 
 
-## settings.age_category_col
-`string`
-
-Categorical version of query age variable
-
-**default:** `"Query Age Category"`
-
-
-
-## settings.age_category_order
+## settings.age_cutoffs
 `array`
 
-an array of query age categories that dictates how they are ordered in the legend and chart
-
-**default:** none
-
-
-
-## settings.age_category_colors
-`array`
-
-an array of colors that determines the colors for query age categories
+an array of query age cutoffs for which query age range will be derived
 
 **default:** 
 ```
 [
-  "#fcae91",
-  "#fb6a4a",
-  "#de2d26",
-  "#a50f15"
+  14,
+  28,
+  56,
+  112
+]
+```
+
+
+
+## settings.age_range_colors
+`array`
+
+an array of colors with which to color query age range categories; only as many colors as there are query age range categories will be used, from darkest to lightest
+
+**default:** 
+```
+[
+  "#ffffcc",
+  "#ffeda0",
+  "#fed976",
+  "#feb24c",
+  "#fd8d3c",
+  "#fc4e2a",
+  "#e31a1c",
+  "#bd0026",
+  "#800026"
 ]
 ```
 
@@ -172,10 +173,35 @@ an array of colors that determines the colors for query statuses
 **default:** 
 ```
 [
-  "#fb9a99",
-  "#fdbf6f",
-  "#1f78b4",
-  "gray"
+  "#fd8d3c",
+  "#4daf4a",
+  "#377eb8",
+  "#999999"
+]
+```
+
+
+
+## settings.recency_col
+`string`
+
+query recency variable measured in days between query open date and data snapshot date
+
+**default:** `"qdays"`
+
+
+
+## settings.recency_cutoffs
+`array`
+
+an array of query recency cutoffs for which query recency range will be derived
+
+**default:** 
+```
+[
+  7,
+  14,
+  30
 ]
 ```
 
@@ -241,15 +267,6 @@ Stratification Colors
 
 
 
-## settings.site_col
-`string`
-
-site variable name
-
-**default:** `"sitename"`
-
-
-
 ## settings.filters
 `array`
 
@@ -270,6 +287,15 @@ Filter Variable
 Filter Label
 
 **default:** none
+
+
+
+## settings.dropdown_size
+`number`
+
+controls the maximum number of options that appear in the multi-select dropdowns before a scrollbar appears
+
+**default:** `6`
 
 
 
@@ -296,12 +322,12 @@ Detail Listing Column Header
 
 
 
-## settings.dropdown_size
-`number`
+## settings.bar_arrangement
+`string`
 
-controls the maximum number of options that appear in the multi-select dropdowns before a scrollbar appears
+controls arrangement of bars, either stacked or grouped side-by-side
 
-**default:** `6`
+**default:** `"stacked"`
 
 
 
@@ -314,19 +340,19 @@ a value that limits the number of groups displayed on the y-axis
 
 
 
+## settings.range_band
+`number`
+
+controls the height of each value on the y-axis
+
+**default:** `25`
+
+
+
 ## settings.alphabetize
 `boolean`
 
 sort groups on the y-axis alphanumerically; by default groups are sorted by descending frequency
-
-**default:** `true`
-
-
-
-## settings.exportable
-`boolean`
-
-allow the export of data to .csv via a button beneath the detail listing
 
 **default:** `true`
 
@@ -338,6 +364,15 @@ allow the export of data to .csv via a button beneath the detail listing
 the number of rows displayed per page.
 
 **default:** `10`
+
+
+
+## settings.exportable
+`boolean`
+
+allow the export of data to .csv via a button beneath the detail listing
+
+**default:** `true`
 
 # Webcharts settings
 The object below contains each Webcharts setting as of version 1.2.3.

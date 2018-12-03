@@ -49,7 +49,7 @@
         },
         "color_by_col": {
             "title": "Status Group Variable",
-            "description": "coloring variable name of the for how long a query has been open",
+            "description": "coloring variable name of query categorization: query age, query status, or any custom categorication",
             "type": "string",
             "default": "queryage",
             "enum": [
@@ -57,70 +57,60 @@
                 "querystatus"
             ]
         },
-        "open_col": {
-            "title": "Query Open Time Variable",
-            "description": "variable name for how long a query has been open",
-            "type": "string",
-            "default": "open_time"
-        },
-        "open_category_col": {
-            "title": "Query Open Time Category Variable",
-            "description": "Categorical version of query open time variable",
-            "type": "string",
-            "default": "Query Open Time Category"
-        },
-        "open_category_order": {
-            "title": "Query Open Time Order",
-            "description": "an array of query open time that dictates how they are ordered in the chart",
+        "age_statuses": {
+            "title": "Query Statuses Applicable to Query Age",
+            "description": "an array of query statuses for which query age will be derived",
             "type": "array",
             "items": {
-                "title": "Query Open Time Category",
-                "description": "query open time category value",
+                "title": "Query Status",
+                "description": "query status value",
                 "type": "string"
             },
             "defaultObject": [
-                "0-7 days",
-                "8-14 days",
-                "15-30 days",
-                ">30 days"
+                "Open"
             ]
         },
         "age_col": {
-            "title": "Query Age Variable",
-            "description": "query age variable name",
+            "title": "Query Age",
+            "description": "query age variable measured in days between query open date and data snapshot date",
             "type": "string",
             "default": "qdays"
         },
-        "age_category_col": {
-            "title": "Query Age Category Variable",
-            "description": "Categorical version of query age variable",
-            "type": "string",
-            "default": "Query Age Category"
-        },
-        "age_category_order": {
-            "title": "Query Age Category Order",
-            "description": "an array of query age categories that dictates how they are ordered in the legend and chart",
+        "age_cutoffs": {
+            "title": "Query Age Cutoffs",
+            "description": "an array of query age cutoffs for which query age range will be derived",
             "type": "array",
             "items": {
-                "title": "Query Age Category",
-                "description": "query age category value",
-                "type": "string"
-            }
+                "title": "Query Age",
+                "description": "query age measured in days between query open date and data snapshot date",
+                "type": "number"
+            },
+            "defaultObject": [
+                14,
+                28,
+                56,
+                112
+            ]
         },
-        "age_category_colors": {
-            "title": "Query Age Category Color",
-            "description": "an array of colors that determines the colors for query age categories",
+        "age_range_colors": {
+            "title": "Query Age Range Colors",
+            "description": "an array of colors with which to color query age range categories; only as many colors as there are query age range categories will be used, from darkest to lightest",
             "type": "array",
             "items": {
-                "title": "Query Age Category",
-                "description": "query age category value",
+                "title": "Query Age Range Color",
+                "description": "query age range color",
                 "type": "string"
             },
             "defaultObject": [
-              "#fcae91",
-              "#fb6a4a",
-              "#de2d26",
-              "#a50f15"
+                "#ffffcc",
+                "#ffeda0",
+                "#fed976",
+                "#feb24c",
+                "#fd8d3c",
+                "#fc4e2a",
+                "#e31a1c",
+                "#bd0026",
+                "#800026"
             ]
         },
         "status_col": {
@@ -155,10 +145,31 @@
                 "type": "string"
             },
             "defaultObject": [
-                "#fb9a99",
-                "#fdbf6f",
-                "#1f78b4",
-                "gray"
+                "#fd8d3c",
+                "#4daf4a",
+                "#377eb8",
+                "#999999"
+            ]
+        },
+        "recency_col": {
+            "title": "Query recency",
+            "description": "query recency variable measured in days between query open date and data snapshot date",
+            "type": "string",
+            "default": "qdays"
+        },
+        "recency_cutoffs": {
+            "title": "Query Recency Cutoffs",
+            "description": "an array of query recency cutoffs for which query recency range will be derived",
+            "type": "array",
+            "items": {
+                "title": "Query Recency",
+                "description": "query recency measured in days between query open date and data snapshot date or today...?",
+                "type": "number"
+            },
+            "defaultObject": [
+                7,
+                14,
+                30
             ]
         },
         "groups": {
@@ -231,6 +242,12 @@
                 }
             }
         },
+        "dropdown_size": {
+            "title": "Number of Options Display in Multi-select Dropdowns",
+            "description": "controls the maximum number of options that appear in the multi-select dropdowns before a scrollbar appears",
+            "type": "number",
+            "default": 6
+        },
         "details": {
             "title": "Detail Listing Variables",
             "description": "an array of detail variables which will print in the detail listing",
@@ -251,11 +268,15 @@
                 }
             }
         },
-        "dropdown_size": {
-            "title": "Number of Options Display in Multi-select Dropdowns",
-            "description": "controls the maximum number of options that appear in the multi-select dropdowns before a scrollbar appears",
-            "type": "number",
-            "default": 6
+        "bar_arrangement": {
+            "title": "Arrangement of Bars",
+            "description": "controls arrangement of bars, either stacked or grouped side-by-side",
+            "type": "string",
+            "default": "stacked",
+            "enum": [
+                "stacked",
+                "grouped"
+            ]
         },
         "cutoff": {
             "title": "Number of Groups Displayed Initially",
@@ -263,15 +284,15 @@
             "type": "number",
             "default": "All"
         },
+        "range_band": {
+            "title": "Y-axis Tick Height",
+            "description": "controls the height of each value on the y-axis",
+            "type": "number",
+            "default": 25
+        },
         "alphabetize": {
             "title": "Display Groups Alphanumerically?",
             "description": "sort groups on the y-axis alphanumerically; by default groups are sorted by descending frequency",
-            "type": "boolean",
-            "default": true
-        },
-        "exportable": {
-            "title": "Allow Listing Export?",
-            "description": "allow the export of data to .csv via a button beneath the detail listing",
             "type": "boolean",
             "default": true
         },
@@ -280,6 +301,12 @@
             "description": "the number of rows displayed per page.",
             "type": "number",
             "default": 10
+        },
+        "exportable": {
+            "title": "Allow Listing Export?",
+            "description": "allow the export of data to .csv via a button beneath the detail listing",
+            "type": "boolean",
+            "default": true
         }
     }
 }

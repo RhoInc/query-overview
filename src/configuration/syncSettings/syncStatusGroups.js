@@ -60,5 +60,7 @@ export default function syncStatusGroups(settings) {
         settings.status_groups
     );
     console.log(settings.color_by_col);
-    settings.status_group = settings.status_groups.find(status_group => status_group.value_col === settings.color_by_col);
+    settings.status_group = settings.status_groups.find(
+        status_group => status_group.value_col === settings.color_by_col
+    );
 }
