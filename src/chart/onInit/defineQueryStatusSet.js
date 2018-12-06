@@ -1,4 +1,4 @@
-export default function defineQueryStatuses() {
+export default function defineQueryStatusSet() {
     const queryStatusInput = this.controls.config.inputs.find(
         input => input.value_col === this.config.status_col
     );

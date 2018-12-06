@@ -2,8 +2,9 @@ export default function defineNewVariables() {
     const queryAgeCol = this.config.status_groups.find(
         status_group => status_group.label === 'Query Age'
     ).value_col;
-    const queryRecencyCol = this.config.filters.find(filter => filter.label === 'Query Recency')
-        .value_col;
+    const queryRecencyCol = this.config.filters.find(
+        filter => filter.label === 'Query Recency'
+    ).value_col;
 
     this.raw_data.forEach(d => {
         //Concatenate form and field to avoid duplicates across forms.
@@ -25,14 +26,18 @@ export default function defineNewVariables() {
         }
 
         //Define query recency.
-        const recency = +d[this.config.recency_col];
-        this.config.recencyRanges.forEach((recencyRange, i) => {
-            if (i === 0 && recencyRange[0] <= recency && recency <= recencyRange[1])
-                d[queryRecencyCol] = this.config.recencyRangeCategories[i];
-            else if (i === this.config.recencyRanges.length - 1 && recencyRange[0] < recency)
-                d[queryRecencyCol] = this.config.recencyRangeCategories[i];
-            else if (recencyRange[0] < recency && recency <= recencyRange[1])
-                d[queryRecencyCol] = this.config.recencyRangeCategories[i];
-        });
+        if (d.hasOwnProperty(this.config.recency_category_col)) {
+            d[queryRecencyCol] = d[this.config.recency_category_col] || 'N/A';
+        } else if (d.hasOwnProperty(this.config.recency_col)) {
+            const recency = +d[this.config.recency_col];
+            this.config.recencyRanges.forEach((recencyRange, i) => {
+                if (i === 0 && recencyRange[0] <= recency && recency <= recencyRange[1])
+                    d[queryRecencyCol] = this.config.recencyRangeCategories[i];
+                else if (i === this.config.recencyRanges.length - 1 && recencyRange[0] < recency)
+                    d[queryRecencyCol] = this.config.recencyRangeCategories[i];
+                else if (recencyRange[0] < recency && recency <= recencyRange[1])
+                    d[queryRecencyCol] = this.config.recencyRangeCategories[i];
+            });
+        }
     });
 }

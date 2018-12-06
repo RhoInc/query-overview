@@ -5,6 +5,7 @@ import updateGroupByOptions from './onLayout/updateGroupByOptions';
 import customizeMultiSelects from './onLayout/customizeMultiSelects';
 import addSelectAll from './onLayout/addSelectAll';
 import updateFilterEventListeners from './onLayout/updateFilterEventListeners';
+import sortQueryRecencyOptions from './onLayout/sortQueryRecencyOptions';
 import setYAxisDomainLength from './onLayout/setYAxisDomainLength';
 import addResetButton from './onLayout/addResetButton';
 import clearListingOnChange from './onLayout/clearListingOnChange';
@@ -31,6 +32,9 @@ export default function onLayout() {
 
     //Update filter event listeners to toggle select all checkbox on change.
     updateFilterEventListeners.call(this);
+
+    //Sort query recency categories numerically if possible.
+    sortQueryRecencyOptions.call(this);
 
     //Handle y-domain length control
     setYAxisDomainLength.call(this);
