@@ -1,9 +1,8 @@
 export default function sortQueryRecencyOptions() {
-    this.controls.filters
-        .selects
+    this.controls.filters.selects
         .filter(d => d.value_col === 'queryrecency')
         .selectAll('option')
-        .sort((a,b) => {
+        .sort((a, b) => {
             const anum = parseFloat(a);
             const bnum = parseFloat(b);
             const diff = anum - bnum;

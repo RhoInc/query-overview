@@ -13,24 +13,24 @@ export default function syncFilters(settings) {
         recency_range => recency_range % 7 === 0
     )
         ? settings.recencyRanges.map(
-            (recencyRange, i) =>
-                i < settings.recencyRanges.length - 1
-                    ? `${recencyRange.map(days => days / 7).join('-')} weeks`
-                    : `>${recencyRange[0] / 7} weeks`
-        )
+              (recencyRange, i) =>
+                  i < settings.recencyRanges.length - 1
+                      ? `${recencyRange.map(days => days / 7).join('-')} weeks`
+                      : `>${recencyRange[0] / 7} weeks`
+          )
         : settings.recencyRanges.map(
-            (recencyRange, i) =>
-                i < settings.recencyRanges.length - 1
-                    ? `${recencyRange.join('-')} days`
-                    : `>${recencyRange[0]} days`
-        );
+              (recencyRange, i) =>
+                  i < settings.recencyRanges.length - 1
+                      ? `${recencyRange.join('-')} days`
+                      : `>${recencyRange[0]} days`
+          );
 
     //default filters
     const defaultFilters = [
         {
             value_col: 'queryrecency',
             label: 'Query Recency',
-            multiple: true,
+            multiple: true
         },
         {
             value_col: settings.form_col,

@@ -2,9 +2,8 @@ export default function defineNewVariables() {
     const queryAgeCol = this.config.status_groups.find(
         status_group => status_group.label === 'Query Age'
     ).value_col;
-    const queryRecencyCol = this.config.filters.find(
-        filter => filter.label === 'Query Recency'
-    ).value_col;
+    const queryRecencyCol = this.config.filters.find(filter => filter.label === 'Query Recency')
+        .value_col;
 
     this.raw_data.forEach(d => {
         //Concatenate form and field to avoid duplicates across forms.
