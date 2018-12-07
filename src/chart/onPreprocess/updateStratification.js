@@ -1,7 +1,12 @@
 export default function updateStratification() {
     const statusGroup = this.controls.wrap
-        .selectAll('.qo-dropdown--status-group')
-        .selectAll('option:checked')
+        .selectAll('.qo-radio--status-group')
+        .selectAll('.radio')
+        .filter(function() {
+            const label = d3.select(this);
+            const radio = label.select('.changer');
+            return radio.property('checked');
+        })
         .text();
     this.config.status_group = this.config.status_groups.find(
         status_group => status_group.label === statusGroup

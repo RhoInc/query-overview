@@ -516,16 +516,16 @@
     var controlInputs = [
         {
             type: 'dropdown',
-            label: 'Status Group',
-            option: 'color_by_col',
+            option: 'y.label',
+            label: 'Group by',
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
         },
         {
-            type: 'dropdown',
-            option: 'y.label',
-            label: 'Group by',
+            type: 'radio',
+            label: 'Status Group',
+            option: 'color_by_col',
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
@@ -545,7 +545,7 @@
         {
             type: 'checkbox',
             option: 'alphabetize',
-            label: 'Order groups alphabetically?'
+            label: 'Order Groups Alphabetically?'
         }
     ];
 
@@ -1032,30 +1032,28 @@
     function addControlTooltips() {
         var tooltips = {
             //other controls
-            'Status Group':
-                'This option controls what variable the bars of the graph are stratified by.',
             'Group by':
-                'This option controls how queries are grouped down the left side of the graphic.',
+                'Controls the variable with which the queries are grouped; each group is plotted along the vertical axis of the chart.',
+            'Status Group': 'Controls the variable with which the bars are subdivided.',
             'Bar Arrangement':
-                'Stacked=all stratification variables shown in one row; Grouped=separate row for each stratification variable.',
-            'Show First N Groups':
-                'Select to show the first 10, 25, or all of the group variables.',
-            'Order groups alphabetically?':
-                'Uncheck for graph to sort by magnitude (largest to smallest number of queries) instead of alphabetical.',
+                'Controls the layout of the status groups.\n- stacked: status groups are plotted side-by-side horizontally\n- grouped: status groups are plotted side-by-side vertically',
+            'Show First N Groups': 'Controls the number of groups displayed on the vertical axis.',
+            'Order Groups Alphabetically?':
+                'Controls the order of the groups; uncheck to sort groups by magnitude (largest to smallest number of queries) instead of alphabetically.',
 
             //filters
             'Query Age':
                 'Open queries are broken down into how long they have been open. All other queries are classified by status (answered, closed, cancelled).',
             'Query Status':
-                'Open=site has not responded to the issue; Answered=site has responded to issue, DM needs to review; Closed=Issues resolved; Cancelled=query cancelled by DM.',
+                'Open: site has not responded to the issue\nAnswered: site has responded to issue; DM needs to review\nClosed: issue resolved\nCancelled: query cancelled by DM',
             'Query Recency':
-                'For queries opened within the last 30 days this is how long ago the query was opened, regardless of current status.',
+                'Number of days a query has been open, regardless of its current status (applies only to queries opened in the past 30 days)',
             Form:
-                'CRF page abbreviation. Hover over the abbreviation in the graph to see the full name.',
-            Site: 'Name of site',
+                'CRF page abbreviation; hover over the abbreviation in the chart to see its full name.',
+            Site: 'Name or ID of site',
             'Marking Group': 'Entity that opened the query',
             'Visit/Folder':
-                'Visit/folder abbreviation. Hover over the visit/folder abbreviation in the graph to see the full name.'
+                'Visit/folder abbreviation; hover over the visit/folder abbreviation in the chart to see the full name.'
         };
         this.controls.controlGroups.each(function(d) {
             var tooltip =
@@ -1104,6 +1102,64 @@
 
                 context.config.marks[0].per = [value_col];
                 context.draw();
+            });
+    }
+
+    function addGroupByHighlight() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Group by';
+            })
+            .on('mouseover', function() {
+                _this.svg.selectAll('.y.axis .axis-title').style({
+                    'font-weight': 'bold',
+                    'text-decoration': 'underline',
+                    fill: 'red'
+                });
+            })
+            .on('mouseout', function() {
+                _this.svg.selectAll('.y.axis .axis-title').style({
+                    'font-weight': 'normal',
+                    'text-decoration': 'none',
+                    fill: 'black'
+                });
+            });
+    }
+
+    function checkInitialStatusGroup() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Status Group';
+            })
+            .selectAll('.radio')
+            .selectAll('.changer')
+            .property('checked', function(d) {
+                return d === _this.config.legend.label;
+            });
+    }
+
+    function addStatusGroupHighlight() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Status Group';
+            })
+            .on('mouseover', function() {
+                _this.legend.select('.legend-title').style({
+                    'text-decoration': 'underline',
+                    color: 'red'
+                });
+            })
+            .on('mouseout', function() {
+                _this.legend.select('.legend-title').style({
+                    'text-decoration': 'none',
+                    color: 'black'
+                });
             });
     }
 
@@ -1325,6 +1381,15 @@
         //Display group label rather than group column name in Group by control.
         updateGroupByOptions.call(this);
 
+        //Highlight y-axis label when user hovers over Status Group control.
+        addGroupByHighlight.call(this);
+
+        //Check radio button of initial status group.
+        checkInitialStatusGroup.call(this);
+
+        //Highlight legend when user hovers over Status Group control.
+        addStatusGroupHighlight.call(this);
+
         //Customize dropdowns with multiple options.
         customizeMultiSelects.call(this);
 
@@ -1352,8 +1417,13 @@
 
     function updateStratification() {
         var statusGroup = this.controls.wrap
-            .selectAll('.qo-dropdown--status-group')
-            .selectAll('option:checked')
+            .selectAll('.qo-radio--status-group')
+            .selectAll('.radio')
+            .filter(function() {
+                var label = d3.select(this);
+                var radio = label.select('.changer');
+                return radio.property('checked');
+            })
             .text();
         this.config.status_group = this.config.status_groups.find(function(status_group) {
             return status_group.label === statusGroup;
@@ -1650,12 +1720,14 @@
                     .select('.wc-control-label')
                     .style({
                         'font-weight': 'bold',
+                        'text-decoration': 'underline',
                         color: 'red'
                     })
                     .transition()
                     .delay(5000)
                     .style({
                         'font-weight': 'normal',
+                        'text-decoration': 'none',
                         color: 'black'
                     });
                 groupByControl.selectAll('option').property('selected', function(d) {
@@ -1675,12 +1747,14 @@
                     .select('.wc-control-label')
                     .style({
                         'font-weight': 'bold',
+                        'text-decoration': 'underline',
                         color: 'red'
                     })
                     .transition()
                     .delay(5000)
                     .style({
                         'font-weight': 'normal',
+                        'text-decoration': 'none',
                         color: 'black'
                     });
                 formFilter.selectAll('option').property('selected', function(d) {
@@ -1714,12 +1788,14 @@
                     .select('.y.axis .axis-title')
                     .style({
                         'font-weight': 'bold',
+                        'text-decoration': 'underline',
                         fill: 'red'
                     })
                     .transition()
                     .delay(5000)
                     .style({
                         'font-weight': 'normal',
+                        'text-decoration': 'none',
                         fill: 'black'
                     });
             });

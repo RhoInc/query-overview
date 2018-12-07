@@ -2,6 +2,9 @@ import classControls from './onLayout/classControls';
 import groupControls from './onLayout/groupControls';
 import addControlTooltips from './onLayout/addControlTooltips';
 import updateGroupByOptions from './onLayout/updateGroupByOptions';
+import addGroupByHighlight from './onLayout/addGroupByHighlight';
+import checkInitialStatusGroup from './onLayout/checkInitialStatusGroup';
+import addStatusGroupHighlight from './onLayout/addStatusGroupHighlight';
 import customizeMultiSelects from './onLayout/customizeMultiSelects';
 import addSelectAll from './onLayout/addSelectAll';
 import updateFilterEventListeners from './onLayout/updateFilterEventListeners';
@@ -23,6 +26,15 @@ export default function onLayout() {
 
     //Display group label rather than group column name in Group by control.
     updateGroupByOptions.call(this);
+
+    //Highlight y-axis label when user hovers over Status Group control.
+    addGroupByHighlight.call(this);
+
+    //Check radio button of initial status group.
+    checkInitialStatusGroup.call(this);
+
+    //Highlight legend when user hovers over Status Group control.
+    addStatusGroupHighlight.call(this);
 
     //Customize dropdowns with multiple options.
     customizeMultiSelects.call(this);
