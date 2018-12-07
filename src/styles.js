@@ -120,13 +120,15 @@ export default function styles() {
                 '    justify-content: space-evenly;' +
                 '}',
                 '.qo-subsetter {' +
-                '    margin: 5px 0 !important;' +
+                '    margin: 5px 2px !important;' +
                 '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
                 '}',
                 '.qo-subsetter .wc-control-label {' +
                 '    margin: 0 5px 3px 0;' +
                 '    text-align: center;' +
+                '}',
+                '.qo-select-all {' +
                 '}',
                 '.qo-subsetter .changer {' +
                 '    margin: 0 auto;' +
@@ -146,6 +148,7 @@ export default function styles() {
             '    top: 0;' +
             '    left: 0;' +
             '    z-index: 2;' +
+            '    width: 90px;' +
             '}',
             '.qo-component--chart .wc-chart {' +
             '    z-index: 1;' +

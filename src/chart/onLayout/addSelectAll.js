@@ -4,7 +4,7 @@ export default function addSelectAll() {
     this.controls.filters.labels.each(function(d) {
         const label = d3
             .select(this)
-            .html(`<input class = "qo-select-all" type = "checkbox"></input>${d.label}`);
+            .html(`${d.label} <input class = "qo-select-all" type = "checkbox"></input>`);
         const checkbox = label
             .select('input')
             .datum(d)
