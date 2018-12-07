@@ -34,8 +34,6 @@ export default function styles() {
             '    display: inline-block;' +
             '}',
             '.qo-button {' +
-            '    margin: 0 5px;' +
-            '    padding: 3px;' +
             '    float: left;' +
             '    display: block;' +
             '}',
@@ -148,7 +146,16 @@ export default function styles() {
             '    top: 0;' +
             '    left: 0;' +
             '    z-index: 2;' +
-            '    width: 90px;' +
+            '    width: 91px;' +
+            '    padding: 3px 0;' +
+            '}',
+            '.qo-button--undo {' +
+            '    position: absolute;' +
+            '    bottom: 0;' +
+            '    left: 0;' +
+            '    z-index: 2;' +
+            '    width: 91px;' +
+            '    padding: 3px 0;' +
             '}',
             '.qo-component--chart .wc-chart {' +
             '    z-index: 1;' +
@@ -177,6 +184,7 @@ export default function styles() {
             '    width: 100%;' +
             '}',
             '.qo-button--reset-listing {' +
+            '    padding: 3px;' +
             '    margin: 10px 5px 10px 0;' +
             '}',
             '.qo-table-container {' +

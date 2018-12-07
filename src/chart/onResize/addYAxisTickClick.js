@@ -15,10 +15,10 @@ export default function addYAxisTickClick() {
                 .select('.wc-control-label')
                 .style({
                     'font-weight': 'bold',
-                    color: 'green'
+                    color: 'red'
                 })
                 .transition()
-                .delay(2500)
+                .delay(5000)
                 .style({
                     'font-weight': 'normal',
                     color: 'black'
@@ -38,10 +38,10 @@ export default function addYAxisTickClick() {
                 .select('.wc-control-label')
                 .style({
                     'font-weight': 'bold',
-                    color: 'green'
+                    color: 'red'
                 })
                 .transition()
-                .delay(2500)
+                .delay(5000)
                 .style({
                     'font-weight': 'normal',
                     color: 'black'
@@ -60,9 +60,25 @@ export default function addYAxisTickClick() {
             );
 
             //Redraw chart and listing.
+
+            //Update Group by control.
             this.draw();
             this.listing.wrap.selectAll('*').remove();
             this.listing.init(this.filtered_data);
+
+            //Highlight y-axis label.
+            this.svg
+                .select('.y.axis .axis-title')
+                .style({
+                    'font-weight': 'bold',
+                    fill: 'red'
+                })
+                .transition()
+                .delay(5000)
+                .style({
+                    'font-weight': 'normal',
+                    fill: 'black'
+                });
         });
     }
 }

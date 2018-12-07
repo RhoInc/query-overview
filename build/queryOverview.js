@@ -342,8 +342,8 @@
                             .map(function(days) {
                                 return days / 7;
                             })
-                            .join('-') + ' weeks'
-                      : '>' + ageRange[0] / 7 + ' weeks';
+                            .join('-') + ' wks'
+                      : '>' + ageRange[0] / 7 + ' wks';
               })
             : settings.ageRanges.map(function(ageRange, i) {
                   return i < settings.ageRanges.length - 1
@@ -649,12 +649,7 @@
             '.qo-component--controls {' + '    width: 100%;' + '}',
             '.qo-component--controls .wc-controls {' + '    margin-bottom: 0;' + '}',
             '.qo-control-grouping {' + '    display: inline-block;' + '}',
-            '.qo-button {' +
-                '    margin: 0 5px;' +
-                '    padding: 3px;' +
-                '    float: left;' +
-                '    display: block;' +
-                '}',
+            '.qo-button {' + '    float: left;' + '    display: block;' + '}',
             '.qo-control-grouping--label,' +
                 '.wc-control-label {' +
                 '    cursor: help;' +
@@ -747,7 +742,16 @@
                 '    top: 0;' +
                 '    left: 0;' +
                 '    z-index: 2;' +
-                '    width: 90px;' +
+                '    width: 91px;' +
+                '    padding: 3px 0;' +
+                '}',
+            '.qo-button--undo {' +
+                '    position: absolute;' +
+                '    bottom: 0;' +
+                '    left: 0;' +
+                '    z-index: 2;' +
+                '    width: 91px;' +
+                '    padding: 3px 0;' +
                 '}',
             '.qo-component--chart .wc-chart {' + '    z-index: 1;' + '}',
             '.qo-component--chart .legend-title {' + '    cursor: help;' + '}',
@@ -769,7 +773,10 @@
       \--------------------------------------------------------------------------------------***/
 
             '.qo-component--listing {' + '    width: 100%;' + '}',
-            '.qo-button--reset-listing {' + '    margin: 10px 5px 10px 0;' + '}',
+            '.qo-button--reset-listing {' +
+                '    padding: 3px;' +
+                '    margin: 10px 5px 10px 0;' +
+                '}',
             '.qo-table-container {' +
                 '    overflow-x: auto;' +
                 '    width: 100%;' +
@@ -1412,7 +1419,6 @@
                 6,
             100
         );
-        console.log(this.config.margin.left);
     }
 
     function setYDomain() {
@@ -1644,10 +1650,10 @@
                     .select('.wc-control-label')
                     .style({
                         'font-weight': 'bold',
-                        color: 'green'
+                        color: 'red'
                     })
                     .transition()
-                    .delay(2500)
+                    .delay(5000)
                     .style({
                         'font-weight': 'normal',
                         color: 'black'
@@ -1669,10 +1675,10 @@
                     .select('.wc-control-label')
                     .style({
                         'font-weight': 'bold',
-                        color: 'green'
+                        color: 'red'
                     })
                     .transition()
-                    .delay(2500)
+                    .delay(5000)
                     .style({
                         'font-weight': 'normal',
                         color: 'black'
@@ -1697,9 +1703,25 @@
                 );
 
                 //Redraw chart and listing.
+
+                //Update Group by control.
                 _this.draw();
                 _this.listing.wrap.selectAll('*').remove();
                 _this.listing.init(_this.filtered_data);
+
+                //Highlight y-axis label.
+                _this.svg
+                    .select('.y.axis .axis-title')
+                    .style({
+                        'font-weight': 'bold',
+                        fill: 'red'
+                    })
+                    .transition()
+                    .delay(5000)
+                    .style({
+                        'font-weight': 'normal',
+                        fill: 'black'
+                    });
             });
         }
     }

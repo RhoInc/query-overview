@@ -6,8 +6,6 @@ d3.csv(
             console.log(error);
 
         var settings = {
-            recency_category_col: null,
-            //recency_col: null,
         };
         var instance = queryOverview(
             '#container',
