@@ -6,7 +6,6 @@ d3.csv(
             console.log(error);
 
         var settings = {
-            filters: [{value_col: 'fieldname', multiple: true}],
         };
         var instance = queryOverview(
             '#container',
