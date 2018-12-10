@@ -1,7 +1,7 @@
 export default function addSelectAll() {
     const context = this;
 
-    this.controls.filters.labels.each(function(d) {
+    this.controls.filters.labels.filter(d => d.multiple).each(function(d) {
         const label = d3
             .select(this)
             .html(`${d.label} <input class = "qo-select-all" type = "checkbox"></input>`);

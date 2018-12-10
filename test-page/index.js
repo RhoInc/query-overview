@@ -6,7 +6,7 @@ d3.csv(
             console.log(error);
 
         var settings = {
-            truncation_cutoff: 10,
+            filters: [{value_col: 'fieldname', multiple: true}],
         };
         var instance = queryOverview(
             '#container',

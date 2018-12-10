@@ -19,7 +19,7 @@ export default function addYAxisTickClick() {
                     color: 'red'
                 })
                 .transition()
-                .delay(5000)
+                .delay(3000)
                 .style({
                     'font-weight': 'normal',
                     'text-decoration': 'none',
@@ -44,7 +44,7 @@ export default function addYAxisTickClick() {
                     color: 'red'
                 })
                 .transition()
-                .delay(5000)
+                .delay(3000)
                 .style({
                     'font-weight': 'normal',
                     'text-decoration': 'none',
@@ -79,7 +79,7 @@ export default function addYAxisTickClick() {
                     fill: 'red'
                 })
                 .transition()
-                .delay(5000)
+                .delay(3000)
                 .style({
                     'font-weight': 'normal',
                     'text-decoration': 'none',

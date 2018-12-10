@@ -309,7 +309,7 @@
                           })
                       ])
                       .map(function(item) {
-                          var itemObject = {};
+                          var itemObject = item instanceof Object ? Object.assign({}, item) : {};
 
                           itemObject.value_col = item instanceof Object ? item.value_col : item;
                           itemObject.label =
@@ -1211,38 +1211,42 @@
     function addSelectAll() {
         var context = this;
 
-        this.controls.filters.labels.each(function(d) {
-            var label = d3
-                .select(this)
-                .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
-            var checkbox = label
-                .select('input')
-                .datum(d)
-                .attr('title', 'Deselect All ' + d.label + ' Options')
-                .property('checked', true)
-                .on('click', function(di) {
-                    var checkbox = d3.select(this);
-                    var checked = this.checked;
+        this.controls.filters.labels
+            .filter(function(d) {
+                return d.multiple;
+            })
+            .each(function(d) {
+                var label = d3
+                    .select(this)
+                    .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
+                var checkbox = label
+                    .select('input')
+                    .datum(d)
+                    .attr('title', 'Deselect All ' + d.label + ' Options')
+                    .property('checked', true)
+                    .on('click', function(di) {
+                        var checkbox = d3.select(this);
+                        var checked = this.checked;
 
-                    //Update checkbox tooltip.
-                    checkbox.attr(
-                        'title',
-                        checked
-                            ? 'Deselect All ' + di.label + ' Options'
-                            : 'Select All ' + di.label + ' Options'
-                    );
+                        //Update checkbox tooltip.
+                        checkbox.attr(
+                            'title',
+                            checked
+                                ? 'Deselect All ' + di.label + ' Options'
+                                : 'Select All ' + di.label + ' Options'
+                        );
 
-                    //Update filter object.
-                    var filter = context.filters.find(function(filter) {
-                        return filter.col === di.value_col;
+                        //Update filter object.
+                        var filter = context.filters.find(function(filter) {
+                            return filter.col === di.value_col;
+                        });
+                        if (checked) filter.val = filter.choices;
+                        else filter.val = [];
+
+                        //Redraw.
+                        context.draw();
                     });
-                    if (checked) filter.val = filter.choices;
-                    else filter.val = [];
-
-                    //Redraw.
-                    context.draw();
-                });
-        });
+            });
         this.controls.filters.checkboxes = this.controls.filters.labels.selectAll('.qo-select-all');
     }
 
@@ -1251,21 +1255,23 @@
         var filter = this.filters.find(function(filter) {
             return filter.col === d.value_col;
         });
-        filter.val = selectedOptions;
-        var checked = filter.val.length === filter.choices.length;
+        filter.val = d.multiple ? selectedOptions : selectedOptions.pop();
 
         //Update checkbox.
-        var checkbox = this.controls.filters.checkboxes
-            .filter(function(di) {
-                return di.value_col === d.value_col;
-            })
-            .attr(
-                'title',
-                checked
-                    ? 'Deselect All ' + d.label + ' Options'
-                    : 'Select All ' + d.label + ' Options'
-            )
-            .property('checked', checked);
+        if (d.multiple) {
+            var checked = filter.val.length === filter.choices.length;
+            var checkbox = this.controls.filters.checkboxes
+                .filter(function(di) {
+                    return di.value_col === d.value_col;
+                })
+                .attr(
+                    'title',
+                    checked
+                        ? 'Deselect All ' + d.label + ' Options'
+                        : 'Select All ' + d.label + ' Options'
+                )
+                .property('checked', checked);
+        }
     }
 
     function updateFilterEventListeners() {
@@ -1502,6 +1508,10 @@
         );
     }
 
+    function setXDomain() {
+        if (this.filtered_data.length === 0) this.x_dom = [0, 0];
+    }
+
     function setYDomain() {
         var _this = this;
 
@@ -1549,9 +1559,10 @@
 
     function setChartHeight() {
         //Match chart height to number of bars currently displayed.
-        this.raw_height =
-            (+this.config.range_band + this.config.range_band * this.config.padding) *
-            this.y_dom.length;
+        this.raw_height = this.filtered_data.length
+            ? (+this.config.range_band + this.config.range_band * this.config.padding) *
+              this.y_dom.length
+            : 100;
     }
 
     function updateXAxisLabel() {
@@ -1572,6 +1583,7 @@
 
     function onDraw() {
         setLeftMargin.call(this);
+        setXDomain.call(this);
         setYDomain.call(this);
         setChartHeight.call(this);
         updateXAxisLabel.call(this);
@@ -1735,7 +1747,7 @@
                         color: 'red'
                     })
                     .transition()
-                    .delay(5000)
+                    .delay(3000)
                     .style({
                         'font-weight': 'normal',
                         'text-decoration': 'none',
@@ -1762,7 +1774,7 @@
                         color: 'red'
                     })
                     .transition()
-                    .delay(5000)
+                    .delay(3000)
                     .style({
                         'font-weight': 'normal',
                         'text-decoration': 'none',
@@ -1803,7 +1815,7 @@
                         fill: 'red'
                     })
                     .transition()
-                    .delay(5000)
+                    .delay(3000)
                     .style({
                         'font-weight': 'normal',
                         'text-decoration': 'none',
@@ -2043,6 +2055,21 @@
         });
     }
 
+    function addNoDataIndicator() {
+        this.svg.select('.qo-no-data').remove();
+        console.log(this.filtered_data);
+        if (this.filtered_data.length === 0)
+            this.svg
+                .append('text')
+                .classed('qo-no-data', true)
+                .attr({
+                    x: this.plot_width / 2,
+                    y: this.plot_height / 2,
+                    'text-anchor': 'middle'
+                })
+                .text('No queries selected.  Verify that no filter selections are in conflict.');
+    }
+
     function onResize() {
         //Add filter functionality to legend.
         legendFilter.call(this);
@@ -2067,6 +2094,9 @@
 
         //Add bar deselection.
         addBarDeselection.call(this);
+
+        //Add informational text to the chart canvas when filters are in conflict.
+        addNoDataIndicator.call(this);
     }
 
     function onDestroy() {}
@@ -2267,17 +2297,20 @@
     function truncateCellText() {
         var _this = this;
 
-        this.tbody
-            .selectAll('td')
-            .attr('title', function(d) {
-                return d.text;
-            })
-            .filter(function(d) {
-                return d.text.length > _this.chart.initialSettings.truncation_cutoff;
-            })
-            .text(function(d) {
-                return d.text.substring(0, _this.chart.initialSettings.truncation_cutoff) + '...';
-            });
+        if (this.data.raw.length)
+            this.tbody
+                .selectAll('td')
+                .attr('title', function(d) {
+                    return d.text;
+                })
+                .filter(function(d) {
+                    return d.text.length > _this.chart.initialSettings.truncation_cutoff;
+                })
+                .text(function(d) {
+                    return (
+                        d.text.substring(0, _this.chart.initialSettings.truncation_cutoff) + '...'
+                    );
+                });
     }
 
     function moveScrollBarLeft() {
