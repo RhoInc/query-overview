@@ -192,91 +192,101 @@
         throw new Error('Unable to copy [obj]! Its type is not supported.');
     }
 
-    var rendererSettings = {
-        //query variables
-        form_col: 'formoid',
-        formDescription_col: 'ecrfpagename',
-        field_col: 'fieldname',
-        fieldDescription_col: 'fieldname',
-        site_col: 'sitename',
-        marking_group_col: 'markinggroup',
-        visit_col: 'folderoid',
-        color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
+    function rendererSettings() {
+        return {
+            //query variables
+            form_col: 'formoid',
+            formDescription_col: 'ecrfpagename',
+            field_col: 'fieldname',
+            fieldDescription_col: null,
+            site_col: 'sitename',
+            marking_group_col: 'markinggroup',
+            visit_col: 'folderoid',
+            color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
 
-        //query age
-        age_statuses: ['Open'],
-        age_col: 'qdays',
-        age_cutoffs: [14, 28, 56, 112],
-        age_range_colors: [
-            '#ffffcc',
-            '#ffeda0',
-            '#fed976',
-            '#feb24c',
-            '#fd8d3c',
-            '#fc4e2a',
-            '#e31a1c',
-            '#bd0026',
-            '#800026'
-        ],
+            //query age
+            age_statuses: ['Open'],
+            age_col: 'qdays',
+            age_cutoffs: [14, 28, 56, 112],
+            age_range_colors: [
+                '#ffffcc',
+                '#ffeda0',
+                '#fed976',
+                '#feb24c',
+                '#fd8d3c',
+                '#fc4e2a',
+                '#e31a1c',
+                '#bd0026',
+                '#800026'
+            ],
 
-        //query status
-        status_col: 'querystatus',
-        status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
-        status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
+            //query status
+            status_col: 'querystatus',
+            status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
+            status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
 
-        //query recency
-        recency_category_col: 'open_time',
-        recency_col: 'odays',
-        recency_cutoffs: [7, 14, 30],
+            //query recency
+            recency_category_col: 'open_time',
+            recency_col: 'odays',
+            recency_cutoffs: [7, 14, 30],
 
-        //miscellany
-        groups: null,
-        status_groups: null,
-        filters: null,
-        dropdown_size: 6,
-        details: null,
-        bar_arrangement: 'stacked',
-        cutoff: 'All',
-        alphabetize: true,
-        range_band: 25,
-        nRowsPerPage: 25,
-        exportable: true
-    };
+            //miscellany
+            groups: null,
+            status_groups: null,
+            filters: null,
+            dropdown_size: 6,
+            details: null,
+            bar_arrangement: 'stacked',
+            cutoff: 'All',
+            alphabetize: true,
+            truncate_listing_cells: true,
+            truncation_cutoff: 100
+        };
+    }
 
-    var webchartsSettings = {
-        x: {
-            label: '# of Queries',
-            column: null,
-            behavior: 'flex'
-        },
-        y: {
-            type: 'ordinal',
-            column: null, // set in syncSettings()
-            label: 'Form',
-            sort: null, // set in syncSettings()
-            range_band: null // set in syncSettings()
-        },
-        marks: [
-            {
-                type: 'bar',
-                per: [null], // set in syncSettings()
-                split: null, // set in syncSettings()
-                arrange: null, // set in syncSettings()
-                summarizeX: 'count',
-                tooltip: null // set in syncSettings()
-            }
-        ],
-        color_by: null, // set in syncSettings()
-        color_dom: null, // set in syncSettings()
-        legend: {
-            location: 'top',
-            label: null, // set in syncSettings()
-            order: null // set in syncSettings()
-        },
-        margin: {
-            right: '50' // room for count annotation
-        }
-    };
+    function chartSettings() {
+        return {
+            x: {
+                label: '# of Queries',
+                column: null,
+                behavior: 'flex'
+            },
+            y: {
+                type: 'ordinal',
+                column: null, // set in syncSettings()
+                label: 'Form',
+                sort: null // set in syncSettings()
+            },
+            marks: [
+                {
+                    type: 'bar',
+                    per: [null], // set in syncSettings()
+                    split: null, // set in syncSettings()
+                    arrange: null, // set in syncSettings()
+                    summarizeX: 'count',
+                    tooltip: null // set in syncSettings()
+                }
+            ],
+            color_by: null, // set in syncSettings()
+            color_dom: null, // set in syncSettings()
+            legend: {
+                location: 'top',
+                label: null, // set in syncSettings()
+                order: null // set in syncSettings()
+            },
+            margin: {
+                right: '50' // room for count annotation
+            },
+            range_band: 25
+        };
+    }
+
+    function listingSettings() {
+        return {
+            nRowsPerPage: 25,
+            exportable: true
+        };
+    }
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
         var validSetting =
@@ -600,8 +610,9 @@
 
     var configuration = {
         rendererSettings: rendererSettings,
-        webchartsSettings: webchartsSettings,
-        settings: Object.assign({}, rendererSettings, webchartsSettings),
+        chartSettings: chartSettings,
+        listingSettings: listingSettings,
+        settings: Object.assign({}, rendererSettings(), chartSettings(), listingSettings()),
         syncSettings: syncSettings,
         controlInputs: controlInputs,
         syncControlInputs: syncControlInputs
@@ -2126,6 +2137,8 @@
         this.table.style('width', '100%').style('display', 'table');
     }
 
+    function onPreprocess$1() {}
+
     function manualSort() {
         var _this = this;
 
@@ -2251,6 +2264,22 @@
         });
     }
 
+    function truncateCellText() {
+        var _this = this;
+
+        this.tbody
+            .selectAll('td')
+            .attr('title', function(d) {
+                return d.text;
+            })
+            .filter(function(d) {
+                return d.text.length > _this.chart.initialSettings.truncation_cutoff;
+            })
+            .text(function(d) {
+                return d.text.substring(0, _this.chart.initialSettings.truncation_cutoff) + '...';
+            });
+    }
+
     function moveScrollBarLeft() {
         var _this = this;
 
@@ -2267,6 +2296,9 @@
         //Update default Webcharts column sorting.
         updateColumnSorting.call(this);
 
+        //Truncate cells with length greater than `settings.truncation_cutoff`.
+        truncateCellText.call(this);
+
         //Move table scrollbar all the way to the left.
         moveScrollBarLeft.call(this);
     }
@@ -2276,6 +2308,7 @@
     var listingCallbacks = {
         onInit: onInit$1,
         onLayout: onLayout$1,
+        onPreprocess: onPreprocess$1,
         onDraw: onDraw$1,
         onDestroy: onDestroy$1
     };

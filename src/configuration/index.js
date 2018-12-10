@@ -1,13 +1,15 @@
 import rendererSettings from './rendererSettings';
-import webchartsSettings from './webchartsSettings';
+import chartSettings from './chartSettings';
+import listingSettings from './listingSettings';
 import syncSettings from './syncSettings';
 import controlInputs from './controlInputs';
 import syncControlInputs from './syncControlInputs';
 
 export default {
     rendererSettings,
-    webchartsSettings,
-    settings: Object.assign({}, rendererSettings, webchartsSettings),
+    chartSettings,
+    listingSettings,
+    settings: Object.assign({}, rendererSettings(), chartSettings(), listingSettings()),
     syncSettings,
     controlInputs,
     syncControlInputs

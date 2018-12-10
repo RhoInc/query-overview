@@ -182,12 +182,21 @@ an array of colors that determines the colors for query statuses
 
 
 
+## settings.recency_category_col
+`string`
+
+query recency category variable name; overrides recency_col
+
+**default:** `"open_time"`
+
+
+
 ## settings.recency_col
 `string`
 
 query recency variable measured in days between query open date and data snapshot date
 
-**default:** `"qdays"`
+**default:** `"odays"`
 
 
 
@@ -210,21 +219,21 @@ an array of query recency cutoffs for which query recency range will be derived
 ## settings.groups
 `array`
 
-an array of group-by variables by which to group queries on the y-axis
+an array of variables by which to count queries; each value of the variable is plotted on the y-axis
 
 **default:** none
 
 ### settings.groups[].value_col
 `string`
 
-Group-by Variable
+group-by variable name
 
 **default:** none
 
 ### settings.groups[].label
 `string`
 
-Group-by Label
+group-by variable label
 
 **default:** none
 
@@ -233,35 +242,35 @@ Group-by Label
 ## settings.status_groups
 `array`
 
-an array of Stratification variables by which to stratify the stacked bars
+an array of variables with which to stratify each group-by value, each value of which plots as a component of a stacked bar when Bar Arrangement is set to _Stacked_ or as individual bars when Bar Arrangement is set to _grouped_
 
 **default:** none
 
 ### settings.status_groups[].value_col
 `string`
 
-Stratification Variable
+Stratification variable name
 
 **default:** none
 
 ### settings.status_groups[].label
 `string`
 
-Stratification Label
+Stratification variable label
 
 **default:** none
 
 ### settings.status_groups[].order
 `array`
 
-Stratification Order
+Stratification variable order
 
 **default:** none
 
 ### settings.status_groups[].colors
 `array`
 
-Stratification Colors
+Stratification variable colors
 
 **default:** none
 
@@ -270,21 +279,21 @@ Stratification Colors
 ## settings.filters
 `array`
 
-an array of filter variables with which to filter the data
+an array of variables with which to filter the data
 
 **default:** none
 
 ### settings.filters[].value_col
 `string`
 
-Filter Variable
+filter variable name
 
 **default:** none
 
 ### settings.filters[].label
 `string`
 
-Filter Label
+filter variable label
 
 **default:** none
 
@@ -302,21 +311,21 @@ controls the maximum number of options that appear in the multi-select dropdowns
 ## settings.details
 `array`
 
-an array of detail variables which will print in the detail listing
+an array of variables which will print in the listing; if unspecified all variables in data will appear in listing
 
 **default:** none
 
 ### settings.details[].value_col
 `string`
 
-Detail Listing Variable
+detail listing variable name
 
 **default:** none
 
 ### settings.details[].label
 `string`
 
-Detail Listing Column Header
+detail listing column header
 
 **default:** none
 
@@ -340,15 +349,6 @@ a value that limits the number of groups displayed on the y-axis
 
 
 
-## settings.range_band
-`number`
-
-controls the height of each value on the y-axis
-
-**default:** `25`
-
-
-
 ## settings.alphabetize
 `boolean`
 
@@ -358,25 +358,69 @@ sort groups on the y-axis alphanumerically; by default groups are sorted by desc
 
 
 
-## settings.nRowsPerPage
-`number`
-
-the number of rows displayed per page.
-
-**default:** `10`
-
-
-
-## settings.exportable
+## settings.truncate_listing_cells
 `boolean`
 
-allow the export of data to .csv via a button beneath the detail listing
+optionally truncate cell text past a certain number of characters
 
 **default:** `true`
 
-# Webcharts settings
-The object below contains each Webcharts setting as of version 1.2.3.
 
+
+## settings.truncation_cutoff
+`number`
+
+cell text past this cutoff will be truncated and the full text will be captured in a tooltip
+
+**default:** `100`
+
+# Webcharts settings
+The objects below contain Webcharts settings for each display as of version 1.2.3 of the Query Overview.
+
+## Chart
 ```
-{    x: {        label: '# of Queries',        column: null,        behavior: 'flex'    },    y: {        type: 'ordinal',        column: null, // set in syncSettings()        label: 'Form',        sort: null, // set in syncSettings()        range_band: null // set in syncSettings()    },    marks: [        {            type: 'bar',            per: [null], // set in syncSettings()            split: null, // set in syncSettings()            arrange: null, // set in syncSettings()            summarizeX: 'count',            tooltip: null // set in syncSettings()        }    ],    color_by: null, // set in syncSettings()    color_dom: null, // set in syncSettings()    legend: {        location: 'top',        label: null, // set in syncSettings()        order: null // set in syncSettings()    },    margin: {        right: '50' // room for count annotation    }};}
+{
+    "x": {
+        "label": "# of Queries",
+        "column": null,
+        "behavior": "flex"
+    },
+    "y": {
+        "type": "ordinal",
+        "column": null,
+        "label": "Form",
+        "sort": null
+    },
+    "marks": [
+        {
+            "type": "bar",
+            "per": [
+                null
+            ],
+            "split": null,
+            "arrange": null,
+            "summarizeX": "count",
+            "tooltip": null
+        }
+    ],
+    "color_by": null,
+    "color_dom": null,
+    "legend": {
+        "location": "top",
+        "label": null,
+        "order": null
+    },
+    "margin": {
+        "right": "50"
+    },
+    "range_band": 25
+}
+```
+
+## Listing
+```
+{
+    "nRowsPerPage": 25,
+    "exportable": true
+}
 ```

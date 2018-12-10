@@ -6,6 +6,7 @@ d3.csv(
             console.log(error);
 
         var settings = {
+            truncation_cutoff: 10,
         };
         var instance = queryOverview(
             '#container',
