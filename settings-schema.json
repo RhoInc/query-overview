@@ -98,7 +98,7 @@
         },
         "age_col": {
             "title": "Query Age",
-            "description": "query age variable measured in days between query open date and data snapshot date",
+            "description": "query age variable measured in days between query open date and data snapshot date, query response date, or query resolution date for open, answered, and resolved queries, respectively",
             "type": "string",
             "default": "qdays",
             "data-mapping": true,
@@ -185,7 +185,7 @@
         },
         "recency_category_col": {
             "title": "Query Recency Category",
-            "description": "query recency category variable name; overrides recency_col",
+            "description": "query recency category variable name; overrides `recency_col`",
             "type": "string",
             "default": "open_time",
             "data-mapping": true,
@@ -194,7 +194,7 @@
         },
         "recency_col": {
             "title": "Query Recency",
-            "description": "query recency variable measured in days between query open date and data snapshot date",
+            "description": "query recency variable measured in days between query open date and data snapshot date, regardless of query status",
             "type": "string",
             "default": "odays",
             "data-mapping": true,

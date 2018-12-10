@@ -94,7 +94,7 @@ an array of query statuses for which query age will be derived
 ## settings.age_col
 `string`
 
-query age variable measured in days between query open date and data snapshot date
+query age variable measured in days between query open date and data snapshot date, query response date, or query resolution date for open, answered, and resolved queries, respectively
 
 **default:** `"qdays"`
 
@@ -185,7 +185,7 @@ an array of colors that determines the colors for query statuses
 ## settings.recency_category_col
 `string`
 
-query recency category variable name; overrides recency_col
+query recency category variable name; overrides `recency_col`
 
 **default:** `"open_time"`
 
@@ -194,7 +194,7 @@ query recency category variable name; overrides recency_col
 ## settings.recency_col
 `string`
 
-query recency variable measured in days between query open date and data snapshot date
+query recency variable measured in days between query open date and data snapshot date, regardless of query status
 
 **default:** `"odays"`
 
