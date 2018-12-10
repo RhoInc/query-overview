@@ -1,6 +1,6 @@
 export default function addNoDataIndicator() {
     this.svg.select('.qo-no-data').remove();
-    console.log(this.filtered_data);
+
     if (this.filtered_data.length === 0)
         this.svg
             .append('text')

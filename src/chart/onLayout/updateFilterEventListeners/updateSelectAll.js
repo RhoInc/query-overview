@@ -10,7 +10,7 @@ export default function updateSelectAll(d, selectedOptions) {
             .filter(di => di.value_col === d.value_col)
             .attr(
                 'title',
-                checked ? `Deselect All ${d.label} Options` : `Select All ${d.label} Options`
+                checked ? `Deselect all ${d.label} options` : `Select all ${d.label} options`
             )
             .property('checked', checked);
     }

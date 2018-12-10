@@ -1222,7 +1222,7 @@
                 var checkbox = label
                     .select('input')
                     .datum(d)
-                    .attr('title', 'Deselect All ' + d.label + ' Options')
+                    .attr('title', 'Deselect all ' + d.label + ' options')
                     .property('checked', true)
                     .on('click', function(di) {
                         var checkbox = d3.select(this);
@@ -1232,8 +1232,8 @@
                         checkbox.attr(
                             'title',
                             checked
-                                ? 'Deselect All ' + di.label + ' Options'
-                                : 'Select All ' + di.label + ' Options'
+                                ? 'Deselect all ' + di.label + ' options'
+                                : 'Select all ' + di.label + ' options'
                         );
 
                         //Update filter object.
@@ -1267,8 +1267,8 @@
                 .attr(
                     'title',
                     checked
-                        ? 'Deselect All ' + d.label + ' Options'
-                        : 'Select All ' + d.label + ' Options'
+                        ? 'Deselect all ' + d.label + ' options'
+                        : 'Select all ' + d.label + ' options'
                 )
                 .property('checked', checked);
         }
@@ -2057,7 +2057,7 @@
 
     function addNoDataIndicator() {
         this.svg.select('.qo-no-data').remove();
-        console.log(this.filtered_data);
+
         if (this.filtered_data.length === 0)
             this.svg
                 .append('text')
