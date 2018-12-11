@@ -37,7 +37,7 @@ field variable name
 
 field description variable name
 
-**default:** `"fieldname"`
+**default:** `"null"`
 
 
 
@@ -71,7 +71,7 @@ visit/folder variable name
 ## settings.color_by_col
 `string`
 
-coloring variable name of query categorization: query age, query status, or any custom categorication
+coloring variable name of query categorization: query age, query status, or any custom categorization; note that _queryage_ is derived by the renderer
 
 **default:** `"queryage"`
 

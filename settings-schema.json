@@ -13,7 +13,7 @@
             "type": "string",
             "default": "formoid",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "formDescription_col": {
@@ -22,7 +22,7 @@
             "type": "string",
             "default": "ecrfpagename",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "field_col": {
@@ -31,16 +31,16 @@
             "type": "string",
             "default": "fieldname",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "fieldDescription_col": {
             "title": "Field Description Variable",
             "description": "field description variable name",
             "type": "string",
-            "default": "fieldname",
+            "default": null,
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": false
         },
         "site_col": {
@@ -49,7 +49,7 @@
             "type": "string",
             "default": "sitename",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "marking_group_col": {
@@ -58,7 +58,7 @@
             "type": "string",
             "default": "markinggroup",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "visit_col": {
@@ -67,21 +67,18 @@
             "type": "string",
             "default": "folderoid",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "color_by_col": {
             "title": "Status Group Variable",
-            "description": "coloring variable name of query categorization: query age, query status, or any custom categorication",
+            "description": "coloring variable name of query categorization: query age, query status, or any custom categorization; note that _queryage_ is derived by the renderer",
             "type": "string",
             "default": "queryage",
             "enum": [
                 "queryage",
                 "querystatus"
-            ],
-            "data-mapping": true,
-            "data-type": "string",
-            "required": true
+            ]
         },
         "age_statuses": {
             "title": "Query Statuses Applicable to Query Age",
@@ -102,7 +99,7 @@
             "type": "string",
             "default": "qdays",
             "data-mapping": true,
-            "data-type": "number",
+            "data-type": "numeric",
             "required": true
         },
         "age_cutoffs": {
@@ -148,7 +145,7 @@
             "type": "string",
             "default": "querystatus",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": true
         },
         "status_order": {
@@ -189,7 +186,7 @@
             "type": "string",
             "default": "open_time",
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "character",
             "required": false
         },
         "recency_col": {
@@ -198,7 +195,7 @@
             "type": "string",
             "default": "odays",
             "data-mapping": true,
-            "data-type": "number",
+            "data-type": "numeric",
             "required": false
         },
         "recency_cutoffs": {
@@ -236,7 +233,7 @@
                 }
             },
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "either",
             "required": false
         },
         "status_groups": {
@@ -269,7 +266,7 @@
                 }
             },
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "either",
             "required": false
         },
         "filters": {
@@ -292,7 +289,7 @@
                 }
             },
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "either",
             "required": false
         },
         "dropdown_size": {
@@ -321,7 +318,7 @@
                 }
             },
             "data-mapping": true,
-            "data-type": "string",
+            "data-type": "either",
             "required": false
         },
         "bar_arrangement": {

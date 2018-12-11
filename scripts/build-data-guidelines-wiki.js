@@ -31,34 +31,35 @@ const variables = settings
 variables.forEach(variable => {
     if (['string', 'number'].indexOf(variable.type) > -1)
         markdown.push(
-            `|**${
-                variable.setting}**|${
-                variable.default}|${
-                variable.type}|${
+            `|\`${
+                variable.setting}\`|${
+                    variable.default ? `_${variable.default}_` : ''
+                }|**${
+                variable['data-type']}**|${
                 variable.description.replace(/name of variable that (captures )?/, '')}|${
-                variable.required ? '**Y**' : ''
+                variable.required ? '**Yes**' : ''
             }|`
         );
     else if (variable.type === 'array') {
         if (variable.defaults)
             variable.defaults.forEach((item,i) => {
                 markdown.push(
-                    `|**${
-                        variable.setting}[${i}]**|${
-                        item}|${
-                        variable.type}|${
+                    `|\`${
+                        variable.setting}[${i}]\`|_${
+                        item}_|**${
+                        variable['data-type']}**|${
                         variable.descriptions[item]}|${
-                        variable.required ? '**Y**' : ''
+                        variable.required ? '**Yes**' : ''
                     }|`
                 )
             });
         else
             markdown.push(
-                `|**${
-                    variable.setting}[]**|_user-defined_|${
-                    variable.type}|${
+                `|\`${
+                    variable.setting}[]\`||**${
+                    variable['data-type']}**|${
                     variable.description}|${
-                    variable.required ? '**Y**' : ''
+                    variable.required ? '**Yes**' : ''
                 }|`
             );
     } else
