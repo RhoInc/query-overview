@@ -10,8 +10,8 @@ export default function syncStatusGroups(settings) {
         ? settings.ageRanges.map(
               (ageRange, i) =>
                   i < settings.ageRanges.length - 1
-                      ? `${ageRange.map(days => days / 7).join('-')} weeks`
-                      : `>${ageRange[0] / 7} weeks`
+                      ? `${ageRange.map(days => days / 7).join('-')} wks`
+                      : `>${ageRange[0] / 7} wks`
           )
         : settings.ageRanges.map(
               (ageRange, i) =>

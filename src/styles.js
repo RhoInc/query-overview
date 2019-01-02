@@ -34,8 +34,6 @@ export default function styles() {
             '    display: inline-block;' +
             '}',
             '.qo-button {' +
-            '    margin: 0 5px;' +
-            '    padding: 3px;' +
             '    float: left;' +
             '    display: block;' +
             '}',
@@ -120,13 +118,15 @@ export default function styles() {
                 '    justify-content: space-evenly;' +
                 '}',
                 '.qo-subsetter {' +
-                '    margin: 5px 0 !important;' +
+                '    margin: 5px 2px !important;' +
                 '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
                 '}',
                 '.qo-subsetter .wc-control-label {' +
                 '    margin: 0 5px 3px 0;' +
                 '    text-align: center;' +
+                '}',
+                '.qo-select-all {' +
                 '}',
                 '.qo-subsetter .changer {' +
                 '    margin: 0 auto;' +
@@ -146,6 +146,16 @@ export default function styles() {
             '    top: 0;' +
             '    left: 0;' +
             '    z-index: 2;' +
+            '    width: 91px;' +
+            '    padding: 3px 0;' +
+            '}',
+            '.qo-button--undo {' +
+            '    position: absolute;' +
+            '    bottom: 0;' +
+            '    left: 0;' +
+            '    z-index: 2;' +
+            '    width: 91px;' +
+            '    padding: 3px 0;' +
             '}',
             '.qo-component--chart .wc-chart {' +
             '    z-index: 1;' +
@@ -174,6 +184,7 @@ export default function styles() {
             '    width: 100%;' +
             '}',
             '.qo-button--reset-listing {' +
+            '    padding: 3px;' +
             '    margin: 10px 5px 10px 0;' +
             '}',
             '.qo-table-container {' +

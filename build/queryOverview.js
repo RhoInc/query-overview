@@ -342,8 +342,8 @@
                             .map(function(days) {
                                 return days / 7;
                             })
-                            .join('-') + ' weeks'
-                      : '>' + ageRange[0] / 7 + ' weeks';
+                            .join('-') + ' wks'
+                      : '>' + ageRange[0] / 7 + ' wks';
               })
             : settings.ageRanges.map(function(ageRange, i) {
                   return i < settings.ageRanges.length - 1
@@ -649,12 +649,7 @@
             '.qo-component--controls {' + '    width: 100%;' + '}',
             '.qo-component--controls .wc-controls {' + '    margin-bottom: 0;' + '}',
             '.qo-control-grouping {' + '    display: inline-block;' + '}',
-            '.qo-button {' +
-                '    margin: 0 5px;' +
-                '    padding: 3px;' +
-                '    float: left;' +
-                '    display: block;' +
-                '}',
+            '.qo-button {' + '    float: left;' + '    display: block;' + '}',
             '.qo-control-grouping--label,' +
                 '.wc-control-label {' +
                 '    cursor: help;' +
@@ -722,7 +717,7 @@
                 '    justify-content: space-evenly;' +
                 '}',
             '.qo-subsetter {' +
-                '    margin: 5px 0 !important;' +
+                '    margin: 5px 2px !important;' +
                 '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
                 '}',
@@ -730,6 +725,7 @@
                 '    margin: 0 5px 3px 0;' +
                 '    text-align: center;' +
                 '}',
+            '.qo-select-all {' + '}',
             '.qo-subsetter .changer {' + '    margin: 0 auto;' + '}',
 
             /***--------------------------------------------------------------------------------------\
@@ -746,6 +742,16 @@
                 '    top: 0;' +
                 '    left: 0;' +
                 '    z-index: 2;' +
+                '    width: 91px;' +
+                '    padding: 3px 0;' +
+                '}',
+            '.qo-button--undo {' +
+                '    position: absolute;' +
+                '    bottom: 0;' +
+                '    left: 0;' +
+                '    z-index: 2;' +
+                '    width: 91px;' +
+                '    padding: 3px 0;' +
                 '}',
             '.qo-component--chart .wc-chart {' + '    z-index: 1;' + '}',
             '.qo-component--chart .legend-title {' + '    cursor: help;' + '}',
@@ -767,7 +773,10 @@
       \--------------------------------------------------------------------------------------***/
 
             '.qo-component--listing {' + '    width: 100%;' + '}',
-            '.qo-button--reset-listing {' + '    margin: 10px 5px 10px 0;' + '}',
+            '.qo-button--reset-listing {' +
+                '    padding: 3px;' +
+                '    margin: 10px 5px 10px 0;' +
+                '}',
             '.qo-table-container {' +
                 '    overflow-x: auto;' +
                 '    width: 100%;' +
@@ -1138,7 +1147,7 @@
         this.controls.filters.labels.each(function(d) {
             var label = d3
                 .select(this)
-                .html('<input class = "qo-select-all" type = "checkbox"></input>' + d.label);
+                .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
             var checkbox = label
                 .select('input')
                 .datum(d)
@@ -1397,7 +1406,7 @@
 
     function setLeftMargin() {
         var fontSize = parseInt(this.wrap.style('font-size'));
-        this.config.margin.left =
+        this.config.margin.left = Math.max(
             Math.max(
                 7,
                 d3.max(this.y_dom, function(d) {
@@ -1406,8 +1415,10 @@
             ) *
                 fontSize *
                 0.5 +
-            fontSize * 1.5 * 1.5 +
-            6;
+                fontSize * 1.5 * 1.5 +
+                6,
+            100
+        );
     }
 
     function setYDomain() {
@@ -1631,27 +1642,52 @@
                 .style('fill', 'blue')
                 .style('text-decoration', 'underline');
             yLabels.style('cursor', 'pointer').on('click', function(yLabel) {
-                _this.controls.wrap
-                    .selectAll('.control-group')
-                    .filter(function(d) {
-                        return d.label === 'Group by';
+                //Update Group by control.
+                var groupByControl = _this.controls.otherControls.controlGroups.filter(function(d) {
+                    return d.label === 'Group by';
+                });
+                groupByControl
+                    .select('.wc-control-label')
+                    .style({
+                        'font-weight': 'bold',
+                        color: 'red'
                     })
-                    .selectAll('option')
-                    .property('selected', function(d) {
-                        return d === 'Form: Field';
+                    .transition()
+                    .delay(5000)
+                    .style({
+                        'font-weight': 'normal',
+                        color: 'black'
                     });
+                groupByControl.selectAll('option').property('selected', function(d) {
+                    return d === 'Form: Field';
+                });
+
+                //Update chart settings.
                 _this.config.y.column = 'Form: Field';
                 _this.config.y.label = 'Form: Field';
                 _this.config.marks[0].per[0] = 'Form: Field';
-                _this.controls.wrap
-                    .selectAll('.control-group')
-                    .filter(function(d) {
-                        return d.label === 'Form';
+
+                //Update Form filter.
+                var formFilter = _this.controls.filters.controlGroups.filter(function(d) {
+                    return d.label === 'Form';
+                });
+                formFilter
+                    .select('.wc-control-label')
+                    .style({
+                        'font-weight': 'bold',
+                        color: 'red'
                     })
-                    .selectAll('option')
-                    .property('selected', function(d) {
-                        return d === yLabel;
+                    .transition()
+                    .delay(5000)
+                    .style({
+                        'font-weight': 'normal',
+                        color: 'black'
                     });
+                formFilter.selectAll('option').property('selected', function(d) {
+                    return d === yLabel;
+                });
+
+                //Update Form filter object in `chart.filters`.
                 var filter = _this.filters.find(function(filter) {
                     return filter.col === _this.config.form_col;
                 });
@@ -1666,9 +1702,26 @@
                     [yLabel]
                 );
 
+                //Redraw chart and listing.
+
+                //Update Group by control.
                 _this.draw();
                 _this.listing.wrap.selectAll('*').remove();
                 _this.listing.init(_this.filtered_data);
+
+                //Highlight y-axis label.
+                _this.svg
+                    .select('.y.axis .axis-title')
+                    .style({
+                        'font-weight': 'bold',
+                        fill: 'red'
+                    })
+                    .transition()
+                    .delay(5000)
+                    .style({
+                        'font-weight': 'normal',
+                        fill: 'black'
+                    });
             });
         }
     }
