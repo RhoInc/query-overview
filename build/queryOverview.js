@@ -832,23 +832,6 @@
     function groupControls() {
         var context = this;
 
-        //Group other controls.
-        this.controls.otherControls = {
-            container: this.controls.wrap
-                .insert('div', ':first-child')
-                .classed('qo-control-grouping qo-control-grouping--other-controls', true)
-        };
-        this.controls.otherControls.container
-            .append('div')
-            .classed('qo-control-grouping--label', true)
-            .text('Controls');
-        this.controls.otherControls.controlGroups = this.controls.wrap.selectAll(
-            '.control-group:not(.qo-subsetter)'
-        );
-        this.controls.otherControls.controlGroups.each(function(d) {
-            context.controls.otherControls.container.node().appendChild(this);
-        });
-
         //Group filters.
         this.controls.filters = {
             container: this.controls.wrap
@@ -860,8 +843,32 @@
             .classed('qo-control-grouping--label', true)
             .text('Filters');
         this.controls.filters.controlGroups = this.controls.wrap.selectAll('.qo-subsetter');
+        this.controls.filters.labels = this.controls.filters.controlGroups.selectAll(
+            '.wc-control-label'
+        );
+        this.controls.filters.selects = this.controls.filters.controlGroups.selectAll('.changer');
         this.controls.filters.controlGroups.each(function(d) {
             context.controls.filters.container.node().appendChild(this);
+        });
+
+        //Group other controls.
+        this.controls.otherControls = {
+            container: this.controls.wrap
+                .insert('div', ':first-child')
+                .classed('qo-control-grouping qo-control-grouping--other-controls', true)
+        };
+        this.controls.otherControls.label = this.controls.otherControls.container
+            .append('div')
+            .classed('qo-control-grouping--label', true)
+            .text('Controls');
+        this.controls.otherControls.controlGroups = this.controls.wrap.selectAll(
+            '.control-group:not(.qo-subsetter)'
+        );
+        this.controls.otherControls.labels = this.controls.otherControls.controlGroups.selectAll(
+            '.wc-control-label'
+        );
+        this.controls.otherControls.controlGroups.each(function(d) {
+            context.controls.otherControls.container.node().appendChild(this);
         });
     }
 
@@ -919,7 +926,7 @@
     function updateGroupByOptions() {
         var context = this;
 
-        var groupByControl = this.controls.wrap
+        this.controls.wrap
             .selectAll('.control-group select')
             .filter(function(d) {
                 return d.label === 'Group by';
@@ -975,6 +982,76 @@
                         return d.order ? d.order.indexOf(a) - d.order.indexOf(b) : a < b ? -1 : 1;
                     });
             });
+    }
+
+    function addSelectAll() {
+        var context = this;
+
+        this.controls.filters.labels.each(function(d) {
+            var label = d3
+                .select(this)
+                .html('<input class = "qo-select-all" type = "checkbox"></input>' + d.label);
+            var checkbox = label
+                .select('input')
+                .datum(d)
+                .attr('title', 'Deselect All ' + d.label + ' Options')
+                .property('checked', true)
+                .on('click', function(di) {
+                    var checkbox = d3.select(this);
+                    var checked = this.checked;
+
+                    //Update checkbox tooltip.
+                    checkbox.attr(
+                        'title',
+                        checked
+                            ? 'Deselect All ' + di.label + ' Options'
+                            : 'Select All ' + di.label + ' Options'
+                    );
+
+                    //Update filter object.
+                    var filter = context.filters.find(function(filter) {
+                        return filter.col === di.value_col;
+                    });
+                    if (checked) filter.val = filter.choices;
+                    else filter.val = [];
+
+                    //Redraw.
+                    context.draw();
+                });
+        });
+        this.controls.filters.checkboxes = this.controls.filters.labels.selectAll('.qo-select-all');
+    }
+
+    function updateFilterEventListeners() {
+        var context = this;
+
+        this.controls.filters.selects.on('change', function(d) {
+            var select = d3.select(this);
+            var selectedOptions = select.selectAll('option:checked').data();
+
+            //Update filter object.
+            var filter = context.filters.find(function(filter) {
+                return filter.col === d.value_col;
+            });
+            filter.val = selectedOptions;
+            var checked = filter.val.length === filter.choices.length;
+
+            //Update checkbox.
+            var checkbox = context.controls.filters.checkboxes
+                .filter(function(di) {
+                    return di.value_col === d.value_col;
+                })
+                .attr(
+                    'title',
+                    checked
+                        ? 'Deselect All ' + d.label + ' Options'
+                        : 'Select All ' + d.label + ' Options'
+                )
+                .property('checked', checked);
+
+            //Redraw.
+            context.draw();
+        });
     }
 
     function setYAxisDomainLength() {
@@ -1072,6 +1149,12 @@
 
         //Customize dropdowns with multiple options.
         customizeMultiSelects.call(this);
+
+        //Add select all checkbox to filters.
+        addSelectAll.call(this);
+
+        //Update filter event listeners to toggle select all checkbox on change.
+        updateFilterEventListeners.call(this);
 
         //Handle y-domain length control
         setYAxisDomainLength.call(this);

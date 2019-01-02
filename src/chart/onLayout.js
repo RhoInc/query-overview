@@ -3,6 +3,8 @@ import groupControls from './onLayout/groupControls';
 import addControlTooltips from './onLayout/addControlTooltips';
 import updateGroupByOptions from './onLayout/updateGroupByOptions';
 import customizeMultiSelects from './onLayout/customizeMultiSelects';
+import addSelectAll from './onLayout/addSelectAll';
+import updateFilterEventListeners from './onLayout/updateFilterEventListeners';
 import setYAxisDomainLength from './onLayout/setYAxisDomainLength';
 import addResetButton from './onLayout/addResetButton';
 import clearListingOnChange from './onLayout/clearListingOnChange';
@@ -23,6 +25,12 @@ export default function onLayout() {
 
     //Customize dropdowns with multiple options.
     customizeMultiSelects.call(this);
+
+    //Add select all checkbox to filters.
+    addSelectAll.call(this);
+
+    //Update filter event listeners to toggle select all checkbox on change.
+    updateFilterEventListeners.call(this);
 
     //Handle y-domain length control
     setYAxisDomainLength.call(this);

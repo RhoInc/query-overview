@@ -1,7 +1,7 @@
 export default function updateGroupByOptions() {
     const context = this;
 
-    const groupByControl = this.controls.wrap
+    this.controls.wrap
         .selectAll('.control-group select')
         .filter(d => d.label === 'Group by')
         .on('change', function() {
