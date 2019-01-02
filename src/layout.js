@@ -10,7 +10,7 @@ export default function layout(element) {
     containers.controls = containers.topRow
         .append('div')
         .classed('qo-component qo-component--controls', true);
-    containers.chart = containers.topRow
+    containers.chart = containers.controls
         .append('div')
         .classed('qo-component qo-component--chart', true);
     containers.bottomRow = containers.main.append('div').classed('qo-row qo-row--bottom', true);

@@ -1,20 +1,22 @@
 export default {
     x: {
         label: '# of Queries',
+        column: null,
         behavior: 'flex'
     },
     y: {
         type: 'ordinal',
         column: null, // set in syncSettings()
         label: 'Form',
-        sort: 'total-descending'
+        sort: null, // set in syncSettings()
+        range_band: null // set in syncSettings()
     },
     marks: [
         {
             type: 'bar',
             per: [null], // set in syncSettings()
             split: null, // set in syncSettings()
-            arrange: 'stacked',
+            arrange: null, // set in syncSettings()
             summarizeX: 'count',
             tooltip: null // set in syncSettings()
         }
@@ -23,10 +25,10 @@ export default {
     color_dom: null, // set in syncSettings()
     legend: {
         location: 'top',
-        //  label: 'Query Status',
-        label: null,
+        label: null, // set in syncSettings()
         order: null // set in syncSettings()
     },
-    range_band: 15,
-    margin: { right: '50' } // room for count annotation
+    margin: {
+        right: '50' // room for count annotation
+    }
 };

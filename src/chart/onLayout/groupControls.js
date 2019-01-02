@@ -10,6 +10,10 @@ export default function groupControls() {
     this.controls.filters.container
         .append('div')
         .classed('qo-control-grouping--label', true)
+        .attr(
+            'title',
+            'Filters subset the data underlying the chart and listing.\nHover over filter labels to view more information about them.'
+        )
         .text('Filters');
     this.controls.filters.controlGroups = this.controls.wrap.selectAll('.qo-subsetter');
     this.controls.filters.labels = this.controls.filters.controlGroups.selectAll(
@@ -29,6 +33,10 @@ export default function groupControls() {
     this.controls.otherControls.label = this.controls.otherControls.container
         .append('div')
         .classed('qo-control-grouping--label', true)
+        .attr(
+            'title',
+            'Controls alter the display of the chart.\nHover over control labels to view more information about them.'
+        )
         .text('Controls');
     this.controls.otherControls.controlGroups = this.controls.wrap.selectAll(
         '.control-group:not(.qo-subsetter)'

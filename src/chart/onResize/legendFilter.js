@@ -1,3 +1,6 @@
+import updateSelectAll from '../onLayout/updateFilterEventListeners/updateSelectAll';
+
+//TODO: modularize/refactor
 export default function legendFilter() {
     const context = this;
 
@@ -12,12 +15,6 @@ export default function legendFilter() {
     const statusFilter = this.filters.find(filter => filter.col === this.config.color_by);
     const legendItems = this.wrap
         .selectAll('.legend-item')
-        .style({
-            cursor: 'pointer',
-            'border-radius': '4px',
-            padding: '5px',
-            'padding-left': '8px'
-        })
         .classed(
             'selected',
             d => statusFilter.val === 'All' || statusFilter.val.indexOf(d.label) > -1
@@ -29,14 +26,15 @@ export default function legendFilter() {
                     ? 'lightgray'
                     : 'white'
         );
-    const statusOptions = this.controls.wrap
+    const statusControlGroup = this.controls.wrap
         .selectAll('.control-group')
-        .filter(d => d.value_col === context.config.marks[0].split)
-        .selectAll('.changer option'); // status filter options
+        .filter(d => d.value_col === context.config.marks[0].split);
+    const statusOptions = statusControlGroup.selectAll('.changer option'); // status filter options
     legendItems.selectAll('.legend-mark-text').remove(); // don't need 'em
+    legendItems.selectAll('.legend-color-block').attr('width', '8px');
     legendItems.on('click', function(d) {
-        const legendItem = d3.select(this), // clicked legend item
-            selected = !legendItem.classed('selected'); // selected boolean
+        const legendItem = d3.select(this); // clicked legend item
+        const selected = !legendItem.classed('selected'); // selected boolean
         legendItem.classed('selected', selected); // toggle selected class
         const selectedLegendItems = legendItems
             .filter(function() {
@@ -51,6 +49,7 @@ export default function legendFilter() {
             .property('selected', false)
             .filter(d => selectedLegendItems.indexOf(d) > -1)
             .property('selected', true); // set selected property of status options corresponding to selected statuses to true
+        updateSelectAll.call(context, statusControlGroup.datum(), selectedLegendItems);
         const filtered_data = context.raw_data.filter(d => {
             let filtered = selectedLegendItems.indexOf(d[context.config.marks[0].split]) === -1;
 
@@ -81,9 +80,8 @@ export default function legendFilter() {
             });
         context.draw();
 
-        //Remove listing and display listing instruction.
+        //Remove listing and display bar click footnote.
         context.listing.wrap.selectAll('*').remove();
-        context.wrap.select('#listing-instruction').style('display', 'block');
         context.listing.init(filtered_data);
     });
 }

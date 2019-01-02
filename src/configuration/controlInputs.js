@@ -2,7 +2,7 @@ export default [
     {
         type: 'dropdown',
         label: 'Status Group',
-        options: ['marks.0.split', 'color_by'], // will want to change tooltip too
+        option: 'color_by_col',
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
         require: true
@@ -25,7 +25,7 @@ export default [
         type: 'radio',
         option: 'cutoff',
         label: 'Show First N Groups',
-        values: ['All', '25', '10']
+        values: ['10', '25', 'All']
     },
     {
         type: 'checkbox',

@@ -14,7 +14,6 @@ export default function styles() {
             '    display: inline-block;' +
             '}',
             '.qo-component {' +
-            '    display: inline-block;' +
             '}',
             '.qo-row--top {' +
             '}',
@@ -26,20 +25,30 @@ export default function styles() {
         \--------------------------------------------------------------------------------------***/
 
             '.qo-component--controls {' +
-            '    width: 39.5%;' +
-            '    float: left;' +
-            '    position: relative;' +
+            '    width: 100%;' +
+            '}',
+            '.qo-component--controls .wc-controls {' +
+            '    margin-bottom: 0;' +
             '}',
             '.qo-control-grouping {' +
             '    display: inline-block;' +
             '}',
-            '.qo-button--reset-chart {' +
-            '    position: absolute;' +
-            '    top: 0;' +
-            '    left: 0;' +
+            '.qo-button {' +
+            '    margin: 0 5px;' +
+            '    padding: 3px;' +
+            '    float: left;' +
+            '    display: block;' +
             '}',
+            '.qo-control-grouping--label,' +
             '.wc-control-label {' +
             '    cursor: help;' +
+            '    margin-bottom: 3px;' +
+            '}',
+            '.qo-control-grouping--label {' +
+            '    text-align: center;' +
+            '    width: 100%;' +
+            '    font-size: 24px;' +
+            '    border-bottom: 2px solid #aaa;' +
             '}',
             '.span-description {' +
             '    display: none !important;' +
@@ -50,50 +59,53 @@ export default function styles() {
             \---------------------------------------------------------------------------------****/
 
                 '.qo-control-grouping--other-controls {' +
-                '    width: 39.5%;' +
+                '    width: 20%;' +
                 '    float: right;' +
                 '}',
                 '.qo-control-grouping--other-controls .control-group {' +
-                '    display: inline-block !important;' +
                 '    width: 100%;' +
-                '    margin: 5px 0 0 0 !important;' +
+                '    margin-bottom: 15px;' +
                 '}',
-                '.qo-control-grouping--other-controls .control-group > * {' +
-                '    margin: 0;' +
-                '    padding: 0;' +
+                '.qo-control-grouping--other-controls .control-group:nth-child(n+3) {' +
+                '    border-top: 1px solid #aaa;' +
+                '}',
+                '.qo-control-grouping--other-controls .control-group .wc-control-label {' +
+                '    text-align: center;' +
+                '    font-size: 110%;' +
                 '}',
 
                 //dropdowns
+                '.qo-dropdown {' +
+                '}',
                 '.qo-dropdown .wc-control-label {' +
-                '    display: inline-block !important;' +
-                '    width: 44%;' +
-                '    text-align: right;' +
                 '}',
                 '.qo-dropdown .changer {' +
-                '    display: inline-block !important;' +
-                '    float: right;' +
-                '    width: 55%;' +
+                '    margin: 0 auto;' +
                 '}',
 
                 //radio buttons
+                '.qo-radio {' +
+                '    display: flex !important;' +
+                '    justify-content: center;' +
+                '    flex-wrap: wrap;' +
+                '}',
                 '.qo-radio .wc-control-label {' +
                 '    width: 100%;' +
-                '    text-align: right;' +
                 '}',
                 '.qo-radio .radio {' +
-                '    display: inline-block !important;' +
-                '    float: right !important;' +
+                '    margin-top: 0 !important;' +
                 '}',
 
                 //checkboxes
+                '.qo-checkbox {' +
+                '    display: flex !important;' +
+                '    justify-content: center;' +
+                '}',
                 '.qo-checkbox .wc-control-label {' +
-                '    display: inline-block !important;' +
-                '    text-align: right;' +
-                '    width: 92.5%;' +
+                '    margin-right: 5px;' +
                 '}',
                 '.qo-checkbox .changer {' +
-                '    display: inline-block !important;' +
-                '    float: right !important;' +
+                '    margin-top: 5px !important;' +
                 '}',
 
             /****---------------------------------------------------------------------------------\
@@ -101,20 +113,16 @@ export default function styles() {
             \---------------------------------------------------------------------------------****/
 
                 '.qo-control-grouping--filters {' +
-                '    width: 59.5%;' +
+                '    width: 20%;' +
                 '    float: left;' +
                 '    display: flex;' +
                 '    flex-wrap: wrap;' +
                 '    justify-content: space-evenly;' +
                 '}',
-                '.qo-control-grouping--label {' +
-                '    text-align: center;' +
-                '    width: 100%;' +
-                '    font-size: 24px;' +
-                '    border-bottom: 1px solid #aaa;' +
-                '}',
                 '.qo-subsetter {' +
-                '    margin: 5px 0 0 0 !important;' +
+                '    margin: 5px 0 !important;' +
+                '    border-top: 1px solid #aaa;' +
+                '    padding-top: 5px;' +
                 '}',
                 '.qo-subsetter .wc-control-label {' +
                 '    margin: 0 5px 3px 0;' +
@@ -129,11 +137,33 @@ export default function styles() {
         \--------------------------------------------------------------------------------------***/
 
             '.qo-component--chart {' +
-            '    width: 59.5%;' +
-            '    float: right;' +
+            '    width: 58%;' +
+            '    margin: 0 auto;' +
+            '    position: relative;' +
+            '}',
+            '.qo-button--reset-chart {' +
+            '    position: absolute;' +
+            '    top: 0;' +
+            '    left: 0;' +
+            '    z-index: 2;' +
+            '}',
+            '.qo-component--chart .wc-chart {' +
+            '    z-index: 1;' +
             '}',
             '.qo-component--chart .legend-title {' +
             '    cursor: help;' +
+            '}',
+            '.qo-component--chart .legend-item {' +
+            '    cursor: pointer;' +
+            '    border-radius: 4px;' +
+            '    padding: 5px;' +
+            '    padding-left: 8px;' +
+            '    margin-right: 5px !important;' +
+            '}',
+            '.qo-footnote {' +
+            '    width: 100%;' +
+            '    text-align: center;' +
+            '    font-style: italic;' +
             '}',
 
         /***--------------------------------------------------------------------------------------\
@@ -141,14 +171,19 @@ export default function styles() {
         \--------------------------------------------------------------------------------------***/
 
             '.qo-component--listing {' +
+            '    width: 100%;' +
             '}',
-            '.query-table-container {' +
+            '.qo-button--reset-listing {' +
+            '    margin: 10px 5px 10px 0;' +
+            '}',
+            '.qo-table-container {' +
             '    overflow-x: auto;' +
             '    width: 100%;' +
             '    transform: rotate(180deg);' +
             '    -webkit-transform: rotate(180deg); ' +
             '}',
-            '.query-table {' +
+            '.qo-table {' +
+            '    width: 100%;' +
             '    transform: rotate(180deg);' +
             '    -webkit-transform: rotate(180deg); ' +
             '}',

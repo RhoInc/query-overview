@@ -5,10 +5,11 @@ import updateGroupByOptions from './onLayout/updateGroupByOptions';
 import customizeMultiSelects from './onLayout/customizeMultiSelects';
 import addSelectAll from './onLayout/addSelectAll';
 import updateFilterEventListeners from './onLayout/updateFilterEventListeners';
+import sortQueryRecencyOptions from './onLayout/sortQueryRecencyOptions';
 import setYAxisDomainLength from './onLayout/setYAxisDomainLength';
 import addResetButton from './onLayout/addResetButton';
 import clearListingOnChange from './onLayout/clearListingOnChange';
-import addListingInstruction from './onLayout/addListingInstruction';
+import addFootnotes from './onLayout/addFootnotes';
 
 export default function onLayout() {
     //Class controls for unique selection.
@@ -32,6 +33,9 @@ export default function onLayout() {
     //Update filter event listeners to toggle select all checkbox on change.
     updateFilterEventListeners.call(this);
 
+    //Sort query recency categories numerically if possible.
+    sortQueryRecencyOptions.call(this);
+
     //Handle y-domain length control
     setYAxisDomainLength.call(this);
 
@@ -41,6 +45,6 @@ export default function onLayout() {
     //Clear listing when controls change.
     clearListingOnChange.call(this);
 
-    //Add listing instruction.
-    addListingInstruction.call(this);
+    //Add chart footnotes.
+    addFootnotes.call(this);
 }

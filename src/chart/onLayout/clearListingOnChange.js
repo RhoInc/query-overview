@@ -16,7 +16,6 @@ export default function clearListingOnChange() {
 
             //Reset listing.
             context.listing.wrap.selectAll('*').remove();
-            context.wrap.select('#listing-instruction').style('display', 'block');
             context.listing.init(context.filtered_data);
         });
 }
