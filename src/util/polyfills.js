@@ -1,4 +1,3 @@
-//[].find
 if (!Array.prototype.find) {
     Object.defineProperty(Array.prototype, 'find', {
         value: function(predicate) {
@@ -43,7 +42,6 @@ if (!Array.prototype.find) {
     });
 }
 
-//{}.assign
 if (typeof Object.assign != 'function') {
     Object.defineProperty(Object, 'assign', {
         value: function assign(target, varArgs) {
@@ -78,7 +76,6 @@ if (typeof Object.assign != 'function') {
     });
 }
 
-//[].findIndex
 if (!Array.prototype.findIndex) {
     Object.defineProperty(Array.prototype, 'findIndex', {
         value: function(predicate) {
@@ -122,3 +119,16 @@ if (!Array.prototype.findIndex) {
         }
     });
 }
+
+d3.selection.prototype.moveToBack = function() {
+    return this.each(function() {
+        var firstChild = this.parentNode.firstChild;
+        if (firstChild) this.parentNode.insertBefore(this, firstChild);
+    });
+};
+
+d3.selection.prototype.moveToFront = function() {
+    return this.each(function() {
+        this.parentNode.appendChild(this);
+    });
+};

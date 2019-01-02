@@ -1,18 +1,16 @@
 export default [
     {
         type: 'dropdown',
-        option: 'y.label',
-        label: 'Group by',
-        description: 'variable toggle',
+        label: 'Status Group',
+        options: ['marks.0.split', 'color_by'], // will want to change tooltip too
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
         require: true
     },
     {
         type: 'dropdown',
-        label: 'Status Group',
-        description: 'stratification',
-        options: ['marks.0.split', 'color_by'], // will want to change tooltip too
+        option: 'y.label',
+        label: 'Group by',
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
         require: true
@@ -27,11 +25,11 @@ export default [
         type: 'radio',
         option: 'cutoff',
         label: 'Show First N Groups',
-        values: ['10', '25', 'All']
+        values: ['All', '25', '10']
     },
     {
         type: 'checkbox',
         option: 'alphabetize',
-        label: 'Alphabetical?'
+        label: 'Order groups alphabetically?'
     }
 ];

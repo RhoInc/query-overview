@@ -1,3 +1,5 @@
+import classControls from './onLayout/classControls';
+import groupControls from './onLayout/groupControls';
 import updateGroupByOptions from './onLayout/updateGroupByOptions';
 import customizeMultiSelects from './onLayout/customizeMultiSelects';
 import setYAxisDomainLength from './onLayout/setYAxisDomainLength';
@@ -6,6 +8,12 @@ import clearListingOnChange from './onLayout/clearListingOnChange';
 import addListingInstruction from './onLayout/addListingInstruction';
 
 export default function onLayout() {
+    //Class controls for unique selection.
+    classControls.call(this);
+
+    //Group controls logically.
+    groupControls.call(this);
+
     //Display group label rather than group column name in Group by control.
     updateGroupByOptions.call(this);
 

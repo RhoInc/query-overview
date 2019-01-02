@@ -18,7 +18,6 @@ export default function syncControlInputs(controlInputs, settings) {
     //filters
     settings.filters.forEach((filter, i) => {
         filter.type = 'subsetter';
-        filter.description = 'filter';
         syncedControlInputs.splice(2 + i, 0, filter);
     });
 

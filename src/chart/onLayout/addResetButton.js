@@ -3,19 +3,18 @@ import clone from '../../util/clone';
 export default function addResetButton() {
     this.controls.wrap
         .insert('button', ':first-child')
-        .attr('id', 'reset-chart')
-        .style({
-            margin: '5px',
-            padding: '5px',
-            float: 'right'
-        })
+        .classed('qo-button--reset-chart', true)
         .text('Reset chart')
         .on('click', () => {
-            const element = clone(this.div),
-                settings = clone(this.initialSettings),
-                data = clone(this.raw_data);
+            const element = this.element;
+            const settings = clone(this.initialSettings);
+            const data = clone(this.raw_data);
             this.listing.destroy();
             this.destroy();
+            d3
+                .select(this.element)
+                .selectAll('*')
+                .remove();
             queryOverview(element, settings).init(data);
         });
 }
