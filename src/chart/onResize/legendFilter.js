@@ -1,6 +1,13 @@
 export default function legendFilter() {
     const context = this;
 
+    //Alter layout of legend.
+    const legend = this.legend;
+    legend.style('margin-left', `${this.margin.left}px`);
+    const legendTitle = legend.select('.legend-title');
+    legendTitle.attr('title', 'Add and remove queries by clicking the legend items to the left.');
+    legend.node().appendChild(legendTitle.node());
+
     //Filter data by clicking on legend.
     const statusFilter = this.filters.find(filter => filter.col === this.config.color_by);
     const legendItems = this.wrap

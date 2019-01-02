@@ -38,6 +38,9 @@ export default function styles() {
             '    top: 0;' +
             '    left: 0;' +
             '}',
+            '.wc-control-label {' +
+            '    cursor: help;' +
+            '}',
             '.span-description {' +
             '    display: none !important;' +
             '}',
@@ -128,6 +131,9 @@ export default function styles() {
             '.qo-component--chart {' +
             '    width: 59.5%;' +
             '    float: right;' +
+            '}',
+            '.qo-component--chart .legend-title {' +
+            '    cursor: help;' +
             '}',
 
         /***--------------------------------------------------------------------------------------\
