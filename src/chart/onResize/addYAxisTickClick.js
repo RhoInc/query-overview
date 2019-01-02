@@ -15,12 +15,14 @@ export default function addYAxisTickClick() {
                 .select('.wc-control-label')
                 .style({
                     'font-weight': 'bold',
+                    'text-decoration': 'underline',
                     color: 'red'
                 })
                 .transition()
-                .delay(5000)
+                .delay(3000)
                 .style({
                     'font-weight': 'normal',
+                    'text-decoration': 'none',
                     color: 'black'
                 });
             groupByControl.selectAll('option').property('selected', d => {
@@ -38,12 +40,14 @@ export default function addYAxisTickClick() {
                 .select('.wc-control-label')
                 .style({
                     'font-weight': 'bold',
+                    'text-decoration': 'underline',
                     color: 'red'
                 })
                 .transition()
-                .delay(5000)
+                .delay(3000)
                 .style({
                     'font-weight': 'normal',
+                    'text-decoration': 'none',
                     color: 'black'
                 });
             formFilter.selectAll('option').property('selected', d => d === yLabel);
@@ -71,12 +75,14 @@ export default function addYAxisTickClick() {
                 .select('.y.axis .axis-title')
                 .style({
                     'font-weight': 'bold',
+                    'text-decoration': 'underline',
                     fill: 'red'
                 })
                 .transition()
-                .delay(5000)
+                .delay(3000)
                 .style({
                     'font-weight': 'normal',
+                    'text-decoration': 'none',
                     fill: 'black'
                 });
         });

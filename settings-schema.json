@@ -2,54 +2,77 @@
     "title": "settings",
     "description": "JSON schema for the configuration of query-overview",
     "overview": "The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "1.2.3",
+    "version": "2.0.0",
     "type": "object",
+    "data-guidelines": "The Query Overview accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). The renderer visualizes clinical query data with **one row per query** plus the required variables specified below.",
+    "data-structure": "one record per query",
     "properties": {
         "form_col": {
             "title": "Form Variable",
             "description": "form variable name",
             "type": "string",
-            "default": "formoid"
+            "default": "formoid",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
         },
         "formDescription_col": {
             "title": "Form Description Variable",
             "description": "form description variable name",
             "type": "string",
-            "default": "ecrfpagename"
+            "default": "ecrfpagename",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
         },
         "field_col": {
             "title": "Field Variable",
             "description": "field variable name",
             "type": "string",
-            "default": "fieldname"
+            "default": "fieldname",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
         },
         "fieldDescription_col": {
             "title": "Field Description Variable",
             "description": "field description variable name",
             "type": "string",
-            "default": "fieldname"
+            "default": null,
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
         },
         "site_col": {
             "title": "Site Variable",
             "description": "site variable name",
             "type": "string",
-            "default": "sitename"
+            "default": "sitename",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
         },
         "marking_group_col": {
             "title": "Marking Group Variable",
             "description": "query origin variable name",
             "type": "string",
-            "default": "markinggroup"
+            "default": "markinggroup",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
         },
         "visit_col": {
             "title": "Visit/Folder Variable",
             "description": "visit/folder variable name",
             "type": "string",
-            "default": "folderoid"
+            "default": "folderoid",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
         },
         "color_by_col": {
             "title": "Status Group Variable",
-            "description": "coloring variable name of query categorization: query age, query status, or any custom categorication",
+            "description": "coloring variable name of query categorization: query age, query status, or any custom categorization; note that _queryage_ is derived by the renderer",
             "type": "string",
             "default": "queryage",
             "enum": [
@@ -72,9 +95,12 @@
         },
         "age_col": {
             "title": "Query Age",
-            "description": "query age variable measured in days between query open date and data snapshot date",
+            "description": "query age variable measured in days between query open date and data snapshot date, query response date, or query resolution date for open, answered, and resolved queries, respectively",
             "type": "string",
-            "default": "qdays"
+            "default": "qdays",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": true
         },
         "age_cutoffs": {
             "title": "Query Age Cutoffs",
@@ -117,7 +143,10 @@
             "title": "Query Status Variable",
             "description": "query status variable name",
             "type": "string",
-            "default": "querystatus"
+            "default": "querystatus",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
         },
         "status_order": {
             "title": "Query Status Order",
@@ -151,11 +180,23 @@
                 "#999999"
             ]
         },
-        "recency_col": {
-            "title": "Query recency",
-            "description": "query recency variable measured in days between query open date and data snapshot date",
+        "recency_category_col": {
+            "title": "Query Recency Category",
+            "description": "query recency category variable name; overrides `recency_col`",
             "type": "string",
-            "default": "qdays"
+            "default": "open_time",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "recency_col": {
+            "title": "Query Recency",
+            "description": "query recency variable measured in days between query open date and data snapshot date, regardless of query status",
+            "type": "string",
+            "default": "odays",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
         },
         "recency_cutoffs": {
             "title": "Query Recency Cutoffs",
@@ -174,7 +215,7 @@
         },
         "groups": {
             "title": "Group-by Variables",
-            "description": "an array of group-by variables by which to group queries on the y-axis",
+            "description": "an array of variables by which to count queries; each value of the variable is plotted on the y-axis",
             "type": "array",
             "items": {
                 "type": "object",
@@ -189,12 +230,15 @@
                         "description": "group-by variable label",
                         "type": "string"
                     }
-                 }
-              }
+                }
+            },
+            "data-mapping": true,
+            "data-type": "either",
+            "required": false
         },
         "status_groups": {
             "title": "Stratification Variables",
-            "description": "an array of Stratification variables by which to stratify the stacked bars",
+            "description": "an array of variables with which to stratify each group-by value, each value of which plots as a component of a stacked bar when Bar Arrangement is set to _Stacked_ or as individual bars when Bar Arrangement is set to _grouped_",
             "type": "array",
             "items": {
                 "type": "object",
@@ -220,11 +264,14 @@
                         "type": "array"
                     }
                 }
-            }
+            },
+            "data-mapping": true,
+            "data-type": "either",
+            "required": false
         },
         "filters": {
             "title": "Filter Variables",
-            "description": "an array of filter variables with which to filter the data",
+            "description": "an array of variables with which to filter the data",
             "type": "array",
             "items": {
                 "type": "object",
@@ -240,7 +287,10 @@
                         "type": "string"
                     }
                 }
-            }
+            },
+            "data-mapping": true,
+            "data-type": "either",
+            "required": false
         },
         "dropdown_size": {
             "title": "Number of Options Display in Multi-select Dropdowns",
@@ -250,7 +300,7 @@
         },
         "details": {
             "title": "Detail Listing Variables",
-            "description": "an array of detail variables which will print in the detail listing",
+            "description": "an array of variables which will print in the listing; if unspecified all variables in data will appear in listing",
             "type": "array",
             "items": {
                 "type": "object",
@@ -266,7 +316,10 @@
                         "type": "string"
                     }
                 }
-            }
+            },
+            "data-mapping": true,
+            "data-type": "either",
+            "required": false
         },
         "bar_arrangement": {
             "title": "Arrangement of Bars",
@@ -284,29 +337,23 @@
             "type": "number",
             "default": "All"
         },
-        "range_band": {
-            "title": "Y-axis Tick Height",
-            "description": "controls the height of each value on the y-axis",
-            "type": "number",
-            "default": 25
-        },
         "alphabetize": {
             "title": "Display Groups Alphanumerically?",
             "description": "sort groups on the y-axis alphanumerically; by default groups are sorted by descending frequency",
             "type": "boolean",
             "default": true
         },
-        "nRowsPerPage": {
-            "title": "Number of rows displayed per page.",
-            "description": "the number of rows displayed per page.",
-            "type": "number",
-            "default": 10
-        },
-        "exportable": {
-            "title": "Allow Listing Export?",
-            "description": "allow the export of data to .csv via a button beneath the detail listing",
+        "truncate_listing_cells": {
+            "title": "Truncate Listing Cell Text?",
+            "description": "optionally truncate cell text past a certain number of characters",
             "type": "boolean",
             "default": true
+        },
+        "truncation_cutoff": {
+            "title": "Maximum Length of Cell Text",
+            "description": "cell text past this cutoff will be truncated and the full text will be captured in a tooltip",
+            "type": "number",
+            "default": 100
         }
     }
 }

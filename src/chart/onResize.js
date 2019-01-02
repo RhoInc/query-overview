@@ -6,6 +6,7 @@ import hideBars from './onResize/hideBars';
 import annotateNumberOfQueries from './onResize/annotateNumberOfQueries';
 import addBarClick from './onResize/addBarClick';
 import addBarDeselection from './onResize/addBarDeselection';
+import addNoDataIndicator from './onResize/addNoDataIndicator';
 
 export default function onResize() {
     //Add filter functionality to legend.
@@ -31,4 +32,7 @@ export default function onResize() {
 
     //Add bar deselection.
     addBarDeselection.call(this);
+
+    //Add informational text to the chart canvas when filters are in conflict.
+    addNoDataIndicator.call(this);
 }

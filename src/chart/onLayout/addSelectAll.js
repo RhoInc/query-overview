@@ -1,14 +1,14 @@
 export default function addSelectAll() {
     const context = this;
 
-    this.controls.filters.labels.each(function(d) {
+    this.controls.filters.labels.filter(d => d.multiple).each(function(d) {
         const label = d3
             .select(this)
             .html(`${d.label} <input class = "qo-select-all" type = "checkbox"></input>`);
         const checkbox = label
             .select('input')
             .datum(d)
-            .attr('title', `Deselect All ${d.label} Options`)
+            .attr('title', `Deselect all ${d.label} options`)
             .property('checked', true)
             .on('click', function(di) {
                 const checkbox = d3.select(this);
@@ -17,7 +17,7 @@ export default function addSelectAll() {
                 //Update checkbox tooltip.
                 checkbox.attr(
                     'title',
-                    checked ? `Deselect All ${di.label} Options` : `Select All ${di.label} Options`
+                    checked ? `Deselect all ${di.label} options` : `Select all ${di.label} options`
                 );
 
                 //Update filter object.

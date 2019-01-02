@@ -192,91 +192,101 @@
         throw new Error('Unable to copy [obj]! Its type is not supported.');
     }
 
-    var rendererSettings = {
-        //query variables
-        form_col: 'formoid',
-        formDescription_col: 'ecrfpagename',
-        field_col: 'fieldname',
-        fieldDescription_col: 'fieldname',
-        site_col: 'sitename',
-        marking_group_col: 'markinggroup',
-        visit_col: 'folderoid',
-        color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
+    function rendererSettings() {
+        return {
+            //query variables
+            form_col: 'formoid',
+            formDescription_col: 'ecrfpagename',
+            field_col: 'fieldname',
+            fieldDescription_col: null,
+            site_col: 'sitename',
+            marking_group_col: 'markinggroup',
+            visit_col: 'folderoid',
+            color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
 
-        //query age
-        age_statuses: ['Open'],
-        age_col: 'qdays',
-        age_cutoffs: [14, 28, 56, 112],
-        age_range_colors: [
-            '#ffffcc',
-            '#ffeda0',
-            '#fed976',
-            '#feb24c',
-            '#fd8d3c',
-            '#fc4e2a',
-            '#e31a1c',
-            '#bd0026',
-            '#800026'
-        ],
+            //query age
+            age_statuses: ['Open'],
+            age_col: 'qdays',
+            age_cutoffs: [14, 28, 56, 112],
+            age_range_colors: [
+                '#ffffcc',
+                '#ffeda0',
+                '#fed976',
+                '#feb24c',
+                '#fd8d3c',
+                '#fc4e2a',
+                '#e31a1c',
+                '#bd0026',
+                '#800026'
+            ],
 
-        //query status
-        status_col: 'querystatus',
-        status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
-        status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
+            //query status
+            status_col: 'querystatus',
+            status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
+            status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
 
-        //query recency
-        recency_category_col: 'open_time',
-        recency_col: 'odays',
-        recency_cutoffs: [7, 14, 30],
+            //query recency
+            recency_category_col: 'open_time',
+            recency_col: 'odays',
+            recency_cutoffs: [7, 14, 30],
 
-        //miscellany
-        groups: null,
-        status_groups: null,
-        filters: null,
-        dropdown_size: 6,
-        details: null,
-        bar_arrangement: 'stacked',
-        cutoff: 'All',
-        alphabetize: true,
-        range_band: 25,
-        nRowsPerPage: 25,
-        exportable: true
-    };
+            //miscellany
+            groups: null,
+            status_groups: null,
+            filters: null,
+            dropdown_size: 6,
+            details: null,
+            bar_arrangement: 'stacked',
+            cutoff: 'All',
+            alphabetize: true,
+            truncate_listing_cells: true,
+            truncation_cutoff: 100
+        };
+    }
 
-    var webchartsSettings = {
-        x: {
-            label: '# of Queries',
-            column: null,
-            behavior: 'flex'
-        },
-        y: {
-            type: 'ordinal',
-            column: null, // set in syncSettings()
-            label: 'Form',
-            sort: null, // set in syncSettings()
-            range_band: null // set in syncSettings()
-        },
-        marks: [
-            {
-                type: 'bar',
-                per: [null], // set in syncSettings()
-                split: null, // set in syncSettings()
-                arrange: null, // set in syncSettings()
-                summarizeX: 'count',
-                tooltip: null // set in syncSettings()
-            }
-        ],
-        color_by: null, // set in syncSettings()
-        color_dom: null, // set in syncSettings()
-        legend: {
-            location: 'top',
-            label: null, // set in syncSettings()
-            order: null // set in syncSettings()
-        },
-        margin: {
-            right: '50' // room for count annotation
-        }
-    };
+    function chartSettings() {
+        return {
+            x: {
+                label: '# of Queries',
+                column: null,
+                behavior: 'flex'
+            },
+            y: {
+                type: 'ordinal',
+                column: null, // set in syncSettings()
+                label: 'Form',
+                sort: null // set in syncSettings()
+            },
+            marks: [
+                {
+                    type: 'bar',
+                    per: [null], // set in syncSettings()
+                    split: null, // set in syncSettings()
+                    arrange: null, // set in syncSettings()
+                    summarizeX: 'count',
+                    tooltip: null // set in syncSettings()
+                }
+            ],
+            color_by: null, // set in syncSettings()
+            color_dom: null, // set in syncSettings()
+            legend: {
+                location: 'top',
+                label: null, // set in syncSettings()
+                order: null // set in syncSettings()
+            },
+            margin: {
+                right: '50' // room for count annotation
+            },
+            range_band: 25
+        };
+    }
+
+    function listingSettings() {
+        return {
+            nRowsPerPage: 25,
+            exportable: true
+        };
+    }
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
         var validSetting =
@@ -299,7 +309,7 @@
                           })
                       ])
                       .map(function(item) {
-                          var itemObject = {};
+                          var itemObject = item instanceof Object ? Object.assign({}, item) : {};
 
                           itemObject.value_col = item instanceof Object ? item.value_col : item;
                           itemObject.label =
@@ -516,16 +526,16 @@
     var controlInputs = [
         {
             type: 'dropdown',
-            label: 'Status Group',
-            option: 'color_by_col',
+            option: 'y.label',
+            label: 'Group by',
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
         },
         {
-            type: 'dropdown',
-            option: 'y.label',
-            label: 'Group by',
+            type: 'radio',
+            label: 'Status Group',
+            option: 'color_by_col',
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
@@ -545,7 +555,7 @@
         {
             type: 'checkbox',
             option: 'alphabetize',
-            label: 'Order groups alphabetically?'
+            label: 'Order Groups Alphabetically?'
         }
     ];
 
@@ -600,8 +610,9 @@
 
     var configuration = {
         rendererSettings: rendererSettings,
-        webchartsSettings: webchartsSettings,
-        settings: Object.assign({}, rendererSettings, webchartsSettings),
+        chartSettings: chartSettings,
+        listingSettings: listingSettings,
+        settings: Object.assign({}, rendererSettings(), chartSettings(), listingSettings()),
         syncSettings: syncSettings,
         controlInputs: controlInputs,
         syncControlInputs: syncControlInputs
@@ -1032,30 +1043,28 @@
     function addControlTooltips() {
         var tooltips = {
             //other controls
-            'Status Group':
-                'This option controls what variable the bars of the graph are stratified by.',
             'Group by':
-                'This option controls how queries are grouped down the left side of the graphic.',
+                'Controls the variable with which the queries are grouped; each group is plotted along the vertical axis of the chart.',
+            'Status Group': 'Controls the variable with which the bars are subdivided.',
             'Bar Arrangement':
-                'Stacked=all stratification variables shown in one row; Grouped=separate row for each stratification variable.',
-            'Show First N Groups':
-                'Select to show the first 10, 25, or all of the group variables.',
-            'Order groups alphabetically?':
-                'Uncheck for graph to sort by magnitude (largest to smallest number of queries) instead of alphabetical.',
+                'Controls the layout of the status groups.\n- stacked: status groups are plotted side-by-side horizontally\n- grouped: status groups are plotted side-by-side vertically',
+            'Show First N Groups': 'Controls the number of groups displayed on the vertical axis.',
+            'Order Groups Alphabetically?':
+                'Controls the order of the groups; uncheck to sort groups by magnitude (largest to smallest number of queries) instead of alphabetically.',
 
             //filters
             'Query Age':
                 'Open queries are broken down into how long they have been open. All other queries are classified by status (answered, closed, cancelled).',
             'Query Status':
-                'Open=site has not responded to the issue; Answered=site has responded to issue, DM needs to review; Closed=Issues resolved; Cancelled=query cancelled by DM.',
+                'Open: site has not responded to the issue\nAnswered: site has responded to issue; DM needs to review\nClosed: issue resolved\nCancelled: query cancelled by DM',
             'Query Recency':
-                'For queries opened within the last 30 days this is how long ago the query was opened, regardless of current status.',
+                'Number of days a query has been open, regardless of its current status (applies only to queries opened in the past 30 days)',
             Form:
-                'CRF page abbreviation. Hover over the abbreviation in the graph to see the full name.',
-            Site: 'Name of site',
+                'CRF page abbreviation; hover over the abbreviation in the chart to see its full name.',
+            Site: 'Name or ID of site',
             'Marking Group': 'Entity that opened the query',
             'Visit/Folder':
-                'Visit/folder abbreviation. Hover over the visit/folder abbreviation in the graph to see the full name.'
+                'Visit/folder abbreviation; hover over the visit/folder abbreviation in the chart to see the full name.'
         };
         this.controls.controlGroups.each(function(d) {
             var tooltip =
@@ -1107,6 +1116,64 @@
             });
     }
 
+    function addGroupByHighlight() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Group by';
+            })
+            .on('mouseover', function() {
+                _this.svg.selectAll('.y.axis .axis-title').style({
+                    'font-weight': 'bold',
+                    'text-decoration': 'underline',
+                    fill: 'red'
+                });
+            })
+            .on('mouseout', function() {
+                _this.svg.selectAll('.y.axis .axis-title').style({
+                    'font-weight': 'normal',
+                    'text-decoration': 'none',
+                    fill: 'black'
+                });
+            });
+    }
+
+    function checkInitialStatusGroup() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Status Group';
+            })
+            .selectAll('.radio')
+            .selectAll('.changer')
+            .property('checked', function(d) {
+                return d === _this.config.legend.label;
+            });
+    }
+
+    function addStatusGroupHighlight() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Status Group';
+            })
+            .on('mouseover', function() {
+                _this.legend.select('.legend-title').style({
+                    'text-decoration': 'underline',
+                    color: 'red'
+                });
+            })
+            .on('mouseout', function() {
+                _this.legend.select('.legend-title').style({
+                    'text-decoration': 'none',
+                    color: 'black'
+                });
+            });
+    }
+
     function customizeMultiSelects() {
         var context = this;
 
@@ -1144,38 +1211,42 @@
     function addSelectAll() {
         var context = this;
 
-        this.controls.filters.labels.each(function(d) {
-            var label = d3
-                .select(this)
-                .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
-            var checkbox = label
-                .select('input')
-                .datum(d)
-                .attr('title', 'Deselect All ' + d.label + ' Options')
-                .property('checked', true)
-                .on('click', function(di) {
-                    var checkbox = d3.select(this);
-                    var checked = this.checked;
+        this.controls.filters.labels
+            .filter(function(d) {
+                return d.multiple;
+            })
+            .each(function(d) {
+                var label = d3
+                    .select(this)
+                    .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
+                var checkbox = label
+                    .select('input')
+                    .datum(d)
+                    .attr('title', 'Deselect all ' + d.label + ' options')
+                    .property('checked', true)
+                    .on('click', function(di) {
+                        var checkbox = d3.select(this);
+                        var checked = this.checked;
 
-                    //Update checkbox tooltip.
-                    checkbox.attr(
-                        'title',
-                        checked
-                            ? 'Deselect All ' + di.label + ' Options'
-                            : 'Select All ' + di.label + ' Options'
-                    );
+                        //Update checkbox tooltip.
+                        checkbox.attr(
+                            'title',
+                            checked
+                                ? 'Deselect all ' + di.label + ' options'
+                                : 'Select all ' + di.label + ' options'
+                        );
 
-                    //Update filter object.
-                    var filter = context.filters.find(function(filter) {
-                        return filter.col === di.value_col;
+                        //Update filter object.
+                        var filter = context.filters.find(function(filter) {
+                            return filter.col === di.value_col;
+                        });
+                        if (checked) filter.val = filter.choices;
+                        else filter.val = [];
+
+                        //Redraw.
+                        context.draw();
                     });
-                    if (checked) filter.val = filter.choices;
-                    else filter.val = [];
-
-                    //Redraw.
-                    context.draw();
-                });
-        });
+            });
         this.controls.filters.checkboxes = this.controls.filters.labels.selectAll('.qo-select-all');
     }
 
@@ -1184,21 +1255,23 @@
         var filter = this.filters.find(function(filter) {
             return filter.col === d.value_col;
         });
-        filter.val = selectedOptions;
-        var checked = filter.val.length === filter.choices.length;
+        filter.val = d.multiple ? selectedOptions : selectedOptions.pop();
 
         //Update checkbox.
-        var checkbox = this.controls.filters.checkboxes
-            .filter(function(di) {
-                return di.value_col === d.value_col;
-            })
-            .attr(
-                'title',
-                checked
-                    ? 'Deselect All ' + d.label + ' Options'
-                    : 'Select All ' + d.label + ' Options'
-            )
-            .property('checked', checked);
+        if (d.multiple) {
+            var checked = filter.val.length === filter.choices.length;
+            var checkbox = this.controls.filters.checkboxes
+                .filter(function(di) {
+                    return di.value_col === d.value_col;
+                })
+                .attr(
+                    'title',
+                    checked
+                        ? 'Deselect all ' + d.label + ' options'
+                        : 'Select all ' + d.label + ' options'
+                )
+                .property('checked', checked);
+        }
     }
 
     function updateFilterEventListeners() {
@@ -1325,6 +1398,15 @@
         //Display group label rather than group column name in Group by control.
         updateGroupByOptions.call(this);
 
+        //Highlight y-axis label when user hovers over Status Group control.
+        addGroupByHighlight.call(this);
+
+        //Check radio button of initial status group.
+        checkInitialStatusGroup.call(this);
+
+        //Highlight legend when user hovers over Status Group control.
+        addStatusGroupHighlight.call(this);
+
         //Customize dropdowns with multiple options.
         customizeMultiSelects.call(this);
 
@@ -1352,8 +1434,13 @@
 
     function updateStratification() {
         var statusGroup = this.controls.wrap
-            .selectAll('.qo-dropdown--status-group')
-            .selectAll('option:checked')
+            .selectAll('.qo-radio--status-group')
+            .selectAll('.radio')
+            .filter(function() {
+                var label = d3.select(this);
+                var radio = label.select('.changer');
+                return radio.property('checked');
+            })
             .text();
         this.config.status_group = this.config.status_groups.find(function(status_group) {
             return status_group.label === statusGroup;
@@ -1421,6 +1508,10 @@
         );
     }
 
+    function setXDomain() {
+        if (this.filtered_data.length === 0) this.x_dom = [0, 0];
+    }
+
     function setYDomain() {
         var _this = this;
 
@@ -1468,9 +1559,10 @@
 
     function setChartHeight() {
         //Match chart height to number of bars currently displayed.
-        this.raw_height =
-            (+this.config.range_band + this.config.range_band * this.config.padding) *
-            this.y_dom.length;
+        this.raw_height = this.filtered_data.length
+            ? (+this.config.range_band + this.config.range_band * this.config.padding) *
+              this.y_dom.length
+            : 100;
     }
 
     function updateXAxisLabel() {
@@ -1491,6 +1583,7 @@
 
     function onDraw() {
         setLeftMargin.call(this);
+        setXDomain.call(this);
         setYDomain.call(this);
         setChartHeight.call(this);
         updateXAxisLabel.call(this);
@@ -1650,12 +1743,14 @@
                     .select('.wc-control-label')
                     .style({
                         'font-weight': 'bold',
+                        'text-decoration': 'underline',
                         color: 'red'
                     })
                     .transition()
-                    .delay(5000)
+                    .delay(3000)
                     .style({
                         'font-weight': 'normal',
+                        'text-decoration': 'none',
                         color: 'black'
                     });
                 groupByControl.selectAll('option').property('selected', function(d) {
@@ -1675,12 +1770,14 @@
                     .select('.wc-control-label')
                     .style({
                         'font-weight': 'bold',
+                        'text-decoration': 'underline',
                         color: 'red'
                     })
                     .transition()
-                    .delay(5000)
+                    .delay(3000)
                     .style({
                         'font-weight': 'normal',
+                        'text-decoration': 'none',
                         color: 'black'
                     });
                 formFilter.selectAll('option').property('selected', function(d) {
@@ -1714,12 +1811,14 @@
                     .select('.y.axis .axis-title')
                     .style({
                         'font-weight': 'bold',
+                        'text-decoration': 'underline',
                         fill: 'red'
                     })
                     .transition()
-                    .delay(5000)
+                    .delay(3000)
                     .style({
                         'font-weight': 'normal',
+                        'text-decoration': 'none',
                         fill: 'black'
                     });
             });
@@ -1956,6 +2055,21 @@
         });
     }
 
+    function addNoDataIndicator() {
+        this.svg.select('.qo-no-data').remove();
+
+        if (this.filtered_data.length === 0)
+            this.svg
+                .append('text')
+                .classed('qo-no-data', true)
+                .attr({
+                    x: this.plot_width / 2,
+                    y: this.plot_height / 2,
+                    'text-anchor': 'middle'
+                })
+                .text('No queries selected.  Verify that no filter selections are in conflict.');
+    }
+
     function onResize() {
         //Add filter functionality to legend.
         legendFilter.call(this);
@@ -1980,6 +2094,9 @@
 
         //Add bar deselection.
         addBarDeselection.call(this);
+
+        //Add informational text to the chart canvas when filters are in conflict.
+        addNoDataIndicator.call(this);
     }
 
     function onDestroy() {}
@@ -2049,6 +2166,8 @@
         this.wrap.select('.sortable-container').classed('hidden', false);
         this.table.style('width', '100%').style('display', 'table');
     }
+
+    function onPreprocess$1() {}
 
     function manualSort() {
         var _this = this;
@@ -2175,6 +2294,25 @@
         });
     }
 
+    function truncateCellText() {
+        var _this = this;
+
+        if (this.data.raw.length)
+            this.tbody
+                .selectAll('td')
+                .attr('title', function(d) {
+                    return d.text;
+                })
+                .filter(function(d) {
+                    return d.text.length > _this.chart.initialSettings.truncation_cutoff;
+                })
+                .text(function(d) {
+                    return (
+                        d.text.substring(0, _this.chart.initialSettings.truncation_cutoff) + '...'
+                    );
+                });
+    }
+
     function moveScrollBarLeft() {
         var _this = this;
 
@@ -2191,6 +2329,9 @@
         //Update default Webcharts column sorting.
         updateColumnSorting.call(this);
 
+        //Truncate cells with length greater than `settings.truncation_cutoff`.
+        truncateCellText.call(this);
+
         //Move table scrollbar all the way to the left.
         moveScrollBarLeft.call(this);
     }
@@ -2200,6 +2341,7 @@
     var listingCallbacks = {
         onInit: onInit$1,
         onLayout: onLayout$1,
+        onPreprocess: onPreprocess$1,
         onDraw: onDraw$1,
         onDestroy: onDestroy$1
     };
