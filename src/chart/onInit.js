@@ -1,7 +1,7 @@
 import defineListingSettings from './onInit/defineListingSettings';
 import defineNewVariables from './onInit/defineNewVariables';
-import defineQueryStatuses from './onInit/defineQueryStatuses';
-import defineQueryAgeCategories from './onInit/defineQueryAgeCategories';
+import defineQueryStatusSet from './onInit/defineQueryStatusSet';
+import defineQueryRecencySet from './onInit/defineQueryRecencySet';
 import removeInvalidControls from './onInit/removeInvalidControls';
 
 export default function onInit() {
@@ -9,10 +9,10 @@ export default function onInit() {
     defineNewVariables.call(this);
 
     //Define query statuses.
-    defineQueryStatuses.call(this);
+    defineQueryStatusSet.call(this);
 
-    //Define query age categories.
-    defineQueryAgeCategories.call(this);
+    //Define query recency categories.
+    defineQueryRecencySet.call(this);
 
     //Define detail listing settings.
     defineListingSettings.call(this);

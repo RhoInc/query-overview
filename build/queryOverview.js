@@ -1,13 +1,12 @@
 (function(global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined'
-        ? (module.exports = factory(require('d3'), require('webcharts')))
+        ? (module.exports = factory(require('webcharts')))
         : typeof define === 'function' && define.amd
-            ? define(['d3', 'webcharts'], factory)
-            : (global.queryOverview = factory(global.d3, global.webCharts));
-})(this, function(d3$1, webcharts) {
+            ? define(['webcharts'], factory)
+            : (global.queryOverview = factory(global.webCharts));
+})(this, function(webcharts) {
     'use strict';
 
-    //[].find
     if (!Array.prototype.find) {
         Object.defineProperty(Array.prototype, 'find', {
             value: function value(predicate) {
@@ -52,13 +51,9 @@
         });
     }
 
-    //{}.assign
     if (typeof Object.assign != 'function') {
         Object.defineProperty(Object, 'assign', {
             value: function assign(target, varArgs) {
-                // .length of function is 2
-                'use strict';
-
                 if (target == null) {
                     // TypeError if undefined or null
                     throw new TypeError('Cannot convert undefined or null to object');
@@ -87,7 +82,6 @@
         });
     }
 
-    //[].findIndex
     if (!Array.prototype.findIndex) {
         Object.defineProperty(Array.prototype, 'findIndex', {
             value: function value(predicate) {
@@ -132,16 +126,20 @@
         });
     }
 
-    d3.selection.prototype.moveToFront = function() {
-        return this.each(function() {
-            this.parentNode.appendChild(this);
-        });
+    Array.prototype.flatMap = function(lambda) {
+        return Array.prototype.concat.apply([], this.map(lambda));
     };
 
     d3.selection.prototype.moveToBack = function() {
         return this.each(function() {
             var firstChild = this.parentNode.firstChild;
             if (firstChild) this.parentNode.insertBefore(this, firstChild);
+        });
+    };
+
+    d3.selection.prototype.moveToFront = function() {
+        return this.each(function() {
+            this.parentNode.appendChild(this);
         });
     };
 
@@ -158,122 +156,6 @@
                       ? 'symbol'
                       : typeof obj;
               };
-
-    var asyncGenerator = (function() {
-        function AwaitValue(value) {
-            this.value = value;
-        }
-
-        function AsyncGenerator(gen) {
-            var front, back;
-
-            function send(key, arg) {
-                return new Promise(function(resolve, reject) {
-                    var request = {
-                        key: key,
-                        arg: arg,
-                        resolve: resolve,
-                        reject: reject,
-                        next: null
-                    };
-
-                    if (back) {
-                        back = back.next = request;
-                    } else {
-                        front = back = request;
-                        resume(key, arg);
-                    }
-                });
-            }
-
-            function resume(key, arg) {
-                try {
-                    var result = gen[key](arg);
-                    var value = result.value;
-
-                    if (value instanceof AwaitValue) {
-                        Promise.resolve(value.value).then(
-                            function(arg) {
-                                resume('next', arg);
-                            },
-                            function(arg) {
-                                resume('throw', arg);
-                            }
-                        );
-                    } else {
-                        settle(result.done ? 'return' : 'normal', result.value);
-                    }
-                } catch (err) {
-                    settle('throw', err);
-                }
-            }
-
-            function settle(type, value) {
-                switch (type) {
-                    case 'return':
-                        front.resolve({
-                            value: value,
-                            done: true
-                        });
-                        break;
-
-                    case 'throw':
-                        front.reject(value);
-                        break;
-
-                    default:
-                        front.resolve({
-                            value: value,
-                            done: false
-                        });
-                        break;
-                }
-
-                front = front.next;
-
-                if (front) {
-                    resume(front.key, front.arg);
-                } else {
-                    back = null;
-                }
-            }
-
-            this._invoke = send;
-
-            if (typeof gen.return !== 'function') {
-                this.return = undefined;
-            }
-        }
-
-        if (typeof Symbol === 'function' && Symbol.asyncIterator) {
-            AsyncGenerator.prototype[Symbol.asyncIterator] = function() {
-                return this;
-            };
-        }
-
-        AsyncGenerator.prototype.next = function(arg) {
-            return this._invoke('next', arg);
-        };
-
-        AsyncGenerator.prototype.throw = function(arg) {
-            return this._invoke('throw', arg);
-        };
-
-        AsyncGenerator.prototype.return = function(arg) {
-            return this._invoke('return', arg);
-        };
-
-        return {
-            wrap: function(fn) {
-                return function() {
-                    return new AsyncGenerator(fn.apply(this, arguments));
-                };
-            },
-            await: function(value) {
-                return new AwaitValue(value);
-            }
-        };
-    })();
 
     function clone(obj) {
         var copy = void 0;
@@ -310,90 +192,106 @@
         throw new Error('Unable to copy [obj]! Its type is not supported.');
     }
 
-    var rendererSettings = {
-        //query variables
-        form_col: 'formoid',
-        formDescription_col: 'ecrfpagename',
-        field_col: 'fieldname',
-        fieldDescription_col: 'fieldname', //there is not a dscriptive column in the test data prescribed by heather
-        marking_group_col: 'markinggroup',
-        visit_col: 'folderoid',
+    function rendererSettings() {
+        return {
+            //query variables
+            form_col: 'formoid',
+            formDescription_col: 'ecrfpagename',
+            field_col: 'fieldname',
+            fieldDescription_col: null,
+            site_col: 'sitename',
+            marking_group_col: 'markinggroup',
+            visit_col: 'folderoid',
+            color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
 
-        //query open time settings
-        open_col: 'open_time',
-        open_category_col: 'Query Open Time Category',
-        open_category_order: ['0-7 days', '8-14 days', '15-30 days', '>30 days'],
+            //query age
+            age_statuses: ['Open'],
+            age_col: 'qdays',
+            age_cutoffs: [14, 28, 56, 112],
+            age_range_colors: [
+                '#ffffcc',
+                '#ffeda0',
+                '#fed976',
+                '#feb24c',
+                '#fd8d3c',
+                '#fc4e2a',
+                '#e31a1c',
+                '#bd0026',
+                '#800026'
+            ],
 
-        //query age settings
-        age_col: 'qdays',
-        age_category_col: 'Query Age Category',
-        age_category_order: null,
-        age_category_colors: [
-            '#fd8d3c',
-            '#fc4e2a',
-            '#e31a1c',
-            '#bd0026',
-            '#800026',
-            '#1f78b4',
-            'gray'
-        ],
+            //query status
+            status_col: 'querystatus',
+            status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
+            status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
 
-        //query status settings
-        status_col: 'querystatus',
-        status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
-        status_colors: ['#fb9a99', '#fdbf6f', '#1f78b4', 'gray'],
+            //query recency
+            recency_category_col: 'open_time',
+            recency_col: 'odays',
+            recency_cutoffs: [7, 14, 30],
 
-        groups: null,
-        status_groups: null,
-        site_col: 'sitename',
-        filters: null,
-        details: null,
-        dropdown_size: 6,
-        cutoff: 'All',
-        alphabetize: true,
-        exportable: true,
-        nRowsPerPage: 10
-    };
+            //miscellany
+            groups: null,
+            status_groups: null,
+            filters: null,
+            dropdown_size: 6,
+            details: null,
+            bar_arrangement: 'stacked',
+            cutoff: 'All',
+            alphabetize: true,
+            truncate_listing_cells: true,
+            truncation_cutoff: 100
+        };
+    }
 
-    var webchartsSettings = {
-        x: {
-            label: '# of Queries',
-            behavior: 'flex'
-        },
-        y: {
-            type: 'ordinal',
-            column: null, // set in syncSettings()
-            label: 'Form',
-            sort: 'total-descending'
-        },
-        marks: [
-            {
-                type: 'bar',
-                per: [null], // set in syncSettings()
-                split: null, // set in syncSettings()
-                arrange: 'stacked',
-                summarizeX: 'count',
-                tooltip: null // set in syncSettings()
-            }
-        ],
-        color_by: null, // set in syncSettings()
-        color_dom: null, // set in syncSettings()
-        legend: {
-            location: 'top',
-            //  label: 'Query Status',
-            label: null,
-            order: null // set in syncSettings()
-        },
-        range_band: 15,
-        margin: {
-            right: '50' // room for count annotation
-        }
-    };
+    function chartSettings() {
+        return {
+            x: {
+                label: '# of Queries',
+                column: null,
+                behavior: 'flex'
+            },
+            y: {
+                type: 'ordinal',
+                column: null, // set in syncSettings()
+                label: 'Form',
+                sort: null // set in syncSettings()
+            },
+            marks: [
+                {
+                    type: 'bar',
+                    per: [null], // set in syncSettings()
+                    split: null, // set in syncSettings()
+                    arrange: null, // set in syncSettings()
+                    summarizeX: 'count',
+                    tooltip: null // set in syncSettings()
+                }
+            ],
+            color_by: null, // set in syncSettings()
+            color_dom: null, // set in syncSettings()
+            legend: {
+                location: 'top',
+                label: null, // set in syncSettings()
+                order: null // set in syncSettings()
+            },
+            margin: {
+                right: '50' // room for count annotation
+            },
+            range_band: 25
+        };
+    }
+
+    function listingSettings() {
+        return {
+            nRowsPerPage: 25,
+            exportable: true
+        };
+    }
 
     function arrayOfVariablesCheck(defaultVariables, userDefinedVariables) {
         var validSetting =
             userDefinedVariables instanceof Array && userDefinedVariables.length
-                ? d3$1
+                ? d3
                       .merge([
                           defaultVariables,
                           userDefinedVariables.filter(function(item) {
@@ -411,7 +309,7 @@
                           })
                       ])
                       .map(function(item) {
-                          var itemObject = {};
+                          var itemObject = item instanceof Object ? Object.assign({}, item) : {};
 
                           itemObject.value_col = item instanceof Object ? item.value_col : item;
                           itemObject.label =
@@ -426,87 +324,202 @@
         return validSetting;
     }
 
-    function syncSettings(settings) {
-        var syncedSettings = clone(settings);
-
-        //groups
+    function syncGroups(settings) {
         var defaultGroups = [
-            { value_col: syncedSettings.form_col, label: 'Form' },
+            { value_col: settings.form_col, label: 'Form' },
             { value_col: 'Form: Field', label: 'Form: Field' },
-            { value_col: syncedSettings.site_col, label: 'Site' },
-            { value_col: syncedSettings.marking_group_col, label: 'Marking Group' },
-            { value_col: syncedSettings.visit_col, label: 'Visit/Folder' }
+            { value_col: settings.site_col, label: 'Site' },
+            { value_col: settings.marking_group_col, label: 'Marking Group' },
+            { value_col: settings.visit_col, label: 'Visit/Folder' }
         ];
-        syncedSettings.groups = arrayOfVariablesCheck(defaultGroups, settings.groups);
+        settings.groups = settings.arrayOfVariablesCheck(defaultGroups, settings.groups);
+    }
 
-        //status_groups
+    function syncStatusGroups(settings) {
+        //age ranges
+        settings.ageRanges = settings.age_cutoffs.map(function(d, i) {
+            return i > 0 ? [settings.age_cutoffs[i - 1], d] : [0, d];
+        });
+        settings.ageRanges.push([settings.age_cutoffs[settings.age_cutoffs.length - 1], null]);
+
+        //age range categories
+        settings.ageRangeCategories = settings.age_cutoffs.every(function(age_range) {
+            return age_range % 7 === 0;
+        })
+            ? settings.ageRanges.map(function(ageRange, i) {
+                  return i < settings.ageRanges.length - 1
+                      ? ageRange
+                            .map(function(days) {
+                                return days / 7;
+                            })
+                            .join('-') + ' wks'
+                      : '>' + ageRange[0] / 7 + ' wks';
+              })
+            : settings.ageRanges.map(function(ageRange, i) {
+                  return i < settings.ageRanges.length - 1
+                      ? ageRange.join('-') + ' days'
+                      : '>' + ageRange[0] + ' days';
+              });
+
+        //age range colors
+        var ageRangeColors = settings.age_range_colors.slice(
+            settings.age_range_colors.length - settings.ageRanges.length
+        );
+        settings.status_order.forEach(function(status, i) {
+            if (settings.age_statuses.indexOf(status) < 0)
+                ageRangeColors.push(settings.status_colors[i]);
+        });
+
+        //reconcile settings.status_order with settings.status_colors to ensure equal length
+        if (settings.status_order.length !== settings.status_colors.length) {
+            console.warn('The number of query statuses does not match the number of query colors:');
+            console.log(settings.status_order);
+            console.log(settings.status_colors);
+        }
+
+        //default status groups
         var defaultStatusGroups = [
             {
-                value_col: syncedSettings.age_category_col,
-                label: 'Query Age Category',
-                order: syncedSettings.age_category_order,
-                colors: syncedSettings.age_category_colors,
-                derive_source: syncedSettings.age_col
+                value_col: 'queryage', // derived in ../chart/onInit/defineNewVariables
+                label: 'Query Age',
+                order: settings.ageRangeCategories.concat(
+                    settings.status_order.filter(function(status) {
+                        return settings.age_statuses.indexOf(status) < 0;
+                    })
+                ),
+                colors: ageRangeColors
             },
             {
-                value_col: syncedSettings.status_col,
+                value_col: settings.status_col,
                 label: 'Query Status',
-                order: syncedSettings.status_order,
-                colors: syncedSettings.status_colors
+                order: settings.status_order,
+                colors: settings.status_colors
             }
         ];
-        syncedSettings.status_groups = arrayOfVariablesCheck(
+
+        //add custom status groups
+        settings.status_groups = settings.arrayOfVariablesCheck(
             defaultStatusGroups,
             settings.status_groups
         );
+        settings.status_group = settings.status_groups.find(function(status_group) {
+            return status_group.value_col === settings.color_by_col;
+        });
+    }
 
+    function syncWebchartsSettings(settings) {
         //y-axis
-        syncedSettings.y.column = syncedSettings.form_col;
-
-        //stratification
-        syncedSettings.color_by = syncedSettings.status_groups[0].value_col;
-        syncedSettings.color_dom = syncedSettings.status_groups[0].order
-            ? syncedSettings.status_groups[0].order.slice()
-            : null;
-        syncedSettings.colors = syncedSettings.status_groups[0].colors;
-        syncedSettings.legend.label = syncedSettings.status_groups[0].label;
-        syncedSettings.legend.order = syncedSettings.status_groups[0].order
-            ? syncedSettings.status_groups[0].order.slice()
-            : null;
+        settings.y.column = settings.form_col;
+        settings.y.sort = settings.alphabetize ? 'alphabetical-ascending' : 'total-descending';
+        settings.y.range_band = settings.range_band || 25;
 
         //mark settings
-        syncedSettings.marks[0].per[0] = syncedSettings.form_col;
-        syncedSettings.marks[0].split = syncedSettings.color_by;
-        syncedSettings.marks[0].tooltip = '[' + syncedSettings.color_by + '] - $x queries';
+        settings.marks[0].per[0] = settings.form_col;
+        settings.marks[0].split = settings.status_group.value_col;
+        settings.marks[0].arrange = settings.bar_arrangement;
+        settings.marks[0].tooltip = '[' + settings.status_group.value_col + '] - $x queries';
 
-        //filters
+        //stratification
+        settings.color_by = settings.status_group.value_col;
+        settings.color_dom = settings.status_group.order
+            ? settings.status_group.order.slice()
+            : null;
+        settings.colors = settings.status_group.colors;
+
+        //legend
+        settings.legend.label = settings.status_group.label;
+        settings.legend.order = settings.status_group.order
+            ? settings.status_group.order.slice()
+            : null;
+    }
+
+    function syncFilters(settings) {
+        //recency ranges
+        settings.recencyRanges = settings.recency_cutoffs.map(function(d, i) {
+            return i > 0 ? [settings.recency_cutoffs[i - 1], d] : [0, d];
+        });
+        settings.recencyRanges.push([
+            settings.recency_cutoffs[settings.recency_cutoffs.length - 1],
+            null
+        ]);
+
+        //recency range categories
+        settings.recencyRangeCategories = settings.recency_cutoffs.every(function(recency_range) {
+            return recency_range % 7 === 0;
+        })
+            ? settings.recencyRanges.map(function(recencyRange, i) {
+                  return i < settings.recencyRanges.length - 1
+                      ? recencyRange
+                            .map(function(days) {
+                                return days / 7;
+                            })
+                            .join('-') + ' weeks'
+                      : '>' + recencyRange[0] / 7 + ' weeks';
+              })
+            : settings.recencyRanges.map(function(recencyRange, i) {
+                  return i < settings.recencyRanges.length - 1
+                      ? recencyRange.join('-') + ' days'
+                      : '>' + recencyRange[0] + ' days';
+              });
+
+        //default filters
         var defaultFilters = [
             {
-                value_col: syncedSettings.open_category_col,
-                derive_source: syncedSettings.open_col,
-                label: 'Query Open Time',
-                multiple: true,
-                order: syncedSettings.open_category_order
+                value_col: 'queryrecency',
+                label: 'Query Recency',
+                multiple: true
             },
-            { value_col: syncedSettings.form_col, label: 'Form', multiple: true },
-            { value_col: syncedSettings.site_col, label: 'Site', multiple: true },
-            { value_col: syncedSettings.marking_group_col, label: 'Marking Group', multiple: true },
-            { value_col: syncedSettings.visit_col, label: 'Visit/Folder', multiple: true }
+            {
+                value_col: settings.form_col,
+                label: 'Form',
+                multiple: true
+            },
+            {
+                value_col: settings.site_col,
+                label: 'Site',
+                multiple: true
+            },
+            {
+                value_col: settings.marking_group_col,
+                label: 'Marking Group',
+                multiple: true
+            },
+            {
+                value_col: settings.visit_col,
+                label: 'Visit/Folder',
+                multiple: true
+            }
         ];
 
-        syncedSettings.status_groups.reverse().forEach(function(status_group) {
-            status_group.multiple = true;
-            defaultFilters.unshift(clone(status_group));
+        //add status group variables to list of filters
+        settings.status_groups
+            .slice()
+            .reverse()
+            .forEach(function(status_group) {
+                status_group.multiple = true;
+                defaultFilters.unshift(settings.clone(status_group));
+            });
+
+        //add custom filters
+        settings.filters = settings.arrayOfVariablesCheck(defaultFilters, settings.filters);
+    }
+
+    function syncCutoff(settings) {
+        if (!(+settings.cutoff > 0 || settings.cutoff === 'All')) settings.cutoff = 10;
+    }
+
+    function syncSettings(settings) {
+        var syncedSettings = Object.assign({}, clone(settings), {
+            clone: clone,
+            arrayOfVariablesCheck: arrayOfVariablesCheck
         });
-        syncedSettings.filters = arrayOfVariablesCheck(defaultFilters, settings.filters);
+        syncGroups(syncedSettings);
+        syncStatusGroups(syncedSettings);
+        syncWebchartsSettings(syncedSettings);
+        syncFilters(syncedSettings);
+        syncCutoff(syncedSettings);
+        syncCutoff(syncedSettings);
 
-        //cutoff
-        if (!(+syncedSettings.cutoff > 0 || syncedSettings.cutoff === 'All'))
-            syncedSettings.cutoff = 10;
-
-        //details
-        syncedSettings.details = arrayOfVariablesCheck([], settings.details);
-        if (syncedSettings.details.length === 0) delete syncedSettings.details;
         return syncedSettings;
     }
 
@@ -515,16 +528,14 @@
             type: 'dropdown',
             option: 'y.label',
             label: 'Group by',
-            description: 'variable toggle',
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
         },
         {
-            type: 'dropdown',
+            type: 'radio',
             label: 'Status Group',
-            description: 'stratification',
-            options: ['marks.0.split', 'color_by'], // will want to change tooltip too
+            option: 'color_by_col',
             start: null, // set in syncControlInputs()
             values: null, // set in syncControlInputs()
             require: true
@@ -544,58 +555,258 @@
         {
             type: 'checkbox',
             option: 'alphabetize',
-            label: 'Alphabetical?'
+            label: 'Order Groups Alphabetically?'
         }
     ];
 
-    function syncControlInputs(controlInputs, settings) {
-        var syncedControlInputs = clone(controlInputs);
-
-        //Group by
-        var groupByControl = syncedControlInputs.find(function(controlInput) {
+    function syncGroupBy(controlInputs, settings) {
+        var groupByControl = controlInputs.find(function(controlInput) {
             return controlInput.label === 'Group by';
         });
         groupByControl.values = settings.groups.map(function(group) {
             return group.label;
         });
+    }
 
-        //Status Group
-        var statusGroupControl = syncedControlInputs.find(function(controlInput) {
+    function syncStatusGroup(controlInputs, settings) {
+        var statusGroupControl = controlInputs.find(function(controlInput) {
             return controlInput.label === 'Status Group';
         });
+        statusGroupControl.start = settings.color_by;
         statusGroupControl.values = settings.status_groups.map(function(status_group) {
-            return status_group.value_col;
+            return status_group.label;
         });
+    }
 
-        //filters
+    function syncFilters$1(controlInputs, settings) {
         settings.filters.forEach(function(filter, i) {
             filter.type = 'subsetter';
-            filter.description = 'filter';
-            syncedControlInputs.splice(2 + i, 0, filter);
+            controlInputs.splice(2 + i, 0, filter);
         });
+    }
 
-        //Show First N Groups
-        var nGroupsControl = syncedControlInputs.find(function(controlInput) {
+    function syncShowFirstNGroups(controlInputs, settings) {
+        var nGroupsControl = controlInputs.find(function(controlInput) {
             return controlInput.label === 'Show First N Groups';
         });
         if (nGroupsControl.values.indexOf(settings.cutoff.toString()) === -1) {
+            settings.cutoff = settings.cutoff.toString();
             nGroupsControl.values.push(settings.cutoff.toString());
             nGroupsControl.values.sort(function(a, b) {
                 return a === 'All' ? 1 : b === 'All' ? -1 : +a - +b;
             });
         } else settings.cutoff = settings.cutoff.toString() || nGroupsControl.values[0];
+    }
+
+    function syncControlInputs(controlInputs, settings) {
+        var syncedControlInputs = settings.clone(controlInputs);
+        syncGroupBy(syncedControlInputs, settings);
+        syncStatusGroup(syncedControlInputs, settings);
+        syncFilters$1(syncedControlInputs, settings);
+        syncShowFirstNGroups(syncedControlInputs, settings);
 
         return syncedControlInputs;
     }
 
     var configuration = {
         rendererSettings: rendererSettings,
-        webchartsSettings: webchartsSettings,
-        settings: Object.assign({}, rendererSettings, webchartsSettings),
+        chartSettings: chartSettings,
+        listingSettings: listingSettings,
+        settings: Object.assign({}, rendererSettings(), chartSettings(), listingSettings()),
         syncSettings: syncSettings,
         controlInputs: controlInputs,
         syncControlInputs: syncControlInputs
     };
+
+    function layout(element) {
+        var containers = {
+            main: d3
+                .select(element)
+                .append('div')
+                .classed('.query-overview', true)
+        };
+
+        containers.topRow = containers.main.append('div').classed('qo-row qo-row--top', true);
+        containers.controls = containers.topRow
+            .append('div')
+            .classed('qo-component qo-component--controls', true);
+        containers.chart = containers.controls
+            .append('div')
+            .classed('qo-component qo-component--chart', true);
+        containers.bottomRow = containers.main.append('div').classed('qo-row qo-row--bottom', true);
+        containers.listing = containers.bottomRow
+            .append('div')
+            .classed('qo-component qo-component--listing', true);
+
+        return containers;
+    }
+
+    function styles() {
+        var styles = [
+            /***--------------------------------------------------------------------------------------\
+        Framework
+      \--------------------------------------------------------------------------------------***/
+
+            '.query-overview {' + '    width: 100%;' + '    display: inline-block;' + '}',
+            '.qo-row {' + '    width: 100%;' + '    display: inline-block;' + '}',
+            '.qo-component {' + '}',
+            '.qo-row--top {' + '}',
+            '.qo-row--bottom {' + '}',
+
+            /***--------------------------------------------------------------------------------------\
+        Controls
+      \--------------------------------------------------------------------------------------***/
+
+            '.qo-component--controls {' + '    width: 100%;' + '}',
+            '.qo-component--controls .wc-controls {' + '    margin-bottom: 0;' + '}',
+            '.qo-control-grouping {' + '    display: inline-block;' + '}',
+            '.qo-button {' + '    float: left;' + '    display: block;' + '}',
+            '.qo-control-grouping--label,' +
+                '.wc-control-label {' +
+                '    cursor: help;' +
+                '    margin-bottom: 3px;' +
+                '}',
+            '.qo-control-grouping--label {' +
+                '    text-align: center;' +
+                '    width: 100%;' +
+                '    font-size: 24px;' +
+                '    border-bottom: 2px solid #aaa;' +
+                '}',
+            '.span-description {' + '    display: none !important;' + '}',
+
+            /****---------------------------------------------------------------------------------\
+        Other controls
+      \---------------------------------------------------------------------------------****/
+
+            '.qo-control-grouping--other-controls {' +
+                '    width: 20%;' +
+                '    float: right;' +
+                '}',
+            '.qo-control-grouping--other-controls .control-group {' +
+                '    width: 100%;' +
+                '    margin-bottom: 15px;' +
+                '}',
+            '.qo-control-grouping--other-controls .control-group:nth-child(n+3) {' +
+                '    border-top: 1px solid #aaa;' +
+                '}',
+            '.qo-control-grouping--other-controls .control-group .wc-control-label {' +
+                '    text-align: center;' +
+                '    font-size: 110%;' +
+                '}',
+
+            //dropdowns
+            '.qo-dropdown {' + '}',
+            '.qo-dropdown .wc-control-label {' + '}',
+            '.qo-dropdown .changer {' + '    margin: 0 auto;' + '}',
+
+            //radio buttons
+            '.qo-radio {' +
+                '    display: flex !important;' +
+                '    justify-content: center;' +
+                '    flex-wrap: wrap;' +
+                '}',
+            '.qo-radio .wc-control-label {' + '    width: 100%;' + '}',
+            '.qo-radio .radio {' + '    margin-top: 0 !important;' + '}',
+
+            //checkboxes
+            '.qo-checkbox {' +
+                '    display: flex !important;' +
+                '    justify-content: center;' +
+                '}',
+            '.qo-checkbox .wc-control-label {' + '    margin-right: 5px;' + '}',
+            '.qo-checkbox .changer {' + '    margin-top: 5px !important;' + '}',
+
+            /****---------------------------------------------------------------------------------\
+        Filters
+      \---------------------------------------------------------------------------------****/
+
+            '.qo-control-grouping--filters {' +
+                '    width: 20%;' +
+                '    float: left;' +
+                '    display: flex;' +
+                '    flex-wrap: wrap;' +
+                '    justify-content: space-evenly;' +
+                '}',
+            '.qo-subsetter {' +
+                '    margin: 5px 2px !important;' +
+                '    border-top: 1px solid #aaa;' +
+                '    padding-top: 5px;' +
+                '}',
+            '.qo-subsetter .wc-control-label {' +
+                '    margin: 0 5px 3px 0;' +
+                '    text-align: center;' +
+                '}',
+            '.qo-select-all {' + '}',
+            '.qo-subsetter .changer {' + '    margin: 0 auto;' + '}',
+
+            /***--------------------------------------------------------------------------------------\
+        Chart
+      \--------------------------------------------------------------------------------------***/
+
+            '.qo-component--chart {' +
+                '    width: 58%;' +
+                '    margin: 0 auto;' +
+                '    position: relative;' +
+                '}',
+            '.qo-button--reset-chart {' +
+                '    position: absolute;' +
+                '    top: 0;' +
+                '    left: 0;' +
+                '    z-index: 2;' +
+                '    width: 91px;' +
+                '    padding: 3px 0;' +
+                '}',
+            '.qo-button--undo {' +
+                '    position: absolute;' +
+                '    bottom: 0;' +
+                '    left: 0;' +
+                '    z-index: 2;' +
+                '    width: 91px;' +
+                '    padding: 3px 0;' +
+                '}',
+            '.qo-component--chart .wc-chart {' + '    z-index: 1;' + '}',
+            '.qo-component--chart .legend-title {' + '    cursor: help;' + '}',
+            '.qo-component--chart .legend-item {' +
+                '    cursor: pointer;' +
+                '    border-radius: 4px;' +
+                '    padding: 5px;' +
+                '    padding-left: 8px;' +
+                '    margin-right: 5px !important;' +
+                '}',
+            '.qo-footnote {' +
+                '    width: 100%;' +
+                '    text-align: center;' +
+                '    font-style: italic;' +
+                '}',
+
+            /***--------------------------------------------------------------------------------------\
+        Listing
+      \--------------------------------------------------------------------------------------***/
+
+            '.qo-component--listing {' + '    width: 100%;' + '}',
+            '.qo-button--reset-listing {' +
+                '    padding: 3px;' +
+                '    margin: 10px 5px 10px 0;' +
+                '}',
+            '.qo-table-container {' +
+                '    overflow-x: auto;' +
+                '    width: 100%;' +
+                '    transform: rotate(180deg);' +
+                '    -webkit-transform: rotate(180deg); ' +
+                '}',
+            '.qo-table {' +
+                '    width: 100%;' +
+                '    transform: rotate(180deg);' +
+                '    -webkit-transform: rotate(180deg); ' +
+                '}'
+        ];
+
+        //Attach styles to DOM.
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = styles.join('\n');
+        document.getElementsByTagName('head')[0].appendChild(style);
+    }
 
     function defineListingSettings() {
         this.listing.config.cols = this.config.details
@@ -617,60 +828,53 @@
     function defineNewVariables() {
         var _this = this;
 
+        var queryAgeCol = this.config.status_groups.find(function(status_group) {
+            return status_group.label === 'Query Age';
+        }).value_col;
+        var queryRecencyCol = this.config.filters.find(function(filter) {
+            return filter.label === 'Query Recency';
+        }).value_col;
+
         this.raw_data.forEach(function(d) {
+            //Concatenate form and field to avoid duplicates across forms.
             d['Form: Field'] = d[_this.config.form_col] + ': ' + d[_this.config.field_col];
 
-            //Define query age category.
-            if (!_this.config.age_category_order) {
-                var queryAge =
-                    /^ *\d+ *$/.test(d[_this.config.age_col]) &&
-                    ['Closed', 'Cancelled'].indexOf(d[_this.config.status_col]) < 0
-                        ? +d[_this.config.age_col]
-                        : NaN;
-                switch (true) {
-                    case queryAge <= 14:
-                        d['Query Age Category'] = '0-2 weeks';
-                        break;
-                    case queryAge <= 28:
-                        d['Query Age Category'] = '2-4 weeks';
-                        break;
-                    case queryAge <= 56:
-                        d['Query Age Category'] = '4-8 weeks';
-                        break;
-                    case queryAge <= 112:
-                        d['Query Age Category'] = '8-16 weeks';
-                        break;
-                    case queryAge > 112:
-                        d['Query Age Category'] = '>16 weeks';
-                        break;
-                    default:
-                        d['Query Age Category'] = d[_this.config.status_col];
-                        break;
-                }
+            //Define query age.
+            if (_this.config.age_statuses.indexOf(d[_this.config.status_col]) < 0)
+                d[queryAgeCol] = d[_this.config.status_col];
+            else {
+                var age = +d[_this.config.age_col];
+                _this.config.ageRanges.forEach(function(ageRange, i) {
+                    if (i === 0 && ageRange[0] <= age && age <= ageRange[1])
+                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
+                    else if (i === _this.config.ageRanges.length - 1 && ageRange[0] < age)
+                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
+                    else if (ageRange[0] < age && age <= ageRange[1])
+                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
+                });
             }
 
-            //Define query open time category.
-            var openTime = /^ *\d+ *$/.test(d[_this.config.open_col])
-                ? +d[_this.config.open_col]
-                : NaN;
-            switch (true) {
-                case openTime <= 7:
-                    d['Query Open Time Category'] = '0-7 days';
-                    break;
-                case openTime <= 14:
-                    d['Query Open Time Category'] = '8-14 days';
-                    break;
-                case openTime <= 30:
-                    d['Query Open Time Category'] = '15-30 days';
-                    break;
-                default:
-                    d['Query Open Time Category'] = '>30 days';
-                    break;
+            //Define query recency.
+            if (d.hasOwnProperty(_this.config.recency_category_col)) {
+                d[queryRecencyCol] = d[_this.config.recency_category_col] || 'N/A';
+            } else if (d.hasOwnProperty(_this.config.recency_col)) {
+                var recency = +d[_this.config.recency_col];
+                _this.config.recencyRanges.forEach(function(recencyRange, i) {
+                    if (i === 0 && recencyRange[0] <= recency && recency <= recencyRange[1])
+                        d[queryRecencyCol] = _this.config.recencyRangeCategories[i];
+                    else if (
+                        i === _this.config.recencyRanges.length - 1 &&
+                        recencyRange[0] < recency
+                    )
+                        d[queryRecencyCol] = _this.config.recencyRangeCategories[i];
+                    else if (recencyRange[0] < recency && recency <= recencyRange[1])
+                        d[queryRecencyCol] = _this.config.recencyRangeCategories[i];
+                });
             }
         });
     }
 
-    function defineQueryStatuses() {
+    function defineQueryStatusSet() {
         var _this = this;
 
         var queryStatusInput = this.controls.config.inputs.find(function(input) {
@@ -679,74 +883,61 @@
         var queryStatusGroup = this.config.status_groups.find(function(status_group) {
             return status_group.value_col === _this.config.status_col;
         });
-        var queryStatusOrder = Array.isArray(queryStatusGroup.order)
-            ? queryStatusGroup.order.concat(
-                  d3
+        var queryStatusOrder =
+            Array.isArray(queryStatusGroup.order) && queryStatusGroup.order.length
+                ? queryStatusGroup.order.concat(
+                      d3
+                          .set(
+                              this.raw_data.map(function(d) {
+                                  return d[_this.config.status_col];
+                              })
+                          )
+                          .values()
+                          .filter(function(value) {
+                              return queryStatusGroup.order.indexOf(value) < 0;
+                          })
+                          .sort()
+                  )
+                : d3
                       .set(
                           this.raw_data.map(function(d) {
                               return d[_this.config.status_col];
                           })
                       )
                       .values()
-                      .filter(function(value) {
-                          return queryStatusGroup.order.indexOf(value) < 0;
-                      })
-                      .sort()
-              )
-            : d3
-                  .set(
-                      this.raw_data.map(function(d) {
-                          return d[_this.config.status_col];
-                      })
-                  )
-                  .values()
-                  .sort();
+                      .sort();
         queryStatusInput.order = queryStatusOrder;
         queryStatusGroup.order = queryStatusOrder;
     }
 
-    function defineQueryAgeCategories() {
-        var _this = this;
-
-        var queryAgeCategoryInput = this.controls.config.inputs.find(function(input) {
-            return input.value_col === _this.config.age_category_col;
+    function defineQueryRecencySet() {
+        var queryRecencyInput = this.controls.config.inputs.find(function(input) {
+            return input.value_col === 'queryrecency';
         });
-        var queryAgeCategoryGroup = this.config.status_groups.find(function(age_category_group) {
-            return age_category_group.value_col === _this.config.age_category_col;
-        });
-        var queryStatusOrder = this.config.status_groups.find(function(status_group) {
-            return status_group.value_col === _this.config.status_col;
-        }).order;
-        var queryAgeCategoryOrder = Array.isArray(queryAgeCategoryGroup.order)
-            ? queryAgeCategoryGroup.order.concat(
-                  d3
-                      .set(
-                          this.raw_data.map(function(d) {
-                              return d[_this.config.age_category_col];
-                          })
-                      )
-                      .values()
-                      .filter(function(value) {
-                          return queryAgeCategoryGroup.order.indexOf(value) < 0;
-                      })
-                      .sort()
-              )
-            : d3
-                  .set(
-                      this.raw_data.map(function(d) {
-                          return d[_this.config.age_category_col];
-                      })
-                  )
-                  .values()
-                  .sort(function(a, b) {
-                      var aIndex = queryStatusOrder.indexOf(a);
-                      var bIndex = queryStatusOrder.indexOf(b);
-                      var diff = aIndex - bIndex;
 
-                      return diff ? diff : a < b ? -1 : 1;
-                  });
-        queryAgeCategoryInput.order = queryAgeCategoryOrder;
-        queryAgeCategoryGroup.order = queryAgeCategoryOrder;
+        if (this.raw_data[0].hasOwnProperty(this.config.recency_category_col)) {
+            queryRecencyInput.values = d3
+                .set(
+                    this.raw_data.map(function(d) {
+                        return d.queryrecency;
+                    })
+                )
+                .values()
+                .sort(function(a, b) {
+                    var anum = parseFloat(a);
+                    var bnum = parseFloat(b);
+                    var diff = anum - bnum;
+                    return diff ? diff : a < b ? -1 : a > b ? 1 : 0;
+                });
+        } else if (this.raw_data[0].hasOwnProperty(this.config.recency_col))
+            queryRecencyInput.values = this.config.recencyRangeCategories;
+        else
+            this.controls.config.inputs.splice(
+                this.controls.config.inputs.findIndex(function(input) {
+                    return input.value_col === 'queryrecency';
+                }),
+                1
+            );
     }
 
     function removeInvalidControls() {
@@ -768,10 +959,10 @@
         defineNewVariables.call(this);
 
         //Define query statuses.
-        defineQueryStatuses.call(this);
+        defineQueryStatusSet.call(this);
 
-        //Define query age categories.
-        defineQueryAgeCategories.call(this);
+        //Define query recency categories.
+        defineQueryRecencySet.call(this);
 
         //Define detail listing settings.
         defineListingSettings.call(this);
@@ -783,10 +974,125 @@
         this.listing.init(this.raw_data);
     }
 
+    function classControls() {
+        this.controls.controlGroups = this.controls.wrap
+            .selectAll('.control-group')
+            .attr('class', function(d) {
+                return (
+                    'control-group qo-' +
+                    d.type +
+                    ' qo-' +
+                    d.type +
+                    '--' +
+                    d.label.toLowerCase().replace(/[^_a-zA-Z-]/g, '-')
+                );
+            });
+    }
+
+    function groupControls() {
+        var context = this;
+
+        //Group filters.
+        this.controls.filters = {
+            container: this.controls.wrap
+                .insert('div', '.qo-subsetter')
+                .classed('qo-control-grouping qo-control-grouping--filters', true)
+        };
+        this.controls.filters.container
+            .append('div')
+            .classed('qo-control-grouping--label', true)
+            .attr(
+                'title',
+                'Filters subset the data underlying the chart and listing.\nHover over filter labels to view more information about them.'
+            )
+            .text('Filters');
+        this.controls.filters.controlGroups = this.controls.wrap.selectAll('.qo-subsetter');
+        this.controls.filters.labels = this.controls.filters.controlGroups.selectAll(
+            '.wc-control-label'
+        );
+        this.controls.filters.selects = this.controls.filters.controlGroups.selectAll('.changer');
+        this.controls.filters.controlGroups.each(function(d) {
+            context.controls.filters.container.node().appendChild(this);
+        });
+
+        //Group other controls.
+        this.controls.otherControls = {
+            container: this.controls.wrap
+                .insert('div', ':first-child')
+                .classed('qo-control-grouping qo-control-grouping--other-controls', true)
+        };
+        this.controls.otherControls.label = this.controls.otherControls.container
+            .append('div')
+            .classed('qo-control-grouping--label', true)
+            .attr(
+                'title',
+                'Controls alter the display of the chart.\nHover over control labels to view more information about them.'
+            )
+            .text('Controls');
+        this.controls.otherControls.controlGroups = this.controls.wrap.selectAll(
+            '.control-group:not(.qo-subsetter)'
+        );
+        this.controls.otherControls.labels = this.controls.otherControls.controlGroups.selectAll(
+            '.wc-control-label'
+        );
+        this.controls.otherControls.controlGroups.each(function(d) {
+            context.controls.otherControls.container.node().appendChild(this);
+        });
+    }
+
+    function addControlTooltips() {
+        var tooltips = {
+            //other controls
+            'Group by':
+                'Controls the variable with which the queries are grouped; each group is plotted along the vertical axis of the chart.',
+            'Status Group': 'Controls the variable with which the bars are subdivided.',
+            'Bar Arrangement':
+                'Controls the layout of the status groups.\n- stacked: status groups are plotted side-by-side horizontally\n- grouped: status groups are plotted side-by-side vertically',
+            'Show First N Groups': 'Controls the number of groups displayed on the vertical axis.',
+            'Order Groups Alphabetically?':
+                'Controls the order of the groups; uncheck to sort groups by magnitude (largest to smallest number of queries) instead of alphabetically.',
+
+            //filters
+            'Query Age':
+                'Open queries are broken down into how long they have been open. All other queries are classified by status (answered, closed, cancelled).',
+            'Query Status':
+                'Open: site has not responded to the issue\nAnswered: site has responded to issue; DM needs to review\nClosed: issue resolved\nCancelled: query cancelled by DM',
+            'Query Recency':
+                'Number of days a query has been open, regardless of its current status (applies only to queries opened in the past 30 days)',
+            Form:
+                'CRF page abbreviation; hover over the abbreviation in the chart to see its full name.',
+            Site: 'Name or ID of site',
+            'Marking Group': 'Entity that opened the query',
+            'Visit/Folder':
+                'Visit/folder abbreviation; hover over the visit/folder abbreviation in the chart to see the full name.'
+        };
+        this.controls.controlGroups.each(function(d) {
+            var tooltip =
+                tooltips[d.label] ||
+                'This ' +
+                    d.type +
+                    ' controls ' +
+                    (d.value_col || d.option || d.options.join(', ')) +
+                    '.';
+            if (tooltips[d.label] === undefined)
+                console.warn(
+                    'The control labeled ' +
+                        d.label +
+                        ' does not have a curated tooltip. Defaulting to ' +
+                        tooltip +
+                        '.'
+                );
+            d3
+                .select(this)
+                .selectAll('.wc-control-label')
+                .attr('title', tooltip);
+        });
+    }
+
     function updateGroupByOptions() {
         var context = this;
 
-        var groupByControl = this.controls.wrap
+        this.controls.wrap
             .selectAll('.control-group select')
             .filter(function(d) {
                 return d.label === 'Group by';
@@ -807,6 +1113,64 @@
 
                 context.config.marks[0].per = [value_col];
                 context.draw();
+            });
+    }
+
+    function addGroupByHighlight() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Group by';
+            })
+            .on('mouseover', function() {
+                _this.svg.selectAll('.y.axis .axis-title').style({
+                    'font-weight': 'bold',
+                    'text-decoration': 'underline',
+                    fill: 'red'
+                });
+            })
+            .on('mouseout', function() {
+                _this.svg.selectAll('.y.axis .axis-title').style({
+                    'font-weight': 'normal',
+                    'text-decoration': 'none',
+                    fill: 'black'
+                });
+            });
+    }
+
+    function checkInitialStatusGroup() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Status Group';
+            })
+            .selectAll('.radio')
+            .selectAll('.changer')
+            .property('checked', function(d) {
+                return d === _this.config.legend.label;
+            });
+    }
+
+    function addStatusGroupHighlight() {
+        var _this = this;
+
+        this.controls.otherControls.controlGroups
+            .filter(function(d) {
+                return d.label === 'Status Group';
+            })
+            .on('mouseover', function() {
+                _this.legend.select('.legend-title').style({
+                    'text-decoration': 'underline',
+                    color: 'red'
+                });
+            })
+            .on('mouseout', function() {
+                _this.legend.select('.legend-title').style({
+                    'text-decoration': 'none',
+                    color: 'black'
+                });
             });
     }
 
@@ -844,6 +1208,97 @@
             });
     }
 
+    function addSelectAll() {
+        var context = this;
+
+        this.controls.filters.labels
+            .filter(function(d) {
+                return d.multiple;
+            })
+            .each(function(d) {
+                var label = d3
+                    .select(this)
+                    .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
+                var checkbox = label
+                    .select('input')
+                    .datum(d)
+                    .attr('title', 'Deselect all ' + d.label + ' options')
+                    .property('checked', true)
+                    .on('click', function(di) {
+                        var checkbox = d3.select(this);
+                        var checked = this.checked;
+
+                        //Update checkbox tooltip.
+                        checkbox.attr(
+                            'title',
+                            checked
+                                ? 'Deselect all ' + di.label + ' options'
+                                : 'Select all ' + di.label + ' options'
+                        );
+
+                        //Update filter object.
+                        var filter = context.filters.find(function(filter) {
+                            return filter.col === di.value_col;
+                        });
+                        if (checked) filter.val = filter.choices;
+                        else filter.val = [];
+
+                        //Redraw.
+                        context.draw();
+                    });
+            });
+        this.controls.filters.checkboxes = this.controls.filters.labels.selectAll('.qo-select-all');
+    }
+
+    function updateSelectAll(d, selectedOptions) {
+        //Update filter object.
+        var filter = this.filters.find(function(filter) {
+            return filter.col === d.value_col;
+        });
+        filter.val = d.multiple ? selectedOptions : selectedOptions.pop();
+
+        //Update checkbox.
+        if (d.multiple) {
+            var checked = filter.val.length === filter.choices.length;
+            var checkbox = this.controls.filters.checkboxes
+                .filter(function(di) {
+                    return di.value_col === d.value_col;
+                })
+                .attr(
+                    'title',
+                    checked
+                        ? 'Deselect all ' + d.label + ' options'
+                        : 'Select all ' + d.label + ' options'
+                )
+                .property('checked', checked);
+        }
+    }
+
+    function updateFilterEventListeners() {
+        var context = this;
+
+        this.controls.filters.selects.on('change', function(d) {
+            var select = d3.select(this);
+            var selectedOptions = select.selectAll('option:checked').data();
+            updateSelectAll.call(context, d, selectedOptions);
+            context.draw();
+        });
+    }
+
+    function sortQueryRecencyOptions() {
+        this.controls.filters.selects
+            .filter(function(d) {
+                return d.value_col === 'queryrecency';
+            })
+            .selectAll('option')
+            .sort(function(a, b) {
+                var anum = parseFloat(a);
+                var bnum = parseFloat(b);
+                var diff = anum - bnum;
+                return diff ? diff : a < b ? -1 : a > b ? 1 : 0;
+            });
+    }
+
     function setYAxisDomainLength() {
         var context = this;
 
@@ -872,21 +1327,21 @@
     function addResetButton() {
         var _this = this;
 
-        this.controls.wrap
+        this.resetButton = d3
+            .select(this.div)
             .insert('button', ':first-child')
-            .attr('id', 'reset-chart')
-            .style({
-                margin: '5px',
-                padding: '5px',
-                float: 'right'
-            })
+            .classed('qo-button qo-button--reset-chart', true)
             .text('Reset chart')
             .on('click', function() {
-                var element = clone(_this.div),
-                    settings = clone(_this.initialSettings),
-                    data = clone(_this.raw_data);
+                var element = _this.element;
+                var settings = clone(_this.initialSettings);
+                var data = clone(_this.raw_data);
                 _this.listing.destroy();
                 _this.destroy();
+                d3
+                    .select(_this.element)
+                    .selectAll('*')
+                    .remove();
                 queryOverview(element, settings).init(data);
             });
     }
@@ -913,24 +1368,56 @@
 
                 //Reset listing.
                 context.listing.wrap.selectAll('*').remove();
-                context.wrap.select('#listing-instruction').style('display', 'block');
                 context.listing.init(context.filtered_data);
             });
     }
 
-    function addListingInstruction() {
-        this.wrap
-            .append('em')
-            .attr('id', 'listing-instruction')
-            .text('Click a bar to view its underlying data.');
+    function addFootnotes() {
+        this.footnotes = {
+            barClick: this.wrap
+                .append('div')
+                .classed('qo-footnote qo-footnote--bar-click', true)
+                .text('Click one or more bars to view the underlying data in the listing below.'),
+            deselectBars: this.wrap
+                .append('div')
+                .classed('qo-footnote qo-footnote--deselect-bars', true)
+                .text('Click in the white area to deselect all bars.')
+        };
     }
 
     function onLayout() {
+        //Class controls for unique selection.
+        classControls.call(this);
+
+        //Group controls logically.
+        groupControls.call(this);
+
+        //Add tooltips to controls.
+        addControlTooltips.call(this);
+
         //Display group label rather than group column name in Group by control.
         updateGroupByOptions.call(this);
 
+        //Highlight y-axis label when user hovers over Status Group control.
+        addGroupByHighlight.call(this);
+
+        //Check radio button of initial status group.
+        checkInitialStatusGroup.call(this);
+
+        //Highlight legend when user hovers over Status Group control.
+        addStatusGroupHighlight.call(this);
+
         //Customize dropdowns with multiple options.
         customizeMultiSelects.call(this);
+
+        //Add select all checkbox to filters.
+        addSelectAll.call(this);
+
+        //Update filter event listeners to toggle select all checkbox on change.
+        updateFilterEventListeners.call(this);
+
+        //Sort query recency categories numerically if possible.
+        sortQueryRecencyOptions.call(this);
 
         //Handle y-domain length control
         setYAxisDomainLength.call(this);
@@ -941,28 +1428,28 @@
         //Clear listing when controls change.
         clearListingOnChange.call(this);
 
-        //Add listing instruction.
-        addListingInstruction.call(this);
+        //Add chart footnotes.
+        addFootnotes.call(this);
     }
 
     function updateStratification() {
-        var _this = this;
-
-        var stratification = this.config.status_groups.find(function(status_group) {
-            return status_group.value_col === _this.config.color_by;
+        var statusGroup = this.controls.wrap
+            .selectAll('.qo-radio--status-group')
+            .selectAll('.radio')
+            .filter(function() {
+                var label = d3.select(this);
+                var radio = label.select('.changer');
+                return radio.property('checked');
+            })
+            .text();
+        this.config.status_group = this.config.status_groups.find(function(status_group) {
+            return status_group.label === statusGroup;
         });
-        this.config.color_dom =
-            stratification.order ||
-            d3$1
-                .set(
-                    this.raw_data.map(function(d) {
-                        return d[_this.config.color_by];
-                    })
-                )
-                .values()
-                .sort();
-        this.config.colors = stratification.colors;
-        this.config.legend.label = stratification.label;
+        this.config.marks[0].split = this.config.status_group.value_col;
+        this.config.color_by = this.config.status_group.value_col;
+        this.config.color_dom = this.config.status_group.order;
+        this.config.colors = this.config.status_group.colors;
+        this.config.legend.label = this.config.status_group.label;
         this.config.legend.order = this.config.color_dom.slice();
         this.config.marks[0].tooltip = '[' + this.config.color_by + '] - $x queries';
     }
@@ -990,9 +1477,9 @@
 
     function updateRangeBand() {
         if (this.config.marks[0].arrange === 'stacked') {
-            this.config.range_band = 15;
+            this.config.range_band = this.initialSettings.range_band;
         } else {
-            this.config.range_band = 15 * this.config.color_dom.length;
+            this.config.range_band = this.initialSettings.range_band * this.config.color_dom.length;
         }
     }
 
@@ -1006,7 +1493,7 @@
 
     function setLeftMargin() {
         var fontSize = parseInt(this.wrap.style('font-size'));
-        this.config.margin.left =
+        this.config.margin.left = Math.max(
             Math.max(
                 7,
                 d3.max(this.y_dom, function(d) {
@@ -1015,8 +1502,14 @@
             ) *
                 fontSize *
                 0.5 +
-            fontSize * 1.5 * 1.5 +
-            6;
+                fontSize * 1.5 * 1.5 +
+                6,
+            100
+        );
+    }
+
+    function setXDomain() {
+        if (this.filtered_data.length === 0) this.x_dom = [0, 0];
     }
 
     function setYDomain() {
@@ -1066,9 +1559,10 @@
 
     function setChartHeight() {
         //Match chart height to number of bars currently displayed.
-        this.raw_height =
-            (+this.config.range_band + this.config.range_band * this.config.padding) *
-            this.y_dom.length;
+        this.raw_height = this.filtered_data.length
+            ? (+this.config.range_band + this.config.range_band * this.config.padding) *
+              this.y_dom.length
+            : 100;
     }
 
     function updateXAxisLabel() {
@@ -1089,15 +1583,27 @@
 
     function onDraw() {
         setLeftMargin.call(this);
+        setXDomain.call(this);
         setYDomain.call(this);
         setChartHeight.call(this);
         updateXAxisLabel.call(this);
     }
 
+    //TODO: modularize/refactor
     function legendFilter() {
         var _this = this;
 
         var context = this;
+
+        //Alter layout of legend.
+        var legend = this.legend;
+        legend.style('margin-left', this.margin.left + 'px');
+        var legendTitle = legend.select('.legend-title');
+        legendTitle.attr(
+            'title',
+            'Add and remove queries by clicking the legend items to the left.'
+        );
+        legend.node().appendChild(legendTitle.node());
 
         //Filter data by clicking on legend.
         var statusFilter = this.filters.find(function(filter) {
@@ -1105,12 +1611,6 @@
         });
         var legendItems = this.wrap
             .selectAll('.legend-item')
-            .style({
-                cursor: 'pointer',
-                'border-radius': '4px',
-                padding: '5px',
-                'padding-left': '8px'
-            })
             .classed('selected', function(d) {
                 return statusFilter.val === 'All' || statusFilter.val.indexOf(d.label) > -1;
             })
@@ -1119,17 +1619,15 @@
                     ? 'lightgray'
                     : 'white';
             });
-        var statusOptions = this.controls.wrap
-            .selectAll('.control-group')
-            .filter(function(d) {
-                return d.value_col === context.config.marks[0].split;
-            })
-            .selectAll('.changer option'); // status filter options
+        var statusControlGroup = this.controls.wrap.selectAll('.control-group').filter(function(d) {
+            return d.value_col === context.config.marks[0].split;
+        });
+        var statusOptions = statusControlGroup.selectAll('.changer option'); // status filter options
         legendItems.selectAll('.legend-mark-text').remove(); // don't need 'em
+        legendItems.selectAll('.legend-color-block').attr('width', '8px');
         legendItems.on('click', function(d) {
-            var legendItem = d3.select(this),
-                // clicked legend item
-                selected = !legendItem.classed('selected'); // selected boolean
+            var legendItem = d3.select(this); // clicked legend item
+            var selected = !legendItem.classed('selected'); // selected boolean
             legendItem.classed('selected', selected); // toggle selected class
             var selectedLegendItems = legendItems
                 .filter(function() {
@@ -1148,6 +1646,7 @@
                     return selectedLegendItems.indexOf(d) > -1;
                 })
                 .property('selected', true); // set selected property of status options corresponding to selected statuses to true
+            updateSelectAll.call(context, statusControlGroup.datum(), selectedLegendItems);
             var filtered_data = context.raw_data.filter(function(d) {
                 var filtered = selectedLegendItems.indexOf(d[context.config.marks[0].split]) === -1;
 
@@ -1182,9 +1681,8 @@
                 });
             context.draw();
 
-            //Remove listing and display listing instruction.
+            //Remove listing and display bar click footnote.
             context.listing.wrap.selectAll('*').remove();
-            context.wrap.select('#listing-instruction').style('display', 'block');
             context.listing.init(filtered_data);
         });
     }
@@ -1237,39 +1735,92 @@
                 .style('fill', 'blue')
                 .style('text-decoration', 'underline');
             yLabels.style('cursor', 'pointer').on('click', function(yLabel) {
-                _this.controls.wrap
-                    .selectAll('.control-group')
-                    .filter(function(d) {
-                        return d.label === 'Group by';
+                //Update Group by control.
+                var groupByControl = _this.controls.otherControls.controlGroups.filter(function(d) {
+                    return d.label === 'Group by';
+                });
+                groupByControl
+                    .select('.wc-control-label')
+                    .style({
+                        'font-weight': 'bold',
+                        'text-decoration': 'underline',
+                        color: 'red'
                     })
-                    .selectAll('option')
-                    .property('selected', function(d) {
-                        return d === 'Form: Field';
+                    .transition()
+                    .delay(3000)
+                    .style({
+                        'font-weight': 'normal',
+                        'text-decoration': 'none',
+                        color: 'black'
                     });
+                groupByControl.selectAll('option').property('selected', function(d) {
+                    return d === 'Form: Field';
+                });
+
+                //Update chart settings.
                 _this.config.y.column = 'Form: Field';
                 _this.config.y.label = 'Form: Field';
                 _this.config.marks[0].per[0] = 'Form: Field';
-                _this.controls.wrap
-                    .selectAll('.control-group')
-                    .filter(function(d) {
-                        return d.label === 'Form';
-                    })
-                    .selectAll('option')
-                    .property('selected', function(d) {
-                        return d === yLabel;
-                    });
-                _this.filters.filter(function(filter) {
-                    return filter.col === _this.config.form_col;
-                })[0].val = yLabel;
 
-                _this.draw(
-                    _this.filtered_data.filter(function(d) {
-                        return d[_this.config.form_col] === yLabel;
+                //Update Form filter.
+                var formFilter = _this.controls.filters.controlGroups.filter(function(d) {
+                    return d.label === 'Form';
+                });
+                formFilter
+                    .select('.wc-control-label')
+                    .style({
+                        'font-weight': 'bold',
+                        'text-decoration': 'underline',
+                        color: 'red'
                     })
+                    .transition()
+                    .delay(3000)
+                    .style({
+                        'font-weight': 'normal',
+                        'text-decoration': 'none',
+                        color: 'black'
+                    });
+                formFilter.selectAll('option').property('selected', function(d) {
+                    return d === yLabel;
+                });
+
+                //Update Form filter object in `chart.filters`.
+                var filter = _this.filters.find(function(filter) {
+                    return filter.col === _this.config.form_col;
+                });
+                filter.val = yLabel;
+                updateSelectAll.call(
+                    _this,
+                    _this.controls.filters.controlGroups
+                        .filter(function(d) {
+                            return d.value_col === _this.config.form_col;
+                        })
+                        .datum(),
+                    [yLabel]
                 );
+
+                //Redraw chart and listing.
+
+                //Update Group by control.
+                _this.draw();
                 _this.listing.wrap.selectAll('*').remove();
-                _this.wrap.select('listing-instruction').style('display', 'block');
                 _this.listing.init(_this.filtered_data);
+
+                //Highlight y-axis label.
+                _this.svg
+                    .select('.y.axis .axis-title')
+                    .style({
+                        'font-weight': 'bold',
+                        'text-decoration': 'underline',
+                        fill: 'red'
+                    })
+                    .transition()
+                    .delay(3000)
+                    .style({
+                        'font-weight': 'normal',
+                        'text-decoration': 'none',
+                        fill: 'black'
+                    });
             });
         }
     }
@@ -1375,85 +1926,148 @@
         }
     }
 
-    // from https://gist.github.com/samgiles/762ee337dff48623e729
+    function mouseoverStyle(bar, selected) {
+        if (!selected)
+            bar.style({
+                'stroke-width': '5px',
+                fill: 'black'
+            });
+    }
 
-    Array.prototype.flatMap = function(lambda) {
-        return Array.prototype.concat.apply([], this.map(lambda));
-    };
+    function mouseoverAttrib(bar, selected) {
+        if (!selected)
+            bar.attr({
+                width: function width(d) {
+                    return this.getBBox().width - 2.5;
+                },
+                x: function x(d) {
+                    return this.getBBox().x + 2.5;
+                }
+            });
+    }
+
+    function mouseoutStyle(bar, selected) {
+        var _this = this;
+
+        var clear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+        if (!(selected || clear) || (selected && clear))
+            bar.style({
+                'stroke-width': '1px',
+                fill: function fill(d) {
+                    return _this.colorScale(d.key);
+                }
+            });
+    }
+
+    function mouseoutAttrib(bar, selected) {
+        var clear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+        if (!(selected || clear) || (selected && clear))
+            bar.attr({
+                width: function width(d) {
+                    return this.getBBox().width + 2.5;
+                },
+                x: function x(d) {
+                    return this.getBBox().x - 2.5;
+                }
+            });
+    }
+
+    function initListing() {
+        //Clear listing container.
+        this.listing.wrap.selectAll('*').remove();
+
+        //Capture data from selected bars.
+        var selectedData = d3
+            .selectAll('rect.selected')
+            .data()
+            .flatMap(function(d) {
+                return d.values.raw;
+            });
+
+        //Feed data from selected bars into listing.
+        if (selectedData.length > 0) this.listing.init(selectedData);
+        else this.listing.init(this.filtered_data);
+    }
 
     function addBarClick() {
         var context = this;
 
-        var barGroups = this.svg.selectAll('.bar-group');
-        var bars = this.svg.selectAll('.bar');
         // will subtract and add to bar to offset increase in stroke-width and prevent bars
         // from overlapping as much when neighbors are both selected.
-        var mouseoverAttrib = {
-            width: function width(d) {
-                return this.getBBox().width - 2.5;
-            },
-            x: function x(d) {
-                return this.getBBox().x + 2.5;
-            }
-        };
-        var mouseoverStyle = {
-            'stroke-width': '5px',
-            fill: 'black'
-        };
-        var mouseoutAttrib = {
-            width: function width(d) {
-                return this.getBBox().width + 2.5;
-            },
-            x: function x(d) {
-                return this.getBBox().x - 2.5;
-            }
-        };
-        var mouseoutStyle = {
-            'stroke-width': '1px',
-            fill: function fill(d) {
-                return context.colorScale(d.key);
-            }
-        };
-        bars
+        this.bars = this.svg
+            .selectAll('.bar')
             .style('cursor', 'pointer')
             .on('mouseover', function() {
-                if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoverStyle);
-                if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoverAttrib);
+                var bar = d3.select(this);
+                var selected = bar.classed('selected');
+
+                //Apply highlight attributes and styles to bar.
+                mouseoverStyle.call(context, bar, selected);
+                mouseoverAttrib.call(context, bar, selected);
+
                 //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
                 if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
             })
             .on('mouseout', function() {
-                if (!d3.select(this).classed('selected')) d3.select(this).style(mouseoutStyle);
-                if (!d3.select(this).classed('selected')) d3.select(this).attr(mouseoutAttrib);
-                bars
-                    .filter(function() {
-                        return d3.select(this).classed('selected');
-                    })
-                    .moveToFront();
+                var bar = d3.select(this);
+                var selected = bar.classed('selected');
+
+                //Apply default attributes and styles to bar.
+                mouseoutStyle.call(context, bar, selected);
+                mouseoutAttrib.call(context, bar, selected);
+
+                //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
+                if (!/trident/i.test(navigator.userAgent))
+                    context.bars
+                        .filter(function() {
+                            return d3.select(this).classed('selected');
+                        })
+                        .moveToFront();
             })
             .on('click', function(d) {
-                // this doesn't need a style because mouseout isn't applied when the bar is selected
-                d3
-                    .select(this)
-                    .classed('selected', d3.select(this).classed('selected') ? false : true);
-                context.listing.wrap.selectAll('*').remove();
-                // feed listing data for all selected bars
-                context.listing.init(
-                    d3
-                        .selectAll('rect.selected')
-                        .data()
-                        .flatMap(function(d) {
-                            return d.values.raw;
-                        })
-                );
-                context.wrap.select('#listing-instruction').style('display', 'none'); // remove bar instructions
-                // display filtered data if no bars are selected
-                if (d3.selectAll('rect.selected')[0].length === 0) {
-                    context.listing.wrap.selectAll('*').remove();
-                    context.wrap.select('#listing-instruction').style('display', 'block');
-                    context.listing.init(context.filtered_data);
-                }
+                var bar = d3.select(this);
+                var selected = bar.classed('selected');
+
+                //Update selected class of clicked bar.
+                bar.classed('selected', !selected);
+
+                //Re-initialize listing.
+                initListing.call(context);
             });
+    }
+
+    function addBarDeselection() {
+        var _this = this;
+
+        var context = this;
+
+        this.overlay.on('click', function() {
+            _this.bars.each(function(d) {
+                var bar = d3.select(this);
+                var selected = bar.classed('selected');
+                mouseoutStyle.call(context, bar, selected, true);
+                mouseoutAttrib.call(context, bar, selected, true);
+                bar.classed('selected', false);
+            });
+            initListing.call(_this);
+        });
+    }
+
+    function addNoDataIndicator() {
+        this.svg.select('.qo-no-data').remove();
+
+        if (this.filtered_data.length === 0)
+            this.svg
+                .append('text')
+                .classed('qo-no-data', true)
+                .attr({
+                    x: this.plot_width / 2,
+                    y: this.plot_height / 2,
+                    'text-anchor': 'middle'
+                })
+                .text('No queries selected.  Verify that no filter selections are in conflict.');
     }
 
     function onResize() {
@@ -1477,22 +2091,34 @@
 
         //Add bar click-ability.
         addBarClick.call(this);
+
+        //Add bar deselection.
+        addBarDeselection.call(this);
+
+        //Add informational text to the chart canvas when filters are in conflict.
+        addNoDataIndicator.call(this);
     }
+
+    function onDestroy() {}
+
+    var chartCallbacks = {
+        onInit: onInit,
+        onLayout: onLayout,
+        onPreprocess: onPreprocess,
+        onDataTransform: onDataTransform,
+        onDraw: onDraw,
+        onResize: onResize,
+        onDestroy: onDestroy
+    };
 
     function onInit$1() {}
 
-    function resetListing() {
+    function addResetButton$1() {
         var _this = this;
 
-        this.wrap
+        this.resetButton = this.wrap
             .insert('button', ':first-child')
-            .attr('id', 'clear-listing')
-            .style({
-                margin: '5px',
-                padding: '5px',
-                float: 'left',
-                display: 'block'
-            })
+            .classed('qo-button qo-button--reset-listing', true)
             .text('Reset listing')
             .on('click', function() {
                 _this.wrap.selectAll('*').remove();
@@ -1515,7 +2141,6 @@
                         }
                     });
                 _this.chart.listing.init(_this.chart.filtered_data);
-                _this.chart.wrap.select('#listing-instruction').style('display', 'block');
             });
     }
 
@@ -1525,10 +2150,10 @@
         var table = this.table.node();
         this.tableContainer = this.wrap
             .append('div')
-            .classed('query-table-container', true)
+            .classed('qo-table-container', true)
             .node();
 
-        this.wrap.select('table').classed('query-table', true); // I want to ensure that no other webcharts tables get flipped upside down
+        this.wrap.select('table').classed('qo-table', true); // I want to ensure that no other webcharts tables get flipped upside down
 
         table.parentNode.insertBefore(this.tableContainer, table);
         this.tableContainer.appendChild(table);
@@ -1536,11 +2161,13 @@
     }
 
     function onLayout$1() {
-        resetListing.call(this);
+        addResetButton$1.call(this);
         addTableContainer.call(this);
         this.wrap.select('.sortable-container').classed('hidden', false);
         this.table.style('width', '100%').style('display', 'table');
     }
+
+    function onPreprocess$1() {}
 
     function manualSort() {
         var _this = this;
@@ -1590,7 +2217,7 @@
         this.draw(this.data.manually_sorted);
     }
 
-    function onClick() {
+    function updateColumnSorting() {
         var context = this;
 
         this.thead_cells.on('click', function(d) {
@@ -1667,6 +2294,25 @@
         });
     }
 
+    function truncateCellText() {
+        var _this = this;
+
+        if (this.data.raw.length)
+            this.tbody
+                .selectAll('td')
+                .attr('title', function(d) {
+                    return d.text;
+                })
+                .filter(function(d) {
+                    return d.text.length > _this.chart.initialSettings.truncation_cutoff;
+                })
+                .text(function(d) {
+                    return (
+                        d.text.substring(0, _this.chart.initialSettings.truncation_cutoff) + '...'
+                    );
+                });
+    }
+
     function moveScrollBarLeft() {
         var _this = this;
 
@@ -1680,7 +2326,11 @@
     }
 
     function onDraw$1() {
-        onClick.call(this);
+        //Update default Webcharts column sorting.
+        updateColumnSorting.call(this);
+
+        //Truncate cells with length greater than `settings.truncation_cutoff`.
+        truncateCellText.call(this);
 
         //Move table scrollbar all the way to the left.
         moveScrollBarLeft.call(this);
@@ -1688,62 +2338,51 @@
 
     function onDestroy$1() {}
 
-    function defineStyles() {
-        var styles = [
-            '.query-table-container {' +
-                '    overflow-x: auto;' +
-                '    width : 100%;' +
-                '    transform:  rotate(180deg);' +
-                ' -webkit-transform:rotate(180deg); ' +
-                '}',
-            '.query-table {' +
-                '    transform:  rotate(180deg);' +
-                '  -webkit-transform:rotate(180deg); ' +
-                '}'
-        ];
-
-        //Attach styles to DOM.
-        this.style = document.createElement('style');
-        this.style.type = 'text/css';
-        this.style.innerHTML = styles.join('\n');
-        document.getElementsByTagName('head')[0].appendChild(this.style);
-    }
+    var listingCallbacks = {
+        onInit: onInit$1,
+        onLayout: onLayout$1,
+        onPreprocess: onPreprocess$1,
+        onDraw: onDraw$1,
+        onDestroy: onDestroy$1
+    };
 
     function queryOverview$1(element, settings) {
+        //Settings
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
         var syncedControlInputs = configuration.syncControlInputs(
             configuration.controlInputs,
             syncedSettings
         );
-        var controls = webcharts.createControls(element, {
+
+        //Layout and styles
+        var containers = layout(element);
+        styles();
+
+        //Controls
+        var controls = webcharts.createControls(containers.controls.node(), {
             location: 'top',
             inputs: syncedControlInputs
         });
-        var chart = webcharts.createChart(element, syncedSettings, controls);
-        var listing = webcharts.createTable(element, {
+        controls.element = element;
+
+        //Chart
+        var chart = webcharts.createChart(containers.chart.node(), syncedSettings, controls);
+        chart.element = element;
+        chart.initialSettings = clone(mergedSettings);
+        for (var callback in chartCallbacks) {
+            chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
+        } //Listing
+        var listing = webcharts.createTable(containers.listing.node(), {
             sortable: false,
             exportable: syncedSettings.exportable
         });
-
-        chart.initialSettings = clone(mergedSettings);
-        chart.on('init', onInit);
-        chart.on('layout', onLayout);
-        chart.on('preprocess', onPreprocess);
-        chart.on('datatransform', onDataTransform);
-        chart.on('draw', onDraw);
-        chart.on('resize', onResize);
-
-        listing.on('init', onInit$1);
-        listing.on('layout', onLayout$1);
-        listing.on('draw', onDraw$1);
-        listing.on('destroy', onDestroy$1);
-
+        listing.element = element;
+        for (var _callback in listingCallbacks) {
+            listing.on(_callback.substring(2).toLowerCase(), listingCallbacks[_callback]);
+        } //Intertwine
         chart.listing = listing;
         listing.chart = chart;
-
-        //add Table stylesheet
-        defineStyles.call(listing);
 
         return chart;
     }

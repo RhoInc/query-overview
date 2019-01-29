@@ -3,16 +3,14 @@ export default [
         type: 'dropdown',
         option: 'y.label',
         label: 'Group by',
-        description: 'variable toggle',
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
         require: true
     },
     {
-        type: 'dropdown',
+        type: 'radio',
         label: 'Status Group',
-        description: 'stratification',
-        options: ['marks.0.split', 'color_by'], // will want to change tooltip too
+        option: 'color_by_col',
         start: null, // set in syncControlInputs()
         values: null, // set in syncControlInputs()
         require: true
@@ -32,6 +30,6 @@ export default [
     {
         type: 'checkbox',
         option: 'alphabetize',
-        label: 'Alphabetical?'
+        label: 'Order Groups Alphabetically?'
     }
 ];
