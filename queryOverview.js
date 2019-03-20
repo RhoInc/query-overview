@@ -940,6 +940,43 @@
             );
     }
 
+    function defineMaps() {
+        var _this = this;
+
+        this.maps = {
+            querystatus: d3
+                .nest()
+                .key(function(d) {
+                    return d[_this.config.status_col];
+                })
+                .rollup(function(d) {
+                    return d3
+                        .set(
+                            d.map(function(di) {
+                                return di.queryage;
+                            })
+                        )
+                        .values();
+                })
+                .map(this.raw_data),
+            queryage: d3
+                .nest()
+                .key(function(d) {
+                    return d.queryage;
+                })
+                .rollup(function(d) {
+                    return d3
+                        .set(
+                            d.map(function(di) {
+                                return di[_this.config.status_col];
+                            })
+                        )
+                        .values();
+                })
+                .map(this.raw_data)
+        };
+    }
+
     function removeInvalidControls() {
         var context = this;
 
@@ -966,6 +1003,9 @@
 
         //Define detail listing settings.
         defineListingSettings.call(this);
+
+        //Define query age and query status maps.
+        defineMaps.call(this);
 
         //hide controls that do not have their variable supplied
         removeInvalidControls.call(this);
@@ -1274,6 +1314,44 @@
         }
     }
 
+    function syncQueryAgeAndStatus(d, selectedOptions) {
+        var _this = this;
+
+        var filter = void 0;
+        var select = void 0;
+        var map = void 0;
+        if (d.value_col === 'queryage') {
+            filter = this.filters.find(function(filter) {
+                return filter.col === _this.config.status_col;
+            });
+            select = this.controls.wrap.selectAll('select').filter(function(d) {
+                return d.value_col === _this.config.status_col;
+            });
+            map = this.maps.queryage;
+        } else if (d.value_col === this.config.status_col) {
+            filter = this.filters.find(function(filter) {
+                return filter.col === 'queryage';
+            });
+            select = this.controls.wrap.selectAll('select').filter(function(d) {
+                return d.value_col === 'queryage';
+            });
+            map = this.maps.querystatus;
+        }
+        var correspondingOptions = d3.merge(
+            Object.keys(map)
+                .filter(function(key) {
+                    return selectedOptions.indexOf(key) > -1;
+                })
+                .map(function(key) {
+                    return map[key];
+                })
+        );
+        filter.val = correspondingOptions;
+        select.selectAll('option').property('selected', function(di) {
+            return correspondingOptions.indexOf(di) > -1;
+        });
+    }
+
     function updateFilterEventListeners() {
         var context = this;
 
@@ -1281,6 +1359,8 @@
             var select = d3.select(this);
             var selectedOptions = select.selectAll('option:checked').data();
             updateSelectAll.call(context, d, selectedOptions);
+            if (['queryage', context.config.status_col].indexOf(d.value_col) > -1)
+                syncQueryAgeAndStatus.call(context, d, selectedOptions);
             context.draw();
         });
     }
@@ -1647,6 +1727,7 @@
                 })
                 .property('selected', true); // set selected property of status options corresponding to selected statuses to true
             updateSelectAll.call(context, statusControlGroup.datum(), selectedLegendItems);
+            syncQueryAgeAndStatus.call(context, statusControlGroup.datum(), selectedLegendItems);
             var filtered_data = context.raw_data.filter(function(d) {
                 var filtered = selectedLegendItems.indexOf(d[context.config.marks[0].split]) === -1;
 
