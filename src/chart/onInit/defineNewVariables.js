@@ -4,6 +4,7 @@ export default function defineNewVariables() {
     ).value_col;
     const queryRecencyCol = this.config.filters.find(filter => filter.label === 'Query Recency')
         .value_col;
+    const dateFormat = d3.time.format(this.config.date_format);
 
     this.raw_data.forEach(d => {
         //Concatenate form and field to avoid duplicates across forms.
@@ -38,5 +39,24 @@ export default function defineNewVariables() {
                     d[queryRecencyCol] = this.config.recencyRangeCategories[i];
             });
         }
+
+        //Add date variables.
+        try {
+            d.qo_open_date = dateFormat.parse(d[this.config.open_date_col]);
+        } catch (error) {
+            d.qo_open_date = null;
+        }
+        try {
+            d.qo_response_date = dateFormat.parse(d[this.config.response_date_col]);
+        } catch (error) {
+            d.qo_response_date = null;
+        }
+        try {
+            d.qo_resolved_date = dateFormat.parse(d[this.config.resolved_date_col]);
+        } catch (error) {
+            d.qo_resolved_date = null;
+        }
     });
+    this.initial_data = this.raw_data;
+    this.variables = Object.keys(this.raw_data[0]);
 }

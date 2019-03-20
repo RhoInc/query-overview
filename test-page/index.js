@@ -1,6 +1,5 @@
 d3.csv(
-    //'https://raw.githubusercontent.com/RhoInc/viz-library/master/data/queries/queries.csv',
-    '../../viz-library/data/dataCleaning/queries/queries.csv',
+    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/queries.csv',
     function(error,data) {
         if (error)
             console.log(error);

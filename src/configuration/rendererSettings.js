@@ -8,6 +8,10 @@ export default function rendererSettings() {
         site_col: 'sitename',
         marking_group_col: 'markinggroup',
         visit_col: 'folderoid',
+        open_date_col: 'queryopendt',
+        response_date_col: 'queryresponsedt',
+        resolved_date_col: 'queryresolveddt',
+        date_format: '%Y-%m-%d',
         color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
 
         //query age

@@ -132,6 +132,74 @@ export default function styles() {
                 '    margin: 0 auto;' +
                 '}',
 
+                //sliders
+                '.qo-slider-container {' +
+                    '    position: relative;' +
+                    '    width: 100%;' +
+                    '    height: 30px;' +
+                    '    display: inline-block;' +
+                    '}',
+                '.qo-slider-container > * {' +
+                    '    display: inline-block;' +
+                    '}',
+                '.qo-slider-missing {' +
+                    '    float: left;' +
+                    '    clear: right;' +
+                    '}',
+                '.qo-subsetter--open-date .qo-slider-missing {' +
+                    '    display: none;' +
+                    '}',
+                '.qo-slider {' +
+                    '    width: 100%;' +
+                    '    pointer-events: none;' +
+                    '    position: absolute;' +
+                    '    height: 15px;' +
+                    '    top: 1px;' +
+                    '    overflow: hidden;' +
+                    '    outline: none;' +
+                    '}',
+                '.qo-slider-annotation {' +
+                    '    width: 100%;' +
+                    '    position: absolute;' +
+                    '    font-size: 12px;' +
+                    '    top: 16px;' +
+                    '    overflow: hidden;' +
+                    '    font-weight: normal;' +
+                    '    z-index: -1;' +
+                    '}',
+                '.qo-slider-annotation--lower {' + '    text-align: left;' + '}',
+                '.qo-slider-annotation--upper {' + '    text-align: right;' +
+                    '    width: 50%;' +
+                    '    position: absolute;' +
+                    '    right: 0;' +
+                    '    bottom: 0;' +
+                    '}',
+                '.qo-slider::-webkit-slider-thumb {' +
+                    '    pointer-events: all;' +
+                    '    position: relative;' +
+                    '    z-index: 1;' +
+                    '    outline: 0;' +
+                    '}',
+                '.qo-slider::-moz-range-thumb {' +
+                    '    pointer-events: all;' +
+                    '    position: relative;' +
+                    '    z-index: 10;' +
+                    '    -moz-appearance: none;' +
+                    '    width: 9px;' +
+                    '}',
+                '.qo-slider::-moz-range-track {' +
+                    '    position: relative;' +
+                    '    z-index: -1;' +
+                    '    background-color: rgba(0, 0, 0, 1);' +
+                    '    border: 0;' +
+                    '}',
+                '.qo-slider::-moz-range-track {' +
+                    '    -moz-appearance: none;' +
+                    '    background: none transparent;' +
+                    '    border: 0;' +
+                    '}',
+                '.qo-slider::-moz-focus-outer {' + '    border: 0;' + '}',
+
         /***--------------------------------------------------------------------------------------\
           Chart
         \--------------------------------------------------------------------------------------***/

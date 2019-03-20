@@ -202,6 +202,10 @@
             site_col: 'sitename',
             marking_group_col: 'markinggroup',
             visit_col: 'folderoid',
+            open_date_col: 'queryopendt',
+            response_date_col: 'queryresponsedt',
+            resolved_date_col: 'queryresolveddt',
+            date_format: '%Y-%m-%d',
             color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
 
             //query age
@@ -644,8 +648,8 @@
     function styles() {
         var styles = [
             /***--------------------------------------------------------------------------------------\
-        Framework
-      \--------------------------------------------------------------------------------------***/
+          Framework
+        \--------------------------------------------------------------------------------------***/
 
             '.query-overview {' + '    width: 100%;' + '    display: inline-block;' + '}',
             '.qo-row {' + '    width: 100%;' + '    display: inline-block;' + '}',
@@ -654,8 +658,8 @@
             '.qo-row--bottom {' + '}',
 
             /***--------------------------------------------------------------------------------------\
-        Controls
-      \--------------------------------------------------------------------------------------***/
+          Controls
+        \--------------------------------------------------------------------------------------***/
 
             '.qo-component--controls {' + '    width: 100%;' + '}',
             '.qo-component--controls .wc-controls {' + '    margin-bottom: 0;' + '}',
@@ -675,8 +679,8 @@
             '.span-description {' + '    display: none !important;' + '}',
 
             /****---------------------------------------------------------------------------------\
-        Other controls
-      \---------------------------------------------------------------------------------****/
+          Other controls
+        \---------------------------------------------------------------------------------****/
 
             '.qo-control-grouping--other-controls {' +
                 '    width: 20%;' +
@@ -717,8 +721,8 @@
             '.qo-checkbox .changer {' + '    margin-top: 5px !important;' + '}',
 
             /****---------------------------------------------------------------------------------\
-        Filters
-      \---------------------------------------------------------------------------------****/
+          Filters
+        \---------------------------------------------------------------------------------****/
 
             '.qo-control-grouping--filters {' +
                 '    width: 20%;' +
@@ -739,9 +743,71 @@
             '.qo-select-all {' + '}',
             '.qo-subsetter .changer {' + '    margin: 0 auto;' + '}',
 
+            //sliders
+            '.qo-slider-container {' +
+                '    position: relative;' +
+                '    width: 100%;' +
+                '    height: 30px;' +
+                '    display: inline-block;' +
+                '}',
+            '.qo-slider-container > * {' + '    display: inline-block;' + '}',
+            '.qo-slider-missing {' + '    float: left;' + '    clear: right;' + '}',
+            '.qo-subsetter--open-date .qo-slider-missing {' + '    display: none;' + '}',
+            '.qo-slider {' +
+                '    width: 100%;' +
+                '    pointer-events: none;' +
+                '    position: absolute;' +
+                '    height: 15px;' +
+                '    top: 1px;' +
+                '    overflow: hidden;' +
+                '    outline: none;' +
+                '}',
+            '.qo-slider-annotation {' +
+                '    width: 100%;' +
+                '    position: absolute;' +
+                '    font-size: 12px;' +
+                '    top: 16px;' +
+                '    overflow: hidden;' +
+                '    font-weight: normal;' +
+                '    z-index: -1;' +
+                '}',
+            '.qo-slider-annotation--lower {' + '    text-align: left;' + '}',
+            '.qo-slider-annotation--upper {' +
+                '    text-align: right;' +
+                '    width: 50%;' +
+                '    position: absolute;' +
+                '    right: 0;' +
+                '    bottom: 0;' +
+                '}',
+            '.qo-slider::-webkit-slider-thumb {' +
+                '    pointer-events: all;' +
+                '    position: relative;' +
+                '    z-index: 1;' +
+                '    outline: 0;' +
+                '}',
+            '.qo-slider::-moz-range-thumb {' +
+                '    pointer-events: all;' +
+                '    position: relative;' +
+                '    z-index: 10;' +
+                '    -moz-appearance: none;' +
+                '    width: 9px;' +
+                '}',
+            '.qo-slider::-moz-range-track {' +
+                '    position: relative;' +
+                '    z-index: -1;' +
+                '    background-color: rgba(0, 0, 0, 1);' +
+                '    border: 0;' +
+                '}',
+            '.qo-slider::-moz-range-track {' +
+                '    -moz-appearance: none;' +
+                '    background: none transparent;' +
+                '    border: 0;' +
+                '}',
+            '.qo-slider::-moz-focus-outer {' + '    border: 0;' + '}',
+
             /***--------------------------------------------------------------------------------------\
-        Chart
-      \--------------------------------------------------------------------------------------***/
+          Chart
+        \--------------------------------------------------------------------------------------***/
 
             '.qo-component--chart {' +
                 '    width: 58%;' +
@@ -780,8 +846,8 @@
                 '}',
 
             /***--------------------------------------------------------------------------------------\
-        Listing
-      \--------------------------------------------------------------------------------------***/
+          Listing
+        \--------------------------------------------------------------------------------------***/
 
             '.qo-component--listing {' + '    width: 100%;' + '}',
             '.qo-button--reset-listing {' +
@@ -814,14 +880,14 @@
                   return d.value_col;
               })
             : Object.keys(this.raw_data[0]).filter(function(key) {
-                  return key !== 'Form: Field';
+                  return key !== 'Form: Field' && !/^qo_/.test(key);
               });
         this.listing.config.headers = this.config.details
             ? this.config.details.map(function(d) {
                   return d.label;
               })
             : Object.keys(this.raw_data[0]).filter(function(key) {
-                  return key !== 'Form: Field';
+                  return key !== 'Form: Field' && !/^qo_/.test(key);
               });
     }
 
@@ -834,6 +900,7 @@
         var queryRecencyCol = this.config.filters.find(function(filter) {
             return filter.label === 'Query Recency';
         }).value_col;
+        var dateFormat = d3.time.format(this.config.date_format);
 
         this.raw_data.forEach(function(d) {
             //Concatenate form and field to avoid duplicates across forms.
@@ -871,7 +938,26 @@
                         d[queryRecencyCol] = _this.config.recencyRangeCategories[i];
                 });
             }
+
+            //Add date variables.
+            try {
+                d.qo_open_date = dateFormat.parse(d[_this.config.open_date_col]);
+            } catch (error) {
+                d.qo_open_date = null;
+            }
+            try {
+                d.qo_response_date = dateFormat.parse(d[_this.config.response_date_col]);
+            } catch (error) {
+                d.qo_response_date = null;
+            }
+            try {
+                d.qo_resolved_date = dateFormat.parse(d[_this.config.resolved_date_col]);
+            } catch (error) {
+                d.qo_resolved_date = null;
+            }
         });
+        this.initial_data = this.raw_data;
+        this.variables = Object.keys(this.raw_data[0]);
     }
 
     function defineQueryStatusSet() {
@@ -1365,6 +1451,186 @@
         });
     }
 
+    function layout$1(dateRange) {
+        //container
+        dateRange.container = this.controls.filters.container
+            .append('div')
+            .datum(dateRange)
+            .classed(
+                'control-group qo-subsetter qo-subsetter--' +
+                    dateRange.property +
+                    '-date qo-slider-container',
+                true
+            );
+
+        //label
+        dateRange.container
+            .append('span')
+            .classed('wc-control-label qo-slider-label', true)
+            .attr('title', 'Choose a range of query ' + dateRange.property + ' dates.')
+            .text(dateRange.label);
+
+        //missing dates
+        dateRange.container
+            .append('label')
+            .classed('qo-slider-missing', true)
+            .text('Include missing dates: ')
+            .append('input')
+            .classed('qo-slider-missing__checkbox', true)
+            .attr('type', 'checkbox')
+            .attr(
+                'title',
+                'If checked, queries without a ' +
+                    dateRange.property +
+                    ' date will be included in addition to queries with a date that falls in the date range defined above.'
+            )
+            .property('checked', dateRange.includeMissing);
+
+        //lower slider
+        dateRange.lowerSlider = dateRange.container
+            .append('input')
+            .classed('qo-slider qo-slider--lower', true)
+            .attr({
+                type: 'range',
+                step: 24 * 60 * 60 * 1000,
+                min: dateRange.range[0].getTime(),
+                max: dateRange.range[1].getTime()
+            })
+            .property('value', dateRange.range[0].getTime());
+
+        dateRange.lowerAnnotation = dateRange.container
+            .append('span')
+            .classed('qo-slider-annotation qo-slider-annotation--lower', true);
+
+        //upper slider
+        dateRange.upperSlider = dateRange.container
+            .append('input')
+            .classed('qo-slider qo-slider--upper', true)
+            .attr({
+                type: 'range',
+                step: 24 * 60 * 60 * 1000,
+                min: dateRange.range[0].getTime(),
+                max: dateRange.range[1].getTime()
+            })
+            .property('value', dateRange.range[1].getTime());
+
+        dateRange.upperAnnotation = dateRange.container
+            .append('span')
+            .classed('qo-slider-annotation qo-slider-annotation--upper', true);
+    }
+
+    function update(dateRange) {
+        console.log(dateRange.lower);
+        console.log(dateRange.upper);
+
+        //update lower slider and annotation
+        dateRange.lowerAnnotation.text(d3.time.format(this.config.date_format)(dateRange.lower));
+
+        //update upper slider and annotation
+        dateRange.upperAnnotation.text(d3.time.format(this.config.date_format)(dateRange.upper));
+    }
+
+    function filter() {
+        var _this = this;
+
+        this.raw_data = this.initial_data;
+
+        var _loop = function _loop(prop) {
+            var dateRange = _this.controls.dateRanges[prop];
+            _this.raw_data = _this.raw_data.filter(function(d) {
+                var date = d[dateRange.dateVariable];
+                return dateRange.includeMissing
+                    ? date === null ||
+                          (dateRange.lower.getTime() <= date.getTime() &&
+                              date.getTime() <= dateRange.upper.getTime())
+                    : date !== null &&
+                          dateRange.lower.getTime() <= date.getTime() &&
+                          date.getTime() <= dateRange.upper.getTime();
+            });
+        };
+
+        for (var prop in this.controls.dateRanges) {
+            _loop(prop);
+        }
+    }
+
+    function listen(dateRange) {
+        var context = this;
+
+        //Attach an event listener to sliders.
+        dateRange.sliders = dateRange.container.selectAll('.qo-slider').on('change', function(d) {
+            var sliders = this.parentNode.querySelectorAll('input[type=range]');
+            var slider1 = parseFloat(sliders[0].value);
+            var slider2 = parseFloat(sliders[1].value);
+
+            if (slider1 <= slider2) {
+                d.lower = new Date(slider1);
+                d.upper = new Date(slider2);
+            } else {
+                d.lower = new Date(slider2);
+                d.upper = new Date(slider1);
+            }
+
+            update.call(context, d);
+            filter.call(context);
+            context.draw();
+
+            //Reset listing.
+            context.listing.wrap.selectAll('*').remove();
+            context.listing.init(context.filtered_data);
+        });
+
+        //Attach an event listener to checkboxes
+        dateRange.checkboxes = dateRange.container
+            .selectAll('.qo-slider-missing__checkbox')
+            .on('change', function(d) {
+                d.includeMissing = this.checked;
+
+                filter.call(context);
+                context.draw();
+
+                //Reset listing.
+                context.listing.wrap.selectAll('*').remove();
+                context.listing.init(context.filtered_data);
+            });
+    }
+
+    function addDateRangeControls() {
+        var _this = this;
+
+        this.controls.dateRanges = {
+            open: {},
+            response: {},
+            resolved: {}
+        };
+
+        var _loop = function _loop(date) {
+            var dateRange = _this.controls.dateRanges[date];
+            dateRange.property = date;
+            dateRange.setting = date + '_date_col';
+            dateRange.variable = _this.config[dateRange.setting];
+            dateRange.dateVariable = 'qo_' + date + '_date';
+            dateRange.label =
+                '' + date.substring(0, 1).toUpperCase() + date.substring(1).toLowerCase() + ' Date';
+            dateRange.includeMissing = true;
+            dateRange.variableExists = _this.variables.indexOf(dateRange.variable) > -1;
+            if (dateRange.variableExists) {
+                dateRange.range = d3.extent(_this.raw_data, function(d) {
+                    return d[dateRange.dateVariable];
+                });
+                dateRange.lower = dateRange.range[0];
+                dateRange.upper = dateRange.range[1];
+                layout$1.call(_this, dateRange);
+                update.call(_this, dateRange);
+                listen.call(_this, dateRange);
+            }
+        };
+
+        for (var date in this.controls.dateRanges) {
+            _loop(date);
+        }
+    }
+
     function sortQueryRecencyOptions() {
         this.controls.filters.selects
             .filter(function(d) {
@@ -1415,7 +1681,7 @@
             .on('click', function() {
                 var element = _this.element;
                 var settings = clone(_this.initialSettings);
-                var data = clone(_this.raw_data);
+                var data = clone(_this.initial_data);
                 _this.listing.destroy();
                 _this.destroy();
                 d3
@@ -1495,6 +1761,9 @@
 
         //Update filter event listeners to toggle select all checkbox on change.
         updateFilterEventListeners.call(this);
+
+        //Add date range controls.
+        addDateRangeControls.call(this);
 
         //Sort query recency categories numerically if possible.
         sortQueryRecencyOptions.call(this);

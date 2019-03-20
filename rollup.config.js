@@ -1,8 +1,10 @@
 import babel from 'rollup-plugin-babel';
+import nodeResolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 
 var pkg = require('./package.json');
 
-module.exports = {
+export default {
     input: pkg.module,
     output: {
         name: pkg.name
@@ -17,7 +19,8 @@ module.exports = {
         format: 'umd',
         globals: {
             d3: 'd3',
-            webcharts: 'webCharts'
+            webcharts: 'webCharts',
+            nouislider: 'nouislider'
         },
     },
     external: (function() {
@@ -26,6 +29,16 @@ module.exports = {
         return Object.keys(dependencies);
     }()),
     plugins: [
+        nodeResolve({
+            jsnext: true,
+            main: true
+        }),
+        commonjs({
+            include: 'node_modules/**',
+            namedExports: {
+                'node_modules/nouislider/distribute/nouislider.js': [ 'nouislider' ]
+            },
+        }),
         babel({
             exclude: 'node_modules/**',
             presets: [

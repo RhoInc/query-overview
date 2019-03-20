@@ -9,7 +9,7 @@ export default function addResetButton() {
         .on('click', () => {
             const element = this.element;
             const settings = clone(this.initialSettings);
-            const data = clone(this.raw_data);
+            const data = clone(this.initial_data);
             this.listing.destroy();
             this.destroy();
             d3
