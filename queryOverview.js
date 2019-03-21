@@ -2016,15 +2016,22 @@
     }
 
     function mouseoverAttrib(bar, selected) {
-        if (!selected)
+        if (!selected) {
+            var BBox = bar.node().getBBox();
+            var offset = BBox.width > 2.5 ? 2.5 : BBox.width / 2; // for bars 2.5px wide or narrower
             bar.attr({
                 width: function width(d) {
-                    return this.getBBox().width - 2.5;
+                    d.BBox = BBox;
+                    d.BBox.width = BBox.width - offset;
+                    d.offset = offset;
+                    return d.BBox.width;
                 },
                 x: function x(d) {
-                    return this.getBBox().x + 2.5;
+                    d.BBox.x = BBox.x + offset;
+                    return d.BBox.x;
                 }
             });
+        }
     }
 
     function mouseoutStyle(bar, selected) {
@@ -2044,15 +2051,18 @@
     function mouseoutAttrib(bar, selected) {
         var clear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-        if (!(selected || clear) || (selected && clear))
+        if (!(selected || clear) || (selected && clear)) {
             bar.attr({
                 width: function width(d) {
-                    return this.getBBox().width + 2.5;
+                    d.BBox.width = d.BBox.width + d.offset;
+                    return d.BBox.width;
                 },
                 x: function x(d) {
-                    return this.getBBox().x - 2.5;
+                    d.BBox.x = d.BBox.x - d.offset;
+                    return d.BBox.x;
                 }
             });
+        }
     }
 
     function initListing() {
