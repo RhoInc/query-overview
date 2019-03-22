@@ -60,12 +60,12 @@ export default function updateColumnSorting() {
                     .select('.instruction')
                     .classed('hidden', context.sortable.order.length);
 
-                //Redraw chart.
+                //Redraw table.
                 manualSort.call(context);
             });
         });
 
-        //Redraw chart.
+        //Redraw table.
         manualSort.call(context);
     });
 }

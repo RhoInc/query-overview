@@ -54,6 +54,6 @@ export default function rendererSettings() {
         cutoff: 'All',
         alphabetize: true,
         truncate_listing_cells: true,
-        truncation_cutoff: 100,
+        truncation_cutoff: 100
     };
 }

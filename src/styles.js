@@ -198,6 +198,14 @@ export default function styles() {
             '    transform: rotate(180deg);' +
             '    -webkit-transform: rotate(180deg); ' +
             '}',
+            '.qo-table th {' +
+            '    white-space: nowrap;' +
+            '}',
+            '.qo-table th,' +
+            '.qo-table td {' +
+            '    min-width: 100px;' +
+            '    padding-right: 10px !important;' +
+            '}',
     ];
 
     //Attach styles to DOM.
