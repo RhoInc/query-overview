@@ -5,6 +5,42 @@ In addition to the standard Webcharts settings several custom settings not avail
 # Renderer-specific settings
 The sections below describe each query-overview setting as of version 2.0.0.
 
+## settings.site_col
+`string`
+
+site variable name
+
+**default:** `"sitename"`
+
+
+
+## settings.id_col
+`string`
+
+participant ID variable name
+
+**default:** `"subjectnameoridentifier"`
+
+
+
+## settings.visit_col
+`string`
+
+visit/folder variable name
+
+**default:** `"folderoid"`
+
+
+
+## settings.visitDescription_col
+`string`
+
+visit/folder description variable name
+
+**default:** `"folderoid"`
+
+
+
 ## settings.form_col
 `string`
 
@@ -37,16 +73,7 @@ field variable name
 
 field description variable name
 
-**default:** `"null"`
-
-
-
-## settings.site_col
-`string`
-
-site variable name
-
-**default:** `"sitename"`
+**default:** `"fieldlabel"`
 
 
 
@@ -59,21 +86,134 @@ query origin variable name
 
 
 
-## settings.visit_col
+## settings.open_by_col
 `string`
 
-visit/folder variable name
+entity opening query variable name
 
-**default:** `"folderoid"`
+**default:** `"queryopenby"`
 
 
 
-## settings.color_by_col
+## settings.query_col
 `string`
 
-coloring variable name of query categorization: query age, query status, or any custom categorization; note that _queryage_ is derived by the renderer
+query text variable name
 
-**default:** `"queryage"`
+**default:** `"querytext"`
+
+
+
+## settings.query_response_col
+`string`
+
+query response text variable name
+
+**default:** `"queryresponsetext"`
+
+
+
+## settings.status_col
+`string`
+
+query status variable name
+
+**default:** `"querystatus"`
+
+
+
+## settings.status_order
+`array`
+
+an array of query statuses that dictates how they are ordered in the legend and chart
+
+**default:** 
+```
+[
+  "Open",
+  "Answered",
+  "Closed",
+  "Cancelled"
+]
+```
+
+
+
+## settings.status_colors
+`array`
+
+an array of colors that determines the colors for query statuses
+
+**default:** 
+```
+[
+  "#fd8d3c",
+  "#4daf4a",
+  "#377eb8",
+  "#999999"
+]
+```
+
+
+
+## settings.open_date_col
+`string`
+
+query open date variable name
+
+**default:** `"queryopendate"`
+
+
+
+## settings.response_date_col
+`string`
+
+query response date variable name
+
+**default:** `"queryresponsedate"`
+
+
+
+## settings.resolved_date_col
+`string`
+
+query resolution date variable name
+
+**default:** `"queryresolveddate"`
+
+
+
+## settings.recency_category_col
+`string`
+
+query recency category variable name; overrides `recency_col`
+
+**default:** `"open_time"`
+
+
+
+## settings.recency_col
+`string`
+
+query recency variable measured in days between query open date and data snapshot date, regardless of query status
+
+**default:** `"odays"`
+
+
+
+## settings.recency_cutoffs
+`array`
+
+an array of query recency cutoffs for which query recency range will be derived
+
+**default:** 
+```
+[
+  7,
+  14,
+  30
+]
+```
 
 
 
@@ -139,80 +279,12 @@ an array of colors with which to color query age range categories; only as many 
 
 
 
-## settings.status_col
+## settings.color_by_col
 `string`
 
-query status variable name
+coloring variable name of query categorization: query age, query status, or any custom categorization; note that _queryage_ is derived by the renderer
 
-**default:** `"querystatus"`
-
-
-
-## settings.status_order
-`array`
-
-an array of query statuses that dictates how they are ordered in the legend and chart
-
-**default:** 
-```
-[
-  "Open",
-  "Answered",
-  "Closed",
-  "Cancelled"
-]
-```
-
-
-
-## settings.status_colors
-`array`
-
-an array of colors that determines the colors for query statuses
-
-**default:** 
-```
-[
-  "#fd8d3c",
-  "#4daf4a",
-  "#377eb8",
-  "#999999"
-]
-```
-
-
-
-## settings.recency_category_col
-`string`
-
-query recency category variable name; overrides `recency_col`
-
-**default:** `"open_time"`
-
-
-
-## settings.recency_col
-`string`
-
-query recency variable measured in days between query open date and data snapshot date, regardless of query status
-
-**default:** `"odays"`
-
-
-
-## settings.recency_cutoffs
-`array`
-
-an array of query recency cutoffs for which query recency range will be derived
-
-**default:** 
-```
-[
-  7,
-  14,
-  30
-]
-```
+**default:** `"queryage"`
 
 
 

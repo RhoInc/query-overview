@@ -1,3 +1,5 @@
+import updateSelectAll from './updateSelectAll';
+
 export default function syncQueryAgeAndStatus(d, selectedOptions) {
     let filter;
     let select;
@@ -22,4 +24,5 @@ export default function syncQueryAgeAndStatus(d, selectedOptions) {
     select.selectAll('option').property('selected', di => {
         return correspondingOptions.indexOf(di) > -1;
     });
+    updateSelectAll.call(this, select.datum(), correspondingOptions);
 }
