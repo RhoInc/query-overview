@@ -1248,45 +1248,84 @@
             });
     }
 
+    function syncQueryAgeAndStatus(d, checked) {
+        var checkbox =
+            d.label === 'Query Age'
+                ? this.controls.filters.checkboxes.filter(function(di) {
+                      return di.label === 'Query Status';
+                  })
+                : this.controls.filters.checkboxes.filter(function(di) {
+                      return di.label === 'Query Age';
+                  });
+        checkbox.property('checked', checked);
+        var datum = checkbox.datum();
+
+        //Update checkbox tooltip.
+        checkbox.attr(
+            'title',
+            checked
+                ? 'Deselect all ' + datum.label + ' options'
+                : 'Select all ' + datum.label + ' options'
+        );
+
+        //Update filter object.
+        var filter = this.filters.find(function(filter) {
+            return filter.col === datum.value_col;
+        });
+        if (checked) filter.val = filter.choices;
+        else filter.val = [];
+    }
+
+    function updateFilter(d, element) {
+        var checkbox = d3.select(element);
+        var checked = element.checked;
+
+        //Update checkbox tooltip.
+        checkbox.attr(
+            'title',
+            checked ? 'Deselect all ' + d.label + ' options' : 'Select all ' + d.label + ' options'
+        );
+
+        //Update filter object.
+        var filter = this.filters.find(function(filter) {
+            return filter.col === d.value_col;
+        });
+        if (checked) filter.val = filter.choices;
+        else filter.val = [];
+
+        //Sync query age and status filters.
+        syncQueryAgeAndStatus.call(this, d, checked);
+
+        //Redraw.
+        this.draw();
+    }
+
     function addSelectAll() {
         var context = this;
 
         this.controls.filters.labels
             .filter(function(d) {
                 return d.multiple;
-            })
+            }) // only multi-selects
             .each(function(d) {
+                //Add checkbox to filter label.
                 var label = d3
                     .select(this)
                     .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
+
+                //Add event listener to select-all checkbox.
                 var checkbox = label
                     .select('input')
                     .datum(d)
                     .attr('title', 'Deselect all ' + d.label + ' options')
                     .property('checked', true)
                     .on('click', function(di) {
-                        var checkbox = d3.select(this);
-                        var checked = this.checked;
-
-                        //Update checkbox tooltip.
-                        checkbox.attr(
-                            'title',
-                            checked
-                                ? 'Deselect all ' + di.label + ' options'
-                                : 'Select all ' + di.label + ' options'
-                        );
-
-                        //Update filter object.
-                        var filter = context.filters.find(function(filter) {
-                            return filter.col === di.value_col;
-                        });
-                        if (checked) filter.val = filter.choices;
-                        else filter.val = [];
-
-                        //Redraw.
-                        context.draw();
+                        //Update filter dropdown.
+                        updateFilter.call(context, di, this);
                     });
             });
+
+        //Attach checkboxes to filters object.
         this.controls.filters.checkboxes = this.controls.filters.labels.selectAll('.qo-select-all');
     }
 
@@ -1314,12 +1353,13 @@
         }
     }
 
-    function syncQueryAgeAndStatus(d, selectedOptions) {
+    function syncQueryAgeAndStatus$1(d, selectedOptions) {
         var _this = this;
 
         var filter = void 0;
         var select = void 0;
         var map = void 0;
+
         if (d.value_col === 'queryage') {
             filter = this.filters.find(function(filter) {
                 return filter.col === _this.config.status_col;
@@ -1337,30 +1377,45 @@
             });
             map = this.maps.querystatus;
         }
-        var correspondingOptions = d3.merge(
-            Object.keys(map)
-                .filter(function(key) {
-                    return selectedOptions.indexOf(key) > -1;
-                })
-                .map(function(key) {
-                    return map[key];
-                })
-        );
+
+        var correspondingOptions = d3
+            .set(
+                d3.merge(
+                    Object.keys(map)
+                        .filter(function(key) {
+                            return selectedOptions.indexOf(key) > -1;
+                        })
+                        .map(function(key) {
+                            return map[key];
+                        })
+                )
+            )
+            .values();
         filter.val = correspondingOptions;
         select.selectAll('option').property('selected', function(di) {
             return correspondingOptions.indexOf(di) > -1;
         });
+
+        //Update select-all checkbox.
+        updateSelectAll.call(this, select.datum(), correspondingOptions);
     }
 
     function updateFilterEventListeners() {
         var context = this;
 
+        //Update filter event listeners.
         this.controls.filters.selects.on('change', function(d) {
             var select = d3.select(this);
             var selectedOptions = select.selectAll('option:checked').data();
+
+            //Update select-all checkbox.
             updateSelectAll.call(context, d, selectedOptions);
-            if (['queryage', context.config.status_col].indexOf(d.value_col) > -1)
-                syncQueryAgeAndStatus.call(context, d, selectedOptions);
+
+            //Sync query age and query status filters.
+            if (['Query Age', 'Query Status'].indexOf(d.label) > -1)
+                syncQueryAgeAndStatus$1.call(context, d, selectedOptions);
+
+            //Redraw.
             context.draw();
         });
     }
@@ -1727,7 +1782,7 @@
                 })
                 .property('selected', true); // set selected property of status options corresponding to selected statuses to true
             updateSelectAll.call(context, statusControlGroup.datum(), selectedLegendItems);
-            syncQueryAgeAndStatus.call(context, statusControlGroup.datum(), selectedLegendItems);
+            syncQueryAgeAndStatus$1.call(context, statusControlGroup.datum(), selectedLegendItems);
             var filtered_data = context.raw_data.filter(function(d) {
                 var filtered = selectedLegendItems.indexOf(d[context.config.marks[0].split]) === -1;
 
