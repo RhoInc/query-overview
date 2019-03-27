@@ -35,7 +35,8 @@ export default function updateColumnSorting() {
                 context.sortable.order.push(sortItem);
             } else {
                 //Otherwise reverse its sort direction.
-                sortItem.direction = sortItem.direction === 'ascending' ? 'descending' : 'ascending';
+                sortItem.direction =
+                    sortItem.direction === 'ascending' ? 'descending' : 'ascending';
                 sortItem.wrap
                     .select('span.sort-direction')
                     .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');

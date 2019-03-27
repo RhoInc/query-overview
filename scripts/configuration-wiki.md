@@ -1,4 +1,4 @@
-The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.
+The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [chartSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/configuration/chartSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.
 
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
@@ -37,7 +37,7 @@ visit/folder variable name
 
 visit/folder description variable name
 
-**default:** `"folderoid"`
+**default:** `"folderinstancename"`
 
 
 
@@ -183,21 +183,21 @@ query resolution date variable name
 
 
 
-## settings.recency_category_col
-`string`
-
-query recency category variable name; overrides `recency_col`
-
-**default:** `"open_time"`
-
-
-
 ## settings.recency_col
 `string`
 
 query recency variable measured in days between query open date and data snapshot date, regardless of query status
 
 **default:** `"odays"`
+
+
+
+## settings.recency_category_col
+`string`
+
+query recency category variable name; overrides `recency_col`
+
+**default:** `"open_time"`
 
 
 
@@ -483,7 +483,7 @@ The objects below contain Webcharts settings for each display as of version 2.0.
         "order": null
     },
     "margin": {
-        "right": "50"
+        "right": 50
     },
     "range_band": 25
 }
@@ -492,7 +492,10 @@ The objects below contain Webcharts settings for each display as of version 2.0.
 ## Listing
 ```
 {
-    "nRowsPerPage": 25,
-    "exportable": true
+    "searchable": true,
+    "sortable": true,
+    "pagination": true,
+    "exportable": true,
+    "nRowsPerPage": 10
 }
 ```

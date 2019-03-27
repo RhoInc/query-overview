@@ -35,10 +35,7 @@ export default function queryOverview(element = 'body', settings = {}) {
         chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
 
     //Listing
-    const listing = createTable(
-        containers.listing.node(),
-        syncedSettings
-    );
+    const listing = createTable(containers.listing.node(), syncedSettings);
     listing.element = element;
     listing.initialSettings = clone(mergedSettings);
     for (const callback in listingCallbacks)
