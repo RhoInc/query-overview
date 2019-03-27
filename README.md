@@ -1,5 +1,5 @@
 # Query Overview
-![alt tag](https://user-images.githubusercontent.com/31038805/34172985-d388587a-e4c1-11e7-9ca7-0b2d24de0dbc.gif)
+![alt tag](https://user-images.githubusercontent.com/5428548/55093961-cc504680-508b-11e9-846e-b12a6252617d.gif)
 
 ## Overview
 Query Overview is a JavaScript library built using Webcharts ([1](https://github.com/RhoInc/Webcharts), [2](https://github.com/RhoInc/webcharts-wrapper-boilerplate)) that creates an interactive bar chart showing the distribution of queries that have been issued regarding data collected in a clinical trial.
@@ -7,7 +7,7 @@ A typical chart created with query-overview looks like the chart pictured above.
 
 Clicking on a bar outputs a listing of the queries themselves: 
 
-![Listing](https://github.com/RhoInc/query-overview/wiki/img/listing.PNG)
+![Listing](https://user-images.githubusercontent.com/5428548/55092769-87c3ab80-5089-11e9-8c39-8743eeea7fd7.png)
 
 Users can group, rearrange, and sort the bars and filter the data; the full functionality is described [here](https://github.com/RhoInc/query-overview/wiki/Technical-Documentation).
 The library expects a dataset with site, visit, form, field, query status, and query age columns.

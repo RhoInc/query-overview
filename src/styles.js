@@ -197,6 +197,7 @@ export default function styles() {
             '    width: 100%;' +
             '    transform: rotate(180deg);' +
             '    -webkit-transform: rotate(180deg); ' +
+            '    display: table;' +
             '}',
             '.qo-table th {' +
             '    white-space: nowrap;' +
