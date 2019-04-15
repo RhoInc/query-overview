@@ -2,6 +2,7 @@ import defineListingSettings from './onInit/defineListingSettings';
 import defineNewVariables from './onInit/defineNewVariables';
 import defineQueryStatusSet from './onInit/defineQueryStatusSet';
 import defineQueryRecencySet from './onInit/defineQueryRecencySet';
+import defineMaps from './onInit/defineMaps';
 import removeInvalidControls from './onInit/removeInvalidControls';
 
 export default function onInit() {
@@ -16,6 +17,9 @@ export default function onInit() {
 
     //Define detail listing settings.
     defineListingSettings.call(this);
+
+    //Define query age and query status maps.
+    defineMaps.call(this);
 
     //hide controls that do not have their variable supplied
     removeInvalidControls.call(this);
