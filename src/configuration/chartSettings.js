@@ -29,7 +29,7 @@ export default function chartSettings() {
             order: null // set in syncSettings()
         },
         margin: {
-            right: '50' // room for count annotation
+            right: 50 // room for count annotation
         },
         range_band: 25
     };

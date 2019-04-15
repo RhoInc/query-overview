@@ -23,9 +23,9 @@ export default function rendererSettings() {
         open_date_col: 'queryopendate',
         response_date_col: 'queryresponsedate',
         resolved_date_col: 'queryresolveddate',
-        recency_category_col: 'open_time',
         recency_col: 'odays',
         recency_cutoffs: [7, 14, 30],
+        recency_category_col: 'open_time',
 
         //query age
         age_statuses: ['Open'],

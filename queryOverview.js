@@ -217,9 +217,9 @@
             open_date_col: 'queryopendate',
             response_date_col: 'queryresponsedate',
             resolved_date_col: 'queryresolveddate',
-            recency_category_col: 'open_time',
             recency_col: 'odays',
             recency_cutoffs: [7, 14, 30],
+            recency_category_col: 'open_time',
 
             //query age
             age_statuses: ['Open'],
@@ -283,7 +283,7 @@
                 order: null // set in syncSettings()
             },
             margin: {
-                right: '50' // room for count annotation
+                right: 50 // room for count annotation
             },
             range_band: 25
         };
@@ -291,8 +291,11 @@
 
     function listingSettings() {
         return {
-            nRowsPerPage: 25,
-            exportable: true
+            searchable: true,
+            sortable: true,
+            pagination: true,
+            exportable: true,
+            nRowsPerPage: 10
         };
     }
 
@@ -806,6 +809,7 @@
                 '    width: 100%;' +
                 '    transform: rotate(180deg);' +
                 '    -webkit-transform: rotate(180deg); ' +
+                '    display: table;' +
                 '}',
             '.qo-table th {' + '    white-space: nowrap;' + '}',
             '.qo-table th,' +
@@ -2454,8 +2458,6 @@
     function onLayout$1() {
         addResetButton$1.call(this);
         addTableContainer.call(this);
-        this.wrap.select('.sortable-container').classed('hidden', false);
-        this.table.style('width', '100%').style('display', 'table');
     }
 
     function onPreprocess$1() {}
@@ -2519,78 +2521,80 @@
     function updateColumnSorting() {
         var context = this;
 
-        this.thead_cells.on('click', function(d) {
-            var th = this;
-            var header = d;
-            var selection = d3.select(th);
-            var col = context.config.cols[context.config.headers.indexOf(header)];
+        if (this.config.sortable) {
+            this.thead_cells.on('click', function(d) {
+                var th = this;
+                var header = d;
+                var selection = d3.select(th);
+                var col = context.config.cols[context.config.headers.indexOf(header)];
 
-            //Check if column is already a part of current sort order.
-            var sortItem = context.sortable.order.filter(function(item) {
-                return item.col === col;
-            })[0];
+                //Check if column is already a part of current sort order.
+                var sortItem = context.sortable.order.filter(function(item) {
+                    return item.col === col;
+                })[0];
 
-            //If it isn't, add it to sort order.
-            if (!sortItem) {
-                sortItem = {
-                    col: col,
-                    direction: 'ascending',
-                    wrap: context.sortable.wrap
-                        .append('div')
-                        .datum({ key: col })
-                        .classed('wc-button sort-box', true)
-                        .text(header)
-                };
-                sortItem.wrap
-                    .append('span')
-                    .classed('sort-direction', true)
-                    .html('&darr;');
-                sortItem.wrap
-                    .append('span')
-                    .classed('remove-sort', true)
-                    .html('&#10060;');
-                context.sortable.order.push(sortItem);
-            } else {
-                //Otherwise reverse its sort direction.
-                sortItem.direction =
-                    sortItem.direction === 'ascending' ? 'descending' : 'ascending';
-                sortItem.wrap
-                    .select('span.sort-direction')
-                    .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
-            }
+                //If it isn't, add it to sort order.
+                if (!sortItem) {
+                    sortItem = {
+                        col: col,
+                        direction: 'ascending',
+                        wrap: context.sortable.wrap
+                            .append('div')
+                            .datum({ key: col })
+                            .classed('wc-button sort-box', true)
+                            .text(header)
+                    };
+                    sortItem.wrap
+                        .append('span')
+                        .classed('sort-direction', true)
+                        .html('&darr;');
+                    sortItem.wrap
+                        .append('span')
+                        .classed('remove-sort', true)
+                        .html('&#10060;');
+                    context.sortable.order.push(sortItem);
+                } else {
+                    //Otherwise reverse its sort direction.
+                    sortItem.direction =
+                        sortItem.direction === 'ascending' ? 'descending' : 'ascending';
+                    sortItem.wrap
+                        .select('span.sort-direction')
+                        .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
+                }
 
-            //Hide sort instructions.
-            context.sortable.wrap.select('.instruction').classed('hidden', true);
+                //Hide sort instructions.
+                context.sortable.wrap.select('.instruction').classed('hidden', true);
 
-            //Add sort container deletion functionality.
-            context.sortable.order.forEach(function(item, i) {
-                item.wrap.on('click', function(d) {
-                    //Remove column's sort container.
-                    d3.select(this).remove();
+                //Add sort container deletion functionality.
+                context.sortable.order.forEach(function(item, i) {
+                    item.wrap.on('click', function(d) {
+                        //Remove column's sort container.
+                        d3.select(this).remove();
 
-                    //Remove column from sort.
-                    context.sortable.order.splice(
-                        context.sortable.order
-                            .map(function(d) {
-                                return d.col;
-                            })
-                            .indexOf(d.key),
-                        1
-                    );
+                        //Remove column from sort.
+                        context.sortable.order.splice(
+                            context.sortable.order
+                                .map(function(d) {
+                                    return d.col;
+                                })
+                                .indexOf(d.key),
+                            1
+                        );
 
-                    //Display sorting instruction.
-                    context.sortable.wrap
-                        .select('.instruction')
-                        .classed('hidden', context.sortable.order.length);
+                        //Display sorting instruction.
+                        context.sortable.wrap
+                            .select('.instruction')
+                            .classed('hidden', context.sortable.order.length);
 
-                    //Redraw table.
-                    manualSort.call(context);
+                        //Redraw table.
+                        manualSort.call(context);
+                    });
                 });
-            });
 
-            //Redraw table.
-            manualSort.call(context);
-        });
+                //Redraw table.
+                manualSort.call(context);
+            });
+        }
     }
 
     function truncateCellText() {
@@ -2646,7 +2650,10 @@
         onDestroy: onDestroy$1
     };
 
-    function queryOverview$1(element, settings) {
+    function queryOverview$1() {
+        var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+        var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
         //Settings
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
@@ -2673,10 +2680,7 @@
         for (var callback in chartCallbacks) {
             chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
         } //Listing
-        var listing = webcharts.createTable(containers.listing.node(), {
-            sortable: false,
-            exportable: syncedSettings.exportable
-        });
+        var listing = webcharts.createTable(containers.listing.node(), syncedSettings);
         listing.element = element;
         listing.initialSettings = clone(mergedSettings);
         for (var _callback in listingCallbacks) {
