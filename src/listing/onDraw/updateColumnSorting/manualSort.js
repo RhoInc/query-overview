@@ -8,8 +8,8 @@ export default function manualSort() {
             const aCell = a[item.col];
             const bCell = b[item.col];
             if (
-                item.col !== context.chart.initialSettings.age_col &&
-                item.col !== context.chart.initialSettings.open_col
+                item.col !== context.initialSettings.age_col &&
+                item.col !== context.initialSettings.recency_col
             ) {
                 if (order === 0) {
                     if (

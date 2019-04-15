@@ -40,6 +40,7 @@ export default function queryOverview(element, settings) {
         exportable: syncedSettings.exportable
     });
     listing.element = element;
+    listing.initialSettings = clone(mergedSettings);
     for (const callback in listingCallbacks)
         listing.on(callback.substring(2).toLowerCase(), listingCallbacks[callback]);
 

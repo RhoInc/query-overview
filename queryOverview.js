@@ -195,14 +195,31 @@
     function rendererSettings() {
         return {
             //query variables
+            site_col: 'sitename',
+            id_col: 'subjectnameoridentifier',
+            visit_col: 'folderoid',
+            visitDescription_col: 'folderinstancename',
             form_col: 'formoid',
             formDescription_col: 'ecrfpagename',
             field_col: 'fieldname',
-            fieldDescription_col: null,
-            site_col: 'sitename',
+            fieldDescription_col: 'fieldlabel',
             marking_group_col: 'markinggroup',
-            visit_col: 'folderoid',
-            color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
+            open_by_col: 'queryopenby',
+            query_col: 'querytext',
+            query_response_col: 'queryresponsetext',
+
+            //query status
+            status_col: 'querystatus',
+            status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
+            status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
+
+            //query recency
+            open_date_col: 'queryopendate',
+            response_date_col: 'queryresponsedate',
+            resolved_date_col: 'queryresolveddate',
+            recency_category_col: 'open_time',
+            recency_col: 'odays',
+            recency_cutoffs: [7, 14, 30],
 
             //query age
             age_statuses: ['Open'],
@@ -220,17 +237,8 @@
                 '#800026'
             ],
 
-            //query status
-            status_col: 'querystatus',
-            status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
-            status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
-
-            //query recency
-            recency_category_col: 'open_time',
-            recency_col: 'odays',
-            recency_cutoffs: [7, 14, 30],
-
             //miscellany
+            color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
             groups: null,
             status_groups: null,
             filters: null,
@@ -798,6 +806,12 @@
                 '    width: 100%;' +
                 '    transform: rotate(180deg);' +
                 '    -webkit-transform: rotate(180deg); ' +
+                '}',
+            '.qo-table th {' + '    white-space: nowrap;' + '}',
+            '.qo-table th,' +
+                '.qo-table td {' +
+                '    min-width: 100px;' +
+                '    padding-right: 10px !important;' +
                 '}'
         ];
 
@@ -2257,7 +2271,138 @@
         onDestroy: onDestroy
     };
 
-    function onInit$1() {}
+    function applyVariableMetadata() {
+        var _this = this;
+
+        var variableMetadata = [
+            {
+                variable: this.initialSettings.site_col,
+                label: 'Site',
+                description: 'Site name assigned in EDC system'
+            },
+            {
+                variable: this.initialSettings.id_col,
+                label: 'Participant ID',
+                description: 'Subject ID assigned in EDC system'
+            },
+            {
+                variable: this.initialSettings.visit_col,
+                label: 'Folder OID',
+                description: 'Folder OID as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.visitDescription_col,
+                label: 'Folder',
+                description:
+                    'Name of folder currently displayed in EDC system. If the folder was renamed (e.g. to append a date) this will be reflected here'
+            },
+            {
+                variable: this.initialSettings.form_col,
+                label: 'Form OID',
+                description: 'Form OID as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.formDescription_col,
+                label: 'Form',
+                description:
+                    'Name of the form currently displayed in EDC system. If the form was renamed (e.g. to append a date) this will be reflected here'
+            },
+            {
+                variable: this.initialSettings.field_col,
+                label: 'Field',
+                description: 'Field name as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.fieldDescription_col,
+                label: 'Field Label',
+                description: 'Field label as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.marking_group_col,
+                label: 'Marking Group',
+                description: 'Group opening the query. Options include: CRA, DM, Safety, System'
+            },
+            {
+                variable: this.initialSettings.open_by_col,
+                label: 'Opened by',
+                description: 'Entity opening the query (System or name of individual)'
+            },
+            {
+                variable: this.initialSettings.status_col,
+                label: 'Query Status',
+                description:
+                    'Status of query in EDC system. Options include: Open, answered, closed, cancelled'
+            },
+            {
+                variable: this.initialSettings.open_date_col,
+                label: 'Open Date',
+                description: 'Date query was opened in the system'
+            },
+            {
+                variable: this.initialSettings.response_date_col,
+                label: 'Response Date',
+                description: 'Date query was responded to by the site'
+            },
+            {
+                variable: this.initialSettings.resolved_date_col,
+                label: 'Resolution Date',
+                description: 'Date query was closed'
+            },
+            {
+                variable: this.initialSettings.recency_col,
+                label: 'Query Recency (days)',
+                description:
+                    'Number of days between query open date and data extraction date, regardless of query status.'
+            },
+            {
+                variable: this.initialSettings.recency_category_col,
+                label: 'Query Recency',
+                description:
+                    'Number of days by category between query open date and data extraction date, regardless of query status. Categories include last 7, 14, and 30 days.'
+            },
+            {
+                variable: 'queryrecency',
+                label: 'Query Recency',
+                description:
+                    'Number of days by category between query open date and data extraction date, regardless of query status. Categories include last 7, 14, and 30 days.'
+            },
+            {
+                variable: this.initialSettings.age_col,
+                label: 'Query Age (days)',
+                description:
+                    'Number of days between query open date and data extraction date, query response date, or query resolution date for open, answered, and closed/cancelled queries, respectively.'
+            },
+            {
+                variable: 'queryage',
+                label: 'Query Age',
+                description:
+                    'Number of days by category between query open date and data extraction date, query response date, or query resolution date for open, answered, and closed/cancelled queries, respectively.'
+            },
+            {
+                variable: this.initialSettings.query_col,
+                label: 'Query',
+                description: 'Text of query'
+            },
+            {
+                variable: this.initialSettings.query_response_col,
+                label: 'Query Response',
+                description: 'Site response to the query'
+            }
+        ];
+
+        this.config.descriptions = [];
+        this.config.cols.forEach(function(col, i) {
+            var md = variableMetadata.find(function(variableMetadatum) {
+                return variableMetadatum.variable === col;
+            });
+            _this.config.headers[i] = md ? md.label : col;
+            _this.config.descriptions.push(md ? md.description : col);
+        });
+    }
+
+    function onInit$1() {
+        applyVariableMetadata.call(this);
+    }
 
     function addResetButton$1() {
         var _this = this;
@@ -2315,6 +2460,14 @@
 
     function onPreprocess$1() {}
 
+    function addHeaderTooltips() {
+        var _this = this;
+
+        this.thead_cells.attr('title', function(d, i) {
+            return _this.config.descriptions[i];
+        });
+    }
+
     function manualSort() {
         var _this = this;
 
@@ -2327,8 +2480,8 @@
                 var aCell = a[item.col];
                 var bCell = b[item.col];
                 if (
-                    item.col !== context.chart.initialSettings.age_col &&
-                    item.col !== context.chart.initialSettings.open_col
+                    item.col !== context.initialSettings.age_col &&
+                    item.col !== context.initialSettings.recency_col
                 ) {
                     if (order === 0) {
                         if (
@@ -2430,12 +2583,12 @@
                         .select('.instruction')
                         .classed('hidden', context.sortable.order.length);
 
-                    //Redraw chart.
+                    //Redraw table.
                     manualSort.call(context);
                 });
             });
 
-            //Redraw chart.
+            //Redraw table.
             manualSort.call(context);
         });
     }
@@ -2450,12 +2603,10 @@
                     return d.text;
                 })
                 .filter(function(d) {
-                    return d.text.length > _this.chart.initialSettings.truncation_cutoff;
+                    return d.text.length > _this.initialSettings.truncation_cutoff;
                 })
                 .text(function(d) {
-                    return (
-                        d.text.substring(0, _this.chart.initialSettings.truncation_cutoff) + '...'
-                    );
+                    return d.text.substring(0, _this.initialSettings.truncation_cutoff) + '...';
                 });
     }
 
@@ -2472,6 +2623,9 @@
     }
 
     function onDraw$1() {
+        //Add tooltips to column headers.
+        addHeaderTooltips.call(this);
+
         //Update default Webcharts column sorting.
         updateColumnSorting.call(this);
 
@@ -2524,6 +2678,7 @@
             exportable: syncedSettings.exportable
         });
         listing.element = element;
+        listing.initialSettings = clone(mergedSettings);
         for (var _callback in listingCallbacks) {
             listing.on(_callback.substring(2).toLowerCase(), listingCallbacks[_callback]);
         } //Intertwine
