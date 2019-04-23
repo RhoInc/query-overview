@@ -2091,6 +2091,12 @@
     function mouseoverAttrib(bar, selected) {
         if (!selected) {
             var BBox = bar.node().getBBox();
+            BBox = {
+                height: BBox.height,
+                width: BBox.width,
+                x: BBox.x,
+                y: BBox.y
+            };
             var offset = BBox.width > 2.5 ? 2.5 : BBox.width / 2; // for bars 2.5px wide or narrower
             bar.attr({
                 width: function width(d) {
