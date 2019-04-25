@@ -1,9 +1,9 @@
 {
   "name": "query-overview",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Interactive bar chart for exploration of query data from clinical trials",
   "module": "./src/index.js",
-  "main": "./build/queryOverview.js",
+  "main": "./queryOverview.js",
   "author": "Rho, Inc.",
   "license": "MIT",
   "dependencies": {
@@ -19,14 +19,14 @@
     "check-settings-schema": "node ./scripts/check-settings-schema.js",
     "format": "npm run format-src && npm run format-bundle",
     "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/!(*styles).js\"",
-    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./build/*.js",
+    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./queryOverview.js",
     "test-page": "start chrome ./test-page/index.html && start firefox ./test-page/index.html && start iexplore file://%CD%/test-page/index.html",
     "watch": "rollup -c -w"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.6.0",
+    "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
     "prettier": "^1.7.4",
     "rollup": "^0.66.6",

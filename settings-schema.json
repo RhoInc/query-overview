@@ -1,14 +1,50 @@
 {
     "title": "settings",
     "description": "JSON schema for the configuration of query-overview",
-    "overview": "The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/defaultSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
-    "version": "2.0.0",
+    "overview": "The most straightforward way to customize query-overview is by using a configuration object whose properties describe the behavior and appearance of the chart. Since query-overview is a Webcharts `chart` object, many default Webcharts settings are set in the [chartSettings.js file](https://github.com/RhoInc/query-overview/blob/master/src/configuration/chartSettings.js) as [described below](#webcharts-settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
+    "version": "2.1.0",
     "type": "object",
     "data-guidelines": "The Query Overview accepts [JSON](https://en.wikipedia.org/wiki/JSON) data of the format returned by [`d3.csv()`](https://github.com/d3/d3-3.x-api-reference/blob/master/CSV.md). The renderer visualizes clinical query data with **one row per query** plus the required variables specified below.",
     "data-structure": "one record per query",
     "properties": {
+        "site_col": {
+            "title": "Site",
+            "description": "site variable name",
+            "type": "string",
+            "default": "sitename",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "id_col": {
+            "title": "Participant ID",
+            "description": "participant ID variable name",
+            "type": "string",
+            "default": "subjectnameoridentifier",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "visit_col": {
+            "title": "Visit/Folder",
+            "description": "visit/folder variable name",
+            "type": "string",
+            "default": "folderoid",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": true
+        },
+        "visitDescription_col": {
+            "title": "Visit/Folder Description",
+            "description": "visit/folder description variable name",
+            "type": "string",
+            "default": "folderinstancename",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
         "form_col": {
-            "title": "Form Variable",
+            "title": "Form",
             "description": "form variable name",
             "type": "string",
             "default": "formoid",
@@ -17,16 +53,16 @@
             "required": true
         },
         "formDescription_col": {
-            "title": "Form Description Variable",
+            "title": "Form Description",
             "description": "form description variable name",
             "type": "string",
             "default": "ecrfpagename",
             "data-mapping": true,
             "data-type": "character",
-            "required": true
+            "required": false
         },
         "field_col": {
-            "title": "Field Variable",
+            "title": "Field",
             "description": "field variable name",
             "type": "string",
             "default": "fieldname",
@@ -35,25 +71,16 @@
             "required": true
         },
         "fieldDescription_col": {
-            "title": "Field Description Variable",
+            "title": "Field Description",
             "description": "field description variable name",
             "type": "string",
-            "default": null,
+            "default": "fieldlabel",
             "data-mapping": true,
             "data-type": "character",
             "required": false
         },
-        "site_col": {
-            "title": "Site Variable",
-            "description": "site variable name",
-            "type": "string",
-            "default": "sitename",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
         "marking_group_col": {
-            "title": "Marking Group Variable",
+            "title": "Marking Group",
             "description": "query origin variable name",
             "type": "string",
             "default": "markinggroup",
@@ -61,23 +88,132 @@
             "data-type": "character",
             "required": true
         },
-        "visit_col": {
-            "title": "Visit/Folder Variable",
-            "description": "visit/folder variable name",
+        "open_by_col": {
+            "title": "Opened by",
+            "description": "entity opening query variable name",
             "type": "string",
-            "default": "folderoid",
+            "default": "queryopenby",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "query_col": {
+            "title": "Query",
+            "description": "query text variable name",
+            "type": "string",
+            "default": "querytext",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "query_response_col": {
+            "title": "Query Response",
+            "description": "query response text variable name",
+            "type": "string",
+            "default": "queryresponsetext",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "status_col": {
+            "title": "Query Status",
+            "description": "query status variable name",
+            "type": "string",
+            "default": "querystatus",
             "data-mapping": true,
             "data-type": "character",
             "required": true
         },
-        "color_by_col": {
-            "title": "Status Group Variable",
-            "description": "coloring variable name of query categorization: query age, query status, or any custom categorization; note that _queryage_ is derived by the renderer",
+        "status_order": {
+            "title": "Query Status Order",
+            "description": "an array of query statuses that dictates how they are ordered in the legend and chart",
+            "type": "array",
+            "items": {
+                "title": "Query Status",
+                "description": "query status value",
+                "type": "string"
+            },
+            "defaultObject": [
+                "Open",
+                "Answered",
+                "Closed",
+                "Cancelled"
+            ]
+        },
+        "status_colors": {
+            "title": "Query Status Color",
+            "description": "an array of colors that determines the colors for query statuses",
+            "type": "array",
+            "items": {
+                "title": "Query Status",
+                "description": "query status value",
+                "type": "string"
+            },
+            "defaultObject": [
+                "#fd8d3c",
+                "#4daf4a",
+                "#377eb8",
+                "#999999"
+            ]
+        },
+        "open_date_col": {
+            "title": "Query Open Date",
+            "description": "query open date variable name",
             "type": "string",
-            "default": "queryage",
-            "enum": [
-                "queryage",
-                "querystatus"
+            "default": "queryopendate",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "response_date_col": {
+            "title": "Query Response Date",
+            "description": "query response date variable name",
+            "type": "string",
+            "default": "queryresponsedate",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "resolved_date_col": {
+            "title": "Query Resolution Date",
+            "description": "query resolution date variable name",
+            "type": "string",
+            "default": "queryresolveddate",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "recency_col": {
+            "title": "Query Recency",
+            "description": "query recency variable measured in days between query open date and data snapshot date, regardless of query status",
+            "type": "string",
+            "default": "odays",
+            "data-mapping": true,
+            "data-type": "numeric",
+            "required": false
+        },
+        "recency_category_col": {
+            "title": "Query Recency Category",
+            "description": "query recency category variable name; overrides `recency_col`",
+            "type": "string",
+            "default": "open_time",
+            "data-mapping": true,
+            "data-type": "character",
+            "required": false
+        },
+        "recency_cutoffs": {
+            "title": "Query Recency Cutoffs",
+            "description": "an array of query recency cutoffs for which query recency range will be derived",
+            "type": "array",
+            "items": {
+                "title": "Query Recency",
+                "description": "query recency measured in days between query open date and data snapshot date or today...?",
+                "type": "number"
+            },
+            "defaultObject": [
+                7,
+                14,
+                30
             ]
         },
         "age_statuses": {
@@ -139,78 +275,14 @@
                 "#800026"
             ]
         },
-        "status_col": {
-            "title": "Query Status Variable",
-            "description": "query status variable name",
+        "color_by_col": {
+            "title": "Status Group",
+            "description": "coloring variable name of query categorization: query age, query status, or any custom categorization; note that _queryage_ is derived by the renderer",
             "type": "string",
-            "default": "querystatus",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": true
-        },
-        "status_order": {
-            "title": "Query Status Order",
-            "description": "an array of query statuses that dictates how they are ordered in the legend and chart",
-            "type": "array",
-            "items": {
-                "title": "Query Status",
-                "description": "query status value",
-                "type": "string"
-            },
-            "defaultObject": [
-                "Open",
-                "Answered",
-                "Closed",
-                "Cancelled"
-            ]
-        },
-        "status_colors": {
-            "title": "Query Status Color",
-            "description": "an array of colors that determines the colors for query statuses",
-            "type": "array",
-            "items": {
-                "title": "Query Status",
-                "description": "query status value",
-                "type": "string"
-            },
-            "defaultObject": [
-                "#fd8d3c",
-                "#4daf4a",
-                "#377eb8",
-                "#999999"
-            ]
-        },
-        "recency_category_col": {
-            "title": "Query Recency Category",
-            "description": "query recency category variable name; overrides `recency_col`",
-            "type": "string",
-            "default": "open_time",
-            "data-mapping": true,
-            "data-type": "character",
-            "required": false
-        },
-        "recency_col": {
-            "title": "Query Recency",
-            "description": "query recency variable measured in days between query open date and data snapshot date, regardless of query status",
-            "type": "string",
-            "default": "odays",
-            "data-mapping": true,
-            "data-type": "numeric",
-            "required": false
-        },
-        "recency_cutoffs": {
-            "title": "Query Recency Cutoffs",
-            "description": "an array of query recency cutoffs for which query recency range will be derived",
-            "type": "array",
-            "items": {
-                "title": "Query Recency",
-                "description": "query recency measured in days between query open date and data snapshot date or today...?",
-                "type": "number"
-            },
-            "defaultObject": [
-                7,
-                14,
-                30
+            "default": "queryage",
+            "enum": [
+                "queryage",
+                "querystatus"
             ]
         },
         "groups": {
@@ -299,19 +371,19 @@
             "default": 6
         },
         "details": {
-            "title": "Detail Listing Variables",
+            "title": "Listing Variables",
             "description": "an array of variables which will print in the listing; if unspecified all variables in data will appear in listing",
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "value_col": {
-                        "title": "Detail Listing Variable",
+                        "title": "Listing Variable",
                         "description": "detail listing variable name",
                         "type": "string"
                     },
                     "label": {
-                        "title": "Detail Listing Column Header",
+                        "title": "Listing Column Header",
                         "description": "detail listing column header",
                         "type": "string"
                     }

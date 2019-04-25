@@ -1,6 +1,9 @@
 export default function listingSettings() {
     return {
-        nRowsPerPage: 25,
-        exportable: true
+        searchable: true,
+        sortable: true,
+        pagination: true,
+        exportable: true,
+        nRowsPerPage: 10
     };
 }

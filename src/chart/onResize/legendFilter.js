@@ -1,4 +1,5 @@
 import updateSelectAll from '../onLayout/updateFilterEventListeners/updateSelectAll';
+import syncQueryAgeAndStatus from '../onLayout/updateFilterEventListeners/syncQueryAgeAndStatus';
 
 //TODO: modularize/refactor
 export default function legendFilter() {
@@ -50,6 +51,7 @@ export default function legendFilter() {
             .filter(d => selectedLegendItems.indexOf(d) > -1)
             .property('selected', true); // set selected property of status options corresponding to selected statuses to true
         updateSelectAll.call(context, statusControlGroup.datum(), selectedLegendItems);
+        syncQueryAgeAndStatus.call(context, statusControlGroup.datum(), selectedLegendItems);
         const filtered_data = context.raw_data.filter(d => {
             let filtered = selectedLegendItems.indexOf(d[context.config.marks[0].split]) === -1;
 

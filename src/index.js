@@ -7,7 +7,7 @@ import { createControls, createChart, createTable } from 'webcharts';
 import chartCallbacks from './chart/index';
 import listingCallbacks from './listing/index';
 
-export default function queryOverview(element, settings) {
+export default function queryOverview(element = 'body', settings = {}) {
     //Settings
     const mergedSettings = Object.assign({}, configuration.settings, settings);
     const syncedSettings = configuration.syncSettings(mergedSettings);
@@ -35,11 +35,9 @@ export default function queryOverview(element, settings) {
         chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
 
     //Listing
-    const listing = createTable(containers.listing.node(), {
-        sortable: false,
-        exportable: syncedSettings.exportable
-    });
+    const listing = createTable(containers.listing.node(), syncedSettings);
     listing.element = element;
+    listing.initialSettings = clone(mergedSettings);
     for (const callback in listingCallbacks)
         listing.on(callback.substring(2).toLowerCase(), listingCallbacks[callback]);
 

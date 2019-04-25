@@ -195,14 +195,31 @@
     function rendererSettings() {
         return {
             //query variables
+            site_col: 'sitename',
+            id_col: 'subjectnameoridentifier',
+            visit_col: 'folderoid',
+            visitDescription_col: 'folderinstancename',
             form_col: 'formoid',
             formDescription_col: 'ecrfpagename',
             field_col: 'fieldname',
-            fieldDescription_col: null,
-            site_col: 'sitename',
+            fieldDescription_col: 'fieldlabel',
             marking_group_col: 'markinggroup',
-            visit_col: 'folderoid',
-            color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
+            open_by_col: 'queryopenby',
+            query_col: 'querytext',
+            query_response_col: 'queryresponsetext',
+
+            //query status
+            status_col: 'querystatus',
+            status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
+            status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
+
+            //query recency
+            open_date_col: 'queryopendate',
+            response_date_col: 'queryresponsedate',
+            resolved_date_col: 'queryresolveddate',
+            recency_col: 'odays',
+            recency_cutoffs: [7, 14, 30],
+            recency_category_col: 'open_time',
 
             //query age
             age_statuses: ['Open'],
@@ -220,17 +237,8 @@
                 '#800026'
             ],
 
-            //query status
-            status_col: 'querystatus',
-            status_order: ['Open', 'Answered', 'Closed', 'Cancelled'],
-            status_colors: ['#fd8d3c', '#4daf4a', '#377eb8', '#999999'],
-
-            //query recency
-            recency_category_col: 'open_time',
-            recency_col: 'odays',
-            recency_cutoffs: [7, 14, 30],
-
             //miscellany
+            color_by_col: 'queryage', // options: [ 'queryage' , 'querystatus' ] or any of status_groups[].value_col
             groups: null,
             status_groups: null,
             filters: null,
@@ -275,7 +283,7 @@
                 order: null // set in syncSettings()
             },
             margin: {
-                right: '50' // room for count annotation
+                right: 50 // room for count annotation
             },
             range_band: 25
         };
@@ -283,8 +291,11 @@
 
     function listingSettings() {
         return {
-            nRowsPerPage: 25,
-            exportable: true
+            searchable: true,
+            sortable: true,
+            pagination: true,
+            exportable: true,
+            nRowsPerPage: 10
         };
     }
 
@@ -798,6 +809,13 @@
                 '    width: 100%;' +
                 '    transform: rotate(180deg);' +
                 '    -webkit-transform: rotate(180deg); ' +
+                '    display: table;' +
+                '}',
+            '.qo-table th {' + '    white-space: nowrap;' + '}',
+            '.qo-table th,' +
+                '.qo-table td {' +
+                '    min-width: 100px;' +
+                '    padding-right: 10px !important;' +
                 '}'
         ];
 
@@ -940,6 +958,43 @@
             );
     }
 
+    function defineMaps() {
+        var _this = this;
+
+        this.maps = {
+            querystatus: d3
+                .nest()
+                .key(function(d) {
+                    return d[_this.config.status_col];
+                })
+                .rollup(function(d) {
+                    return d3
+                        .set(
+                            d.map(function(di) {
+                                return di.queryage;
+                            })
+                        )
+                        .values();
+                })
+                .map(this.raw_data),
+            queryage: d3
+                .nest()
+                .key(function(d) {
+                    return d.queryage;
+                })
+                .rollup(function(d) {
+                    return d3
+                        .set(
+                            d.map(function(di) {
+                                return di[_this.config.status_col];
+                            })
+                        )
+                        .values();
+                })
+                .map(this.raw_data)
+        };
+    }
+
     function removeInvalidControls() {
         var context = this;
 
@@ -966,6 +1021,9 @@
 
         //Define detail listing settings.
         defineListingSettings.call(this);
+
+        //Define query age and query status maps.
+        defineMaps.call(this);
 
         //hide controls that do not have their variable supplied
         removeInvalidControls.call(this);
@@ -1208,45 +1266,84 @@
             });
     }
 
+    function syncQueryAgeAndStatus(d, checked) {
+        var checkbox =
+            d.label === 'Query Age'
+                ? this.controls.filters.checkboxes.filter(function(di) {
+                      return di.label === 'Query Status';
+                  })
+                : this.controls.filters.checkboxes.filter(function(di) {
+                      return di.label === 'Query Age';
+                  });
+        checkbox.property('checked', checked);
+        var datum = checkbox.datum();
+
+        //Update checkbox tooltip.
+        checkbox.attr(
+            'title',
+            checked
+                ? 'Deselect all ' + datum.label + ' options'
+                : 'Select all ' + datum.label + ' options'
+        );
+
+        //Update filter object.
+        var filter = this.filters.find(function(filter) {
+            return filter.col === datum.value_col;
+        });
+        if (checked) filter.val = filter.choices;
+        else filter.val = [];
+    }
+
+    function updateFilter(d, element) {
+        var checkbox = d3.select(element);
+        var checked = element.checked;
+
+        //Update checkbox tooltip.
+        checkbox.attr(
+            'title',
+            checked ? 'Deselect all ' + d.label + ' options' : 'Select all ' + d.label + ' options'
+        );
+
+        //Update filter object.
+        var filter = this.filters.find(function(filter) {
+            return filter.col === d.value_col;
+        });
+        if (checked) filter.val = filter.choices;
+        else filter.val = [];
+
+        //Sync query age and status filters.
+        syncQueryAgeAndStatus.call(this, d, checked);
+
+        //Redraw.
+        this.draw();
+    }
+
     function addSelectAll() {
         var context = this;
 
         this.controls.filters.labels
             .filter(function(d) {
                 return d.multiple;
-            })
+            }) // only multi-selects
             .each(function(d) {
+                //Add checkbox to filter label.
                 var label = d3
                     .select(this)
                     .html(d.label + ' <input class = "qo-select-all" type = "checkbox"></input>');
+
+                //Add event listener to select-all checkbox.
                 var checkbox = label
                     .select('input')
                     .datum(d)
                     .attr('title', 'Deselect all ' + d.label + ' options')
                     .property('checked', true)
                     .on('click', function(di) {
-                        var checkbox = d3.select(this);
-                        var checked = this.checked;
-
-                        //Update checkbox tooltip.
-                        checkbox.attr(
-                            'title',
-                            checked
-                                ? 'Deselect all ' + di.label + ' options'
-                                : 'Select all ' + di.label + ' options'
-                        );
-
-                        //Update filter object.
-                        var filter = context.filters.find(function(filter) {
-                            return filter.col === di.value_col;
-                        });
-                        if (checked) filter.val = filter.choices;
-                        else filter.val = [];
-
-                        //Redraw.
-                        context.draw();
+                        //Update filter dropdown.
+                        updateFilter.call(context, di, this);
                     });
             });
+
+        //Attach checkboxes to filters object.
         this.controls.filters.checkboxes = this.controls.filters.labels.selectAll('.qo-select-all');
     }
 
@@ -1274,13 +1371,69 @@
         }
     }
 
+    function syncQueryAgeAndStatus$1(d, selectedOptions) {
+        var _this = this;
+
+        var filter = void 0;
+        var select = void 0;
+        var map = void 0;
+
+        if (d.value_col === 'queryage') {
+            filter = this.filters.find(function(filter) {
+                return filter.col === _this.config.status_col;
+            });
+            select = this.controls.wrap.selectAll('select').filter(function(d) {
+                return d.value_col === _this.config.status_col;
+            });
+            map = this.maps.queryage;
+        } else if (d.value_col === this.config.status_col) {
+            filter = this.filters.find(function(filter) {
+                return filter.col === 'queryage';
+            });
+            select = this.controls.wrap.selectAll('select').filter(function(d) {
+                return d.value_col === 'queryage';
+            });
+            map = this.maps.querystatus;
+        }
+
+        var correspondingOptions = d3
+            .set(
+                d3.merge(
+                    Object.keys(map)
+                        .filter(function(key) {
+                            return selectedOptions.indexOf(key) > -1;
+                        })
+                        .map(function(key) {
+                            return map[key];
+                        })
+                )
+            )
+            .values();
+        filter.val = correspondingOptions;
+        select.selectAll('option').property('selected', function(di) {
+            return correspondingOptions.indexOf(di) > -1;
+        });
+
+        //Update select-all checkbox.
+        updateSelectAll.call(this, select.datum(), correspondingOptions);
+    }
+
     function updateFilterEventListeners() {
         var context = this;
 
+        //Update filter event listeners.
         this.controls.filters.selects.on('change', function(d) {
             var select = d3.select(this);
             var selectedOptions = select.selectAll('option:checked').data();
+
+            //Update select-all checkbox.
             updateSelectAll.call(context, d, selectedOptions);
+
+            //Sync query age and query status filters.
+            if (['Query Age', 'Query Status'].indexOf(d.label) > -1)
+                syncQueryAgeAndStatus$1.call(context, d, selectedOptions);
+
+            //Redraw.
             context.draw();
         });
     }
@@ -1647,6 +1800,7 @@
                 })
                 .property('selected', true); // set selected property of status options corresponding to selected statuses to true
             updateSelectAll.call(context, statusControlGroup.datum(), selectedLegendItems);
+            syncQueryAgeAndStatus$1.call(context, statusControlGroup.datum(), selectedLegendItems);
             var filtered_data = context.raw_data.filter(function(d) {
                 var filtered = selectedLegendItems.indexOf(d[context.config.marks[0].split]) === -1;
 
@@ -1935,15 +2089,28 @@
     }
 
     function mouseoverAttrib(bar, selected) {
-        if (!selected)
+        if (!selected) {
+            var BBox = bar.node().getBBox();
+            BBox = {
+                height: BBox.height,
+                width: BBox.width,
+                x: BBox.x,
+                y: BBox.y
+            };
+            var offset = BBox.width > 2.5 ? 2.5 : BBox.width / 2; // for bars 2.5px wide or narrower
             bar.attr({
                 width: function width(d) {
-                    return this.getBBox().width - 2.5;
+                    d.BBox = BBox;
+                    d.BBox.width = BBox.width - offset;
+                    d.offset = offset;
+                    return d.BBox.width;
                 },
                 x: function x(d) {
-                    return this.getBBox().x + 2.5;
+                    d.BBox.x = BBox.x + offset;
+                    return d.BBox.x;
                 }
             });
+        }
     }
 
     function mouseoutStyle(bar, selected) {
@@ -1963,15 +2130,18 @@
     function mouseoutAttrib(bar, selected) {
         var clear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-        if (!(selected || clear) || (selected && clear))
+        if (!(selected || clear) || (selected && clear)) {
             bar.attr({
                 width: function width(d) {
-                    return this.getBBox().width + 2.5;
+                    d.BBox.width = d.BBox.width + d.offset;
+                    return d.BBox.width;
                 },
                 x: function x(d) {
-                    return this.getBBox().x - 2.5;
+                    d.BBox.x = d.BBox.x - d.offset;
+                    return d.BBox.x;
                 }
             });
+        }
     }
 
     function initListing() {
@@ -2111,7 +2281,138 @@
         onDestroy: onDestroy
     };
 
-    function onInit$1() {}
+    function applyVariableMetadata() {
+        var _this = this;
+
+        var variableMetadata = [
+            {
+                variable: this.initialSettings.site_col,
+                label: 'Site',
+                description: 'Site name assigned in EDC system'
+            },
+            {
+                variable: this.initialSettings.id_col,
+                label: 'Participant ID',
+                description: 'Subject ID assigned in EDC system'
+            },
+            {
+                variable: this.initialSettings.visit_col,
+                label: 'Folder OID',
+                description: 'Folder OID as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.visitDescription_col,
+                label: 'Folder',
+                description:
+                    'Name of folder currently displayed in EDC system. If the folder was renamed (e.g. to append a date) this will be reflected here'
+            },
+            {
+                variable: this.initialSettings.form_col,
+                label: 'Form OID',
+                description: 'Form OID as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.formDescription_col,
+                label: 'Form',
+                description:
+                    'Name of the form currently displayed in EDC system. If the form was renamed (e.g. to append a date) this will be reflected here'
+            },
+            {
+                variable: this.initialSettings.field_col,
+                label: 'Field',
+                description: 'Field name as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.fieldDescription_col,
+                label: 'Field Label',
+                description: 'Field label as assigned by DM'
+            },
+            {
+                variable: this.initialSettings.marking_group_col,
+                label: 'Marking Group',
+                description: 'Group opening the query. Options include: CRA, DM, Safety, System'
+            },
+            {
+                variable: this.initialSettings.open_by_col,
+                label: 'Opened by',
+                description: 'Entity opening the query (System or name of individual)'
+            },
+            {
+                variable: this.initialSettings.status_col,
+                label: 'Query Status',
+                description:
+                    'Status of query in EDC system. Options include: Open, answered, closed, cancelled'
+            },
+            {
+                variable: this.initialSettings.open_date_col,
+                label: 'Open Date',
+                description: 'Date query was opened in the system'
+            },
+            {
+                variable: this.initialSettings.response_date_col,
+                label: 'Response Date',
+                description: 'Date query was responded to by the site'
+            },
+            {
+                variable: this.initialSettings.resolved_date_col,
+                label: 'Resolution Date',
+                description: 'Date query was closed'
+            },
+            {
+                variable: this.initialSettings.recency_col,
+                label: 'Query Recency (days)',
+                description:
+                    'Number of days between query open date and data extraction date, regardless of query status.'
+            },
+            {
+                variable: this.initialSettings.recency_category_col,
+                label: 'Query Recency',
+                description:
+                    'Number of days by category between query open date and data extraction date, regardless of query status. Categories include last 7, 14, and 30 days.'
+            },
+            {
+                variable: 'queryrecency',
+                label: 'Query Recency',
+                description:
+                    'Number of days by category between query open date and data extraction date, regardless of query status. Categories include last 7, 14, and 30 days.'
+            },
+            {
+                variable: this.initialSettings.age_col,
+                label: 'Query Age (days)',
+                description:
+                    'Number of days between query open date and data extraction date, query response date, or query resolution date for open, answered, and closed/cancelled queries, respectively.'
+            },
+            {
+                variable: 'queryage',
+                label: 'Query Age',
+                description:
+                    'Number of days by category between query open date and data extraction date, query response date, or query resolution date for open, answered, and closed/cancelled queries, respectively.'
+            },
+            {
+                variable: this.initialSettings.query_col,
+                label: 'Query',
+                description: 'Text of query'
+            },
+            {
+                variable: this.initialSettings.query_response_col,
+                label: 'Query Response',
+                description: 'Site response to the query'
+            }
+        ];
+
+        this.config.descriptions = [];
+        this.config.cols.forEach(function(col, i) {
+            var md = variableMetadata.find(function(variableMetadatum) {
+                return variableMetadatum.variable === col;
+            });
+            _this.config.headers[i] = md ? md.label : col;
+            _this.config.descriptions.push(md ? md.description : col);
+        });
+    }
+
+    function onInit$1() {
+        applyVariableMetadata.call(this);
+    }
 
     function addResetButton$1() {
         var _this = this;
@@ -2163,11 +2464,17 @@
     function onLayout$1() {
         addResetButton$1.call(this);
         addTableContainer.call(this);
-        this.wrap.select('.sortable-container').classed('hidden', false);
-        this.table.style('width', '100%').style('display', 'table');
     }
 
     function onPreprocess$1() {}
+
+    function addHeaderTooltips() {
+        var _this = this;
+
+        this.thead_cells.attr('title', function(d, i) {
+            return _this.config.descriptions[i];
+        });
+    }
 
     function manualSort() {
         var _this = this;
@@ -2181,8 +2488,8 @@
                 var aCell = a[item.col];
                 var bCell = b[item.col];
                 if (
-                    item.col !== context.chart.initialSettings.age_col &&
-                    item.col !== context.chart.initialSettings.open_col
+                    item.col !== context.initialSettings.age_col &&
+                    item.col !== context.initialSettings.recency_col
                 ) {
                     if (order === 0) {
                         if (
@@ -2220,78 +2527,80 @@
     function updateColumnSorting() {
         var context = this;
 
-        this.thead_cells.on('click', function(d) {
-            var th = this;
-            var header = d;
-            var selection = d3.select(th);
-            var col = context.config.cols[context.config.headers.indexOf(header)];
+        if (this.config.sortable) {
+            this.thead_cells.on('click', function(d) {
+                var th = this;
+                var header = d;
+                var selection = d3.select(th);
+                var col = context.config.cols[context.config.headers.indexOf(header)];
 
-            //Check if column is already a part of current sort order.
-            var sortItem = context.sortable.order.filter(function(item) {
-                return item.col === col;
-            })[0];
+                //Check if column is already a part of current sort order.
+                var sortItem = context.sortable.order.filter(function(item) {
+                    return item.col === col;
+                })[0];
 
-            //If it isn't, add it to sort order.
-            if (!sortItem) {
-                sortItem = {
-                    col: col,
-                    direction: 'ascending',
-                    wrap: context.sortable.wrap
-                        .append('div')
-                        .datum({ key: col })
-                        .classed('wc-button sort-box', true)
-                        .text(header)
-                };
-                sortItem.wrap
-                    .append('span')
-                    .classed('sort-direction', true)
-                    .html('&darr;');
-                sortItem.wrap
-                    .append('span')
-                    .classed('remove-sort', true)
-                    .html('&#10060;');
-                context.sortable.order.push(sortItem);
-            } else {
-                //Otherwise reverse its sort direction.
-                sortItem.direction =
-                    sortItem.direction === 'ascending' ? 'descending' : 'ascending';
-                sortItem.wrap
-                    .select('span.sort-direction')
-                    .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
-            }
+                //If it isn't, add it to sort order.
+                if (!sortItem) {
+                    sortItem = {
+                        col: col,
+                        direction: 'ascending',
+                        wrap: context.sortable.wrap
+                            .append('div')
+                            .datum({ key: col })
+                            .classed('wc-button sort-box', true)
+                            .text(header)
+                    };
+                    sortItem.wrap
+                        .append('span')
+                        .classed('sort-direction', true)
+                        .html('&darr;');
+                    sortItem.wrap
+                        .append('span')
+                        .classed('remove-sort', true)
+                        .html('&#10060;');
+                    context.sortable.order.push(sortItem);
+                } else {
+                    //Otherwise reverse its sort direction.
+                    sortItem.direction =
+                        sortItem.direction === 'ascending' ? 'descending' : 'ascending';
+                    sortItem.wrap
+                        .select('span.sort-direction')
+                        .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
+                }
 
-            //Hide sort instructions.
-            context.sortable.wrap.select('.instruction').classed('hidden', true);
+                //Hide sort instructions.
+                context.sortable.wrap.select('.instruction').classed('hidden', true);
 
-            //Add sort container deletion functionality.
-            context.sortable.order.forEach(function(item, i) {
-                item.wrap.on('click', function(d) {
-                    //Remove column's sort container.
-                    d3.select(this).remove();
+                //Add sort container deletion functionality.
+                context.sortable.order.forEach(function(item, i) {
+                    item.wrap.on('click', function(d) {
+                        //Remove column's sort container.
+                        d3.select(this).remove();
 
-                    //Remove column from sort.
-                    context.sortable.order.splice(
-                        context.sortable.order
-                            .map(function(d) {
-                                return d.col;
-                            })
-                            .indexOf(d.key),
-                        1
-                    );
+                        //Remove column from sort.
+                        context.sortable.order.splice(
+                            context.sortable.order
+                                .map(function(d) {
+                                    return d.col;
+                                })
+                                .indexOf(d.key),
+                            1
+                        );
 
-                    //Display sorting instruction.
-                    context.sortable.wrap
-                        .select('.instruction')
-                        .classed('hidden', context.sortable.order.length);
+                        //Display sorting instruction.
+                        context.sortable.wrap
+                            .select('.instruction')
+                            .classed('hidden', context.sortable.order.length);
 
-                    //Redraw chart.
-                    manualSort.call(context);
+                        //Redraw table.
+                        manualSort.call(context);
+                    });
                 });
-            });
 
-            //Redraw chart.
-            manualSort.call(context);
-        });
+                //Redraw table.
+                manualSort.call(context);
+            });
+        }
     }
 
     function truncateCellText() {
@@ -2304,12 +2613,10 @@
                     return d.text;
                 })
                 .filter(function(d) {
-                    return d.text.length > _this.chart.initialSettings.truncation_cutoff;
+                    return d.text.length > _this.initialSettings.truncation_cutoff;
                 })
                 .text(function(d) {
-                    return (
-                        d.text.substring(0, _this.chart.initialSettings.truncation_cutoff) + '...'
-                    );
+                    return d.text.substring(0, _this.initialSettings.truncation_cutoff) + '...';
                 });
     }
 
@@ -2326,6 +2633,9 @@
     }
 
     function onDraw$1() {
+        //Add tooltips to column headers.
+        addHeaderTooltips.call(this);
+
         //Update default Webcharts column sorting.
         updateColumnSorting.call(this);
 
@@ -2346,7 +2656,10 @@
         onDestroy: onDestroy$1
     };
 
-    function queryOverview$1(element, settings) {
+    function queryOverview$1() {
+        var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+        var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
         //Settings
         var mergedSettings = Object.assign({}, configuration.settings, settings);
         var syncedSettings = configuration.syncSettings(mergedSettings);
@@ -2373,11 +2686,9 @@
         for (var callback in chartCallbacks) {
             chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
         } //Listing
-        var listing = webcharts.createTable(containers.listing.node(), {
-            sortable: false,
-            exportable: syncedSettings.exportable
-        });
+        var listing = webcharts.createTable(containers.listing.node(), syncedSettings);
         listing.element = element;
+        listing.initialSettings = clone(mergedSettings);
         for (var _callback in listingCallbacks) {
             listing.on(_callback.substring(2).toLowerCase(), listingCallbacks[_callback]);
         } //Intertwine
