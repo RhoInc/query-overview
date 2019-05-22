@@ -4,7 +4,6 @@ export default function addResetButton() {
         .classed('qo-button qo-button--reset-listing', true)
         .text('Reset listing')
         .on('click', () => {
-            this.wrap.selectAll('*').remove();
             // revert selected bars back to regular width and start
             this.chart.svg.selectAll('.bar.selected').attr({
                 width: function(d) {
@@ -21,6 +20,6 @@ export default function addResetButton() {
                     'stroke-width': '1px',
                     fill: d => this.chart.colorScale(d.key)
                 });
-            this.chart.listing.init(this.chart.filtered_data);
+            this.chart.listing.draw(this.chart.filtered_data);
         });
 }

@@ -1,3 +1,4 @@
+import { select } from 'd3';
 import updateFilter from './addSelectAll/updateFilter';
 
 export default function addSelectAll() {
@@ -7,9 +8,9 @@ export default function addSelectAll() {
         .filter(d => d.multiple) // only multi-selects
         .each(function(d) {
             //Add checkbox to filter label.
-            const label = d3
-                .select(this)
-                .html(`${d.label} <input class = "qo-select-all" type = "checkbox"></input>`);
+            const label = select(this).html(
+                `${d.label} <input class = "qo-select-all" type = "checkbox"></input>`
+            );
 
             //Add event listener to select-all checkbox.
             const checkbox = label

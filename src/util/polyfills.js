@@ -124,6 +124,8 @@ Array.prototype.flatMap = function(lambda) {
     return Array.prototype.concat.apply([], this.map(lambda));
 };
 
+import d3 from 'd3';
+
 d3.selection.prototype.moveToBack = function() {
     return this.each(function() {
         var firstChild = this.parentNode.firstChild;

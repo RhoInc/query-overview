@@ -1,9 +1,11 @@
+import { select } from 'd3';
+
 export default function updateStratification() {
     const statusGroup = this.controls.wrap
         .selectAll('.qo-radio--status-group')
         .selectAll('.radio')
         .filter(function() {
-            const label = d3.select(this);
+            const label = select(this);
             const radio = label.select('.changer');
             return radio.property('checked');
         })

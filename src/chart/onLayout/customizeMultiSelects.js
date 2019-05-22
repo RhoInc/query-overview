@@ -1,3 +1,5 @@
+import { select } from 'd3';
+
 export default function customizeMultiSelects() {
     const context = this;
 
@@ -15,11 +17,10 @@ export default function customizeMultiSelects() {
         })
         .each(function(d) {
             const filter = context.filters.find(filter => filter.col === d.value_col);
-            d3
-                .select(this)
+            select(this)
                 .selectAll('option')
-                .sort(
-                    (a, b) => (d.order ? d.order.indexOf(a) - d.order.indexOf(b) : a < b ? -1 : 1)
+                .sort((a, b) =>
+                    d.order ? d.order.indexOf(a) - d.order.indexOf(b) : a < b ? -1 : 1
                 );
         });
 }

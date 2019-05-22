@@ -1,3 +1,5 @@
+import { select } from 'd3';
+
 export default function updateGroupByOptions() {
     const context = this;
 
@@ -6,8 +8,7 @@ export default function updateGroupByOptions() {
         .filter(d => d.label === 'Group by')
         .on('change', function() {
             //Update y-axis label.
-            const label = d3
-                .select(this)
+            const label = select(this)
                 .selectAll('option:checked')
                 .text();
             context.config.y.label = label;

@@ -1,3 +1,5 @@
+import { set } from 'd3';
+
 export default function defineQueryStatusSet() {
     const queryStatusInput = this.controls.config.inputs.find(
         input => input.value_col === this.config.status_col
@@ -8,14 +10,12 @@ export default function defineQueryStatusSet() {
     const queryStatusOrder =
         Array.isArray(queryStatusGroup.order) && queryStatusGroup.order.length
             ? queryStatusGroup.order.concat(
-                  d3
-                      .set(this.raw_data.map(d => d[this.config.status_col]))
+                  set(this.raw_data.map(d => d[this.config.status_col]))
                       .values()
                       .filter(value => queryStatusGroup.order.indexOf(value) < 0)
                       .sort()
               )
-            : d3
-                  .set(this.raw_data.map(d => d[this.config.status_col]))
+            : set(this.raw_data.map(d => d[this.config.status_col]))
                   .values()
                   .sort();
     queryStatusInput.order = queryStatusOrder;

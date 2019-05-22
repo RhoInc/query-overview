@@ -1,8 +1,9 @@
+import { select } from 'd3';
 import mouseoverStyle from './addBarClick/mouseoverStyle';
 import mouseoverAttrib from './addBarClick/mouseoverAttrib';
 import mouseoutStyle from './addBarClick/mouseoutStyle';
 import mouseoutAttrib from './addBarClick/mouseoutAttrib';
-import initListing from './addBarClick/initListing';
+import resetListing from './addBarClick/resetListing';
 
 export default function addBarClick() {
     const context = this;
@@ -13,7 +14,7 @@ export default function addBarClick() {
         .selectAll('.bar')
         .style('cursor', 'pointer')
         .on('mouseover', function() {
-            const bar = d3.select(this);
+            const bar = select(this);
             const selected = bar.classed('selected');
 
             //Apply highlight attributes and styles to bar.
@@ -21,10 +22,10 @@ export default function addBarClick() {
             mouseoverAttrib.call(context, bar, selected);
 
             //moveToFront causes an issue preventing onMouseout from firing in Internet Explorer so only call it in other browsers.
-            if (!/trident/i.test(navigator.userAgent)) d3.select(this).moveToFront();
+            if (!/trident/i.test(navigator.userAgent)) select(this).moveToFront();
         })
         .on('mouseout', function() {
-            const bar = d3.select(this);
+            const bar = select(this);
             const selected = bar.classed('selected');
 
             //Apply default attributes and styles to bar.
@@ -35,18 +36,18 @@ export default function addBarClick() {
             if (!/trident/i.test(navigator.userAgent))
                 context.bars
                     .filter(function() {
-                        return d3.select(this).classed('selected');
+                        return select(this).classed('selected');
                     })
                     .moveToFront();
         })
         .on('click', function(d) {
-            const bar = d3.select(this);
+            const bar = select(this);
             const selected = bar.classed('selected');
 
             //Update selected class of clicked bar.
             bar.classed('selected', !selected);
 
-            //Re-initialize listing.
-            initListing.call(context);
+            //Reset listing.
+            resetListing.call(context);
         });
 }

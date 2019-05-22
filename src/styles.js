@@ -1,4 +1,4 @@
-export default function styles() {
+export default function styles(document) {
     const styles = [
 
         /***--------------------------------------------------------------------------------------\
@@ -214,4 +214,6 @@ export default function styles() {
     style.type = 'text/css';
     style.innerHTML = styles.join('\n');
     document.getElementsByTagName('head')[0].appendChild(style);
+
+    return style;
 }

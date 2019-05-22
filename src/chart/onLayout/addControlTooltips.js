@@ -1,3 +1,5 @@
+import { select } from 'd3';
+
 export default function addControlTooltips() {
     const tooltips = {
         //other controls
@@ -34,8 +36,7 @@ export default function addControlTooltips() {
                     d.label
                 } does not have a curated tooltip. Defaulting to ${tooltip}.`
             );
-        d3
-            .select(this)
+        select(this)
             .selectAll('.wc-control-label')
             .attr('title', tooltip);
     });

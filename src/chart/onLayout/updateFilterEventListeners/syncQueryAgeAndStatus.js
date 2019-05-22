@@ -1,3 +1,4 @@
+import { set, merge } from 'd3';
 import updateSelectAll from './updateSelectAll';
 
 export default function syncQueryAgeAndStatus(d, selectedOptions) {
@@ -17,15 +18,13 @@ export default function syncQueryAgeAndStatus(d, selectedOptions) {
         map = this.maps.querystatus;
     }
 
-    const correspondingOptions = d3
-        .set(
-            d3.merge(
-                Object.keys(map)
-                    .filter(key => selectedOptions.indexOf(key) > -1)
-                    .map(key => map[key])
-            )
+    const correspondingOptions = set(
+        merge(
+            Object.keys(map)
+                .filter(key => selectedOptions.indexOf(key) > -1)
+                .map(key => map[key])
         )
-        .values();
+    ).values();
     filter.val = correspondingOptions;
     select.selectAll('option').property('selected', di => {
         return correspondingOptions.indexOf(di) > -1;
