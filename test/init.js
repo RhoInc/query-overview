@@ -29,16 +29,4 @@ describe('The init method is called.', () => {
     it('should attach data to the webcharts chart object', function() {
         expect(instance.raw_data.length).toEqual(data.length);
     });
-
-    //it('should render the controls', function() {
-    //    expect(container.querySelectorAll('*').length).toEqual(0);
-    //});
-
-    //it('should render the chart', function() {
-    //    expect(container.querySelectorAll('*').length).toEqual(0);
-    //});
-
-    //it('should render the listing', function() {
-    //    expect(container.querySelectorAll('*').length).toEqual(0);
-    //});
 });
