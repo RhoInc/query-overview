@@ -7,7 +7,7 @@ export default function onDestroy() {
     //Remove stylesheet.
     this.style.remove();
 
-    //Clear container, removing one child node at a time (fastest method per https://jsperf.com/innerhtml-vs-removechild/37).
+    //Clear container, removing one child node at a time.
     const node = select(this.element).node();
     while (node.firstChild) node.removeChild(node.firstChild);
 }
