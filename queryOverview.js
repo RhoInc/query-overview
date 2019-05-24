@@ -645,7 +645,7 @@
             main: d3
                 .select(element)
                 .append('div')
-                .classed('.query-overview', true)
+                .classed('query-overview', true)
         };
         containers.topRow = containers.main.append('div').classed('qo-row qo-row--top', true);
         containers.controls = containers.topRow
@@ -2192,7 +2192,7 @@
         //Destroy listing.
         this.listing.destroy(); //Remove stylesheet.
 
-        this.style.remove(); //Clear container, removing one child node at a time (fastest method per https://jsperf.com/innerhtml-vs-removechild/37).
+        this.style.remove(); //Clear container, removing one child node at a time.
 
         var node = d3.select(this.element).node();
 
