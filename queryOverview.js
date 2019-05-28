@@ -286,7 +286,8 @@
             margin: {
                 right: 50 // room for count annotation
             },
-            range_band: 25
+            range_band: 20,
+            padding: 0.2
         };
     }
 
@@ -738,7 +739,8 @@
                 '    margin: 5px 2px !important;' +
                 '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
-                '}',
+                '    display: block !important;',
+            '}',
             '.qo-subsetter .wc-control-label {' +
                 '    margin: 0 5px 3px 0;' +
                 '    text-align: center;' +
@@ -1398,6 +1400,12 @@
         });
     }
 
+    function addTooltipsToFilterOptions() {
+        this.controls.filters.selects.selectAll('option').attr('title', function(d) {
+            return d;
+        });
+    }
+
     function sortQueryRecencyOptions() {
         this.controls.filters.selects
             .filter(function(d) {
@@ -1512,7 +1520,9 @@
 
         addSelectAll.call(this); //Update filter event listeners to toggle select all checkbox on change.
 
-        updateFilterEventListeners.call(this); //Sort query recency categories numerically if possible.
+        updateFilterEventListeners.call(this); //Add tooltips to filter options.
+
+        addTooltipsToFilterOptions.call(this); //Sort query recency categories numerically if possible.
 
         sortQueryRecencyOptions.call(this); //Handle y-domain length control
 
