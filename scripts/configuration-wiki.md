@@ -485,7 +485,8 @@ The objects below contain Webcharts settings for each display as of version 2.1.
     "margin": {
         "right": 50
     },
-    "range_band": 25
+    "range_band": 20,
+    "padding": 0.2
 }
 ```
 

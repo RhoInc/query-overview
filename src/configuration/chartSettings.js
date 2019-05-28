@@ -31,6 +31,7 @@ export default function chartSettings() {
         margin: {
             right: 50 // room for count annotation
         },
-        range_band: 25
+        range_band: 20,
+        padding: 0.2
     };
 }
