@@ -2,6 +2,7 @@ import legendFilter from './onResize/legendFilter';
 import addYAxisTickTooltips from './onResize/addYAxisTickTooltips';
 import addYAxisTickClick from './onResize/addYAxisTickClick';
 import annotateYAxisInfo from './onResize/annotateYAxisInfo';
+import truncateYAxisTickLabels from './onResize/truncateYAxisTickLabels';
 import hideBars from './onResize/hideBars';
 import annotateNumberOfQueries from './onResize/annotateNumberOfQueries';
 import addBarClick from './onResize/addBarClick';
@@ -20,6 +21,9 @@ export default function onResize() {
 
     //Annotate the number of hidden y-axis tick labels.
     annotateYAxisInfo.call(this);
+
+    //Truncate tick labels to fit in left margin of chart.
+    truncateYAxisTickLabels.call(this);
 
     //Hide bars that aren't in first N groups.
     hideBars.call(this);

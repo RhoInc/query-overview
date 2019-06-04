@@ -3,6 +3,7 @@ import setXDomain from './onDraw/setXDomain';
 import setYDomain from './onDraw/setYDomain';
 import setChartHeight from './onDraw/setChartHeight';
 import updateXAxisLabel from './onDraw/updateXAxisLabel';
+import resetYAxisTickLabels from './onDraw/resetYAxisTickLabels';
 
 export default function onDraw() {
     setLeftMargin.call(this);
@@ -10,4 +11,5 @@ export default function onDraw() {
     setYDomain.call(this);
     setChartHeight.call(this);
     updateXAxisLabel.call(this);
+    resetYAxisTickLabels.call(this);
 }

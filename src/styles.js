@@ -113,6 +113,7 @@ export default function styles(document) {
                 '.qo-control-grouping--filters {' +
                 '    width: 20%;' +
                 '    float: left;' +
+                /*!/trident/i.test(navigator.userAgent)*/
                 '    display: flex;' +
                 '    flex-wrap: wrap;' +
                 '    justify-content: space-evenly;' +
@@ -170,6 +171,10 @@ export default function styles(document) {
             '    padding: 5px;' +
             '    padding-left: 8px;' +
             '    margin-right: 5px !important;' +
+            '}',
+            '.qo-component--chart .y.axis .tick text {' +
+            '    font-family: "Lucida Console", "Courier New", "Monospace";' +
+            '    font-size: 14px;' +
             '}',
             '.qo-footnote {' +
             '    width: 100%;' +
