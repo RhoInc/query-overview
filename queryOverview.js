@@ -747,7 +747,7 @@
             '.qo-control-grouping--filters {' +
                 '    width: 20%;' +
                 '    float: left;' +
-                (!/trident/i.test(navigator.userAgent)
+                (typeof navigator !== 'undefined' && !/trident/i.test(navigator.userAgent)
                     ? '    display: flex;' +
                       '    flex-wrap: wrap;' +
                       '    justify-content: space-evenly;'
@@ -1616,8 +1616,7 @@
     function onDataTransform() {}
 
     function setLeftMargin() {
-        this.config.fontSize = parseInt(this.wrap.style('font-size'));
-        console.log(this.config.fontSize); //Give the y-axis tick labels a maximum margin of one quarter of the container width.
+        this.config.fontSize = parseInt(this.wrap.style('font-size')); //Give the y-axis tick labels a maximum margin of one quarter of the container width.
 
         this.config.maxYAxisTickWidth = this.div.offsetWidth / 4; //Find maximum number of characters in the y-axis tick labels (minimum: 7 characters).
 
@@ -2020,21 +2019,23 @@
     }
 
     function truncateYAxisTickLabels() {
-        var yAxisLabelHeight = this.svg
-            .select('.y.axis .axis-title')
-            .node()
-            .getBBox().height;
-        var yAxisTickLabelSpace = this.config.maxYAxisTickWidth - yAxisLabelHeight - 4;
-        if (this.config.maxYAxisTickLabelLength > yAxisTickLabelSpace)
-            this.svg.selectAll('.y.axis .tick text').each(function(d) {
-                var textWidth = this.getBBox().width;
+        if (!this.test) {
+            var yAxisLabelHeight = this.svg
+                .select('.y.axis .axis-title')
+                .node()
+                .getBBox().height;
+            var yAxisTickLabelSpace = this.config.maxYAxisTickWidth - yAxisLabelHeight - 4;
+            if (this.config.maxYAxisTickLabelLength > yAxisTickLabelSpace)
+                this.svg.selectAll('.y.axis .tick text').each(function(d) {
+                    var textWidth = this.getBBox().width;
 
-                if (textWidth > yAxisTickLabelSpace) {
-                    var charWidth = textWidth / d.length;
-                    var nChar = Math.floor(yAxisTickLabelSpace / charWidth);
-                    this.textContent = d.substring(0, nChar - 3) + '...';
-                }
-            });
+                    if (textWidth > yAxisTickLabelSpace) {
+                        var charWidth = textWidth / d.length;
+                        var nChar = Math.floor(yAxisTickLabelSpace / charWidth);
+                        this.textContent = d.substring(0, nChar - 3) + '...';
+                    }
+                });
+        }
     }
 
     function hideBars() {
@@ -2678,6 +2679,7 @@
         }); //Chart
 
         var chart = webcharts.createChart(containers.chart.node(), syncedSettings, controls);
+        chart.test = !!dom;
         chart.element = element;
         chart.style = style;
         chart.initialSettings = clone(mergedSettings);

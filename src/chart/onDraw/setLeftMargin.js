@@ -2,7 +2,6 @@ import { max } from 'd3';
 
 export default function setLeftMargin() {
     this.config.fontSize = parseInt(this.wrap.style('font-size'));
-    console.log(this.config.fontSize);
 
     //Give the y-axis tick labels a maximum margin of one quarter of the container width.
     this.config.maxYAxisTickWidth = this.div.offsetWidth / 4;

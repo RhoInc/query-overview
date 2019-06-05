@@ -114,7 +114,7 @@ export default function styles(document) {
                 '    width: 20%;' +
                 '    float: left;' +
                 (
-                    !/trident/i.test(navigator.userAgent)
+                    typeof navigator !== 'undefined' && !/trident/i.test(navigator.userAgent)
                         ? '    display: flex;' +
                           '    flex-wrap: wrap;' +
                           '    justify-content: space-evenly;'

@@ -28,6 +28,7 @@ export default function queryOverview(element = 'body', settings = {}, dom) {
 
     //Chart
     const chart = createChart(containers.chart.node(), syncedSettings, controls);
+    chart.test = !!dom;
     chart.element = element;
     chart.style = style;
     chart.initialSettings = clone(mergedSettings);
