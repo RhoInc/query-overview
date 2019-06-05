@@ -113,16 +113,20 @@ export default function styles(document) {
                 '.qo-control-grouping--filters {' +
                 '    width: 20%;' +
                 '    float: left;' +
-                /*!/trident/i.test(navigator.userAgent)*/
-                '    display: flex;' +
-                '    flex-wrap: wrap;' +
-                '    justify-content: space-evenly;' +
+                (
+                    !/trident/i.test(navigator.userAgent)
+                        ? '    display: flex;' +
+                          '    flex-wrap: wrap;' +
+                          '    justify-content: space-evenly;'
+                        : '    display: inline-block;'
+                ) +
                 '}',
                 '.qo-subsetter {' +
                 '    margin: 5px 2px !important;' +
                 '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
-                '    display: block !important;',
+                '    display: inline-block !important;' +
+                '    vertical-align: top;' +
                 '}',
                 '.qo-subsetter .wc-control-label {' +
                 '    margin: 0 5px 3px 0;' +
