@@ -1,8 +1,8 @@
 import babel from 'rollup-plugin-babel';
 
-var pkg = require('./package.json');
+const pkg = require('./package.json');
 
-module.exports = {
+export default {
     input: pkg.module,
     output: {
         name: pkg.name
@@ -29,10 +29,7 @@ module.exports = {
         babel({
             exclude: 'node_modules/**',
             presets: [
-                [ 'env', {modules: false} ]
-            ],
-            plugins: [
-                'external-helpers'
+                [ '@babel/preset-env' ]
             ],
             babelrc: false
         })

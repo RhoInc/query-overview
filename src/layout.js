@@ -1,9 +1,10 @@
+import { select } from 'd3';
+
 export default function layout(element) {
     const containers = {
-        main: d3
-            .select(element)
+        main: select(element)
             .append('div')
-            .classed('.query-overview', true)
+            .classed('query-overview', true)
     };
 
     containers.topRow = containers.main.append('div').classed('qo-row qo-row--top', true);

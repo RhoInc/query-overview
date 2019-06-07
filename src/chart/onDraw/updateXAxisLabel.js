@@ -1,6 +1,8 @@
+import { sum } from 'd3';
+
 export default function updateXAxisLabel() {
-    d3
+    this.svg
         .select('.x.axis')
         .select('.axis-title')
-        .text(this.config.x.label + ' (' + String(d3.sum(this.current_data, d => d.total)) + ')');
+        .text(this.config.x.label + ' (' + String(sum(this.current_data, d => d.total)) + ')');
 }

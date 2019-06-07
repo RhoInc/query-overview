@@ -25,5 +25,5 @@ export default function onInit() {
     removeInvalidControls.call(this);
 
     //Initialize listing.
-    this.listing.init(this.raw_data);
+    this.listing.init(this.raw_data, this.listing.test);
 }

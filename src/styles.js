@@ -1,4 +1,4 @@
-export default function styles() {
+export default function styles(document) {
     const styles = [
 
         /***--------------------------------------------------------------------------------------\
@@ -113,14 +113,20 @@ export default function styles() {
                 '.qo-control-grouping--filters {' +
                 '    width: 20%;' +
                 '    float: left;' +
-                '    display: flex;' +
-                '    flex-wrap: wrap;' +
-                '    justify-content: space-evenly;' +
+                (
+                    typeof navigator !== 'undefined' && !/trident/i.test(navigator.userAgent)
+                        ? '    display: flex;' +
+                          '    flex-wrap: wrap;' +
+                          '    justify-content: space-evenly;'
+                        : '    display: inline-block;'
+                ) +
                 '}',
                 '.qo-subsetter {' +
                 '    margin: 5px 2px !important;' +
                 '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
+                '    display: inline-block !important;' +
+                '    vertical-align: top;' +
                 '}',
                 '.qo-subsetter .wc-control-label {' +
                 '    margin: 0 5px 3px 0;' +
@@ -170,6 +176,10 @@ export default function styles() {
             '    padding-left: 8px;' +
             '    margin-right: 5px !important;' +
             '}',
+            '.qo-component--chart .y.axis .tick text {' +
+            '    font-family: "Lucida Console", "Courier New", "Monospace";' +
+            '    font-size: 14px;' +
+            '}',
             '.qo-footnote {' +
             '    width: 100%;' +
             '    text-align: center;' +
@@ -214,4 +224,6 @@ export default function styles() {
     style.type = 'text/css';
     style.innerHTML = styles.join('\n');
     document.getElementsByTagName('head')[0].appendChild(style);
+
+    return style;
 }

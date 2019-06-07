@@ -1,3 +1,4 @@
+import { select } from 'd3';
 import updateSelectAll from '../onLayout/updateFilterEventListeners/updateSelectAll';
 import syncQueryAgeAndStatus from '../onLayout/updateFilterEventListeners/syncQueryAgeAndStatus';
 
@@ -20,12 +21,10 @@ export default function legendFilter() {
             'selected',
             d => statusFilter.val === 'All' || statusFilter.val.indexOf(d.label) > -1
         )
-        .style(
-            'background',
-            d =>
-                statusFilter.val === 'All' || statusFilter.val.indexOf(d.label) > -1
-                    ? 'lightgray'
-                    : 'white'
+        .style('background', d =>
+            statusFilter.val === 'All' || statusFilter.val.indexOf(d.label) > -1
+                ? 'lightgray'
+                : 'white'
         );
     const statusControlGroup = this.controls.wrap
         .selectAll('.control-group')
@@ -34,12 +33,12 @@ export default function legendFilter() {
     legendItems.selectAll('.legend-mark-text').remove(); // don't need 'em
     legendItems.selectAll('.legend-color-block').attr('width', '8px');
     legendItems.on('click', function(d) {
-        const legendItem = d3.select(this); // clicked legend item
+        const legendItem = select(this); // clicked legend item
         const selected = !legendItem.classed('selected'); // selected boolean
         legendItem.classed('selected', selected); // toggle selected class
         const selectedLegendItems = legendItems
             .filter(function() {
-                return d3.select(this).classed('selected');
+                return select(this).classed('selected');
             })
             .data()
             .map(d => d.label); // selected statuses

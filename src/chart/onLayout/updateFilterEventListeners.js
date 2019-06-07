@@ -1,3 +1,4 @@
+import { select as d3select } from 'd3';
 import updateSelectAll from './updateFilterEventListeners/updateSelectAll';
 import syncQueryAgeAndStatus from './updateFilterEventListeners/syncQueryAgeAndStatus';
 
@@ -6,7 +7,7 @@ export default function updateFilterEventListeners() {
 
     //Update filter event listeners.
     this.controls.filters.selects.on('change', function(d) {
-        const select = d3.select(this);
+        const select = d3select(this);
         const selectedOptions = select.selectAll('option:checked').data();
 
         //Update select-all checkbox.

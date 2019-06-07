@@ -1,3 +1,4 @@
+import { select } from 'd3';
 import manualSort from './updateColumnSorting/manualSort';
 
 export default function updateColumnSorting() {
@@ -7,7 +8,7 @@ export default function updateColumnSorting() {
         this.thead_cells.on('click', function(d) {
             const th = this;
             const header = d;
-            const selection = d3.select(th);
+            const selection = select(th);
             const col = context.config.cols[context.config.headers.indexOf(header)];
 
             //Check if column is already a part of current sort order.
@@ -49,7 +50,7 @@ export default function updateColumnSorting() {
             context.sortable.order.forEach((item, i) => {
                 item.wrap.on('click', function(d) {
                     //Remove column's sort container.
-                    d3.select(this).remove();
+                    select(this).remove();
 
                     //Remove column from sort.
                     context.sortable.order.splice(

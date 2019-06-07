@@ -1,23 +1,21 @@
 export default function syncStatusGroups(settings) {
     //age ranges
-    settings.ageRanges = settings.age_cutoffs.map(
-        (d, i) => (i > 0 ? [settings.age_cutoffs[i - 1], d] : [0, d])
+    settings.ageRanges = settings.age_cutoffs.map((d, i) =>
+        i > 0 ? [settings.age_cutoffs[i - 1], d] : [0, d]
     );
     settings.ageRanges.push([settings.age_cutoffs[settings.age_cutoffs.length - 1], null]);
 
     //age range categories
     settings.ageRangeCategories = settings.age_cutoffs.every(age_range => age_range % 7 === 0)
-        ? settings.ageRanges.map(
-              (ageRange, i) =>
-                  i < settings.ageRanges.length - 1
-                      ? `${ageRange.map(days => days / 7).join('-')} wks`
-                      : `>${ageRange[0] / 7} wks`
+        ? settings.ageRanges.map((ageRange, i) =>
+              i < settings.ageRanges.length - 1
+                  ? `${ageRange.map(days => days / 7).join('-')} wks`
+                  : `>${ageRange[0] / 7} wks`
           )
-        : settings.ageRanges.map(
-              (ageRange, i) =>
-                  i < settings.ageRanges.length - 1
-                      ? `${ageRange.join('-')} days`
-                      : `>${ageRange[0]} days`
+        : settings.ageRanges.map((ageRange, i) =>
+              i < settings.ageRanges.length - 1
+                  ? `${ageRange.join('-')} days`
+                  : `>${ageRange[0]} days`
           );
 
     //age range colors

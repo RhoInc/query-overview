@@ -7,7 +7,7 @@ import { createControls, createChart, createTable } from 'webcharts';
 import chartCallbacks from './chart/index';
 import listingCallbacks from './listing/index';
 
-export default function queryOverview(element = 'body', settings = {}) {
+export default function queryOverview(element = 'body', settings = {}, dom) {
     //Settings
     const mergedSettings = Object.assign({}, configuration.settings, settings);
     const syncedSettings = configuration.syncSettings(mergedSettings);
@@ -18,26 +18,26 @@ export default function queryOverview(element = 'body', settings = {}) {
 
     //Layout and styles
     const containers = layout(element);
-    styles();
+    const style = styles(dom ? dom.window.document : document);
 
     //Controls
     const controls = createControls(containers.controls.node(), {
         location: 'top',
         inputs: syncedControlInputs
     });
-    controls.element = element;
 
     //Chart
     const chart = createChart(containers.chart.node(), syncedSettings, controls);
+    chart.test = !!dom;
     chart.element = element;
+    chart.style = style;
     chart.initialSettings = clone(mergedSettings);
     for (const callback in chartCallbacks)
         chart.on(callback.substring(2).toLowerCase(), chartCallbacks[callback]);
 
     //Listing
     const listing = createTable(containers.listing.node(), syncedSettings);
-    listing.element = element;
-    listing.initialSettings = clone(mergedSettings);
+    listing.test = !!dom;
     for (const callback in listingCallbacks)
         listing.on(callback.substring(2).toLowerCase(), listingCallbacks[callback]);
 

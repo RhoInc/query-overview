@@ -1,7 +1,8 @@
+import { select } from 'd3';
 import syncQueryAgeAndStatus from './syncQueryAgeAndStatus';
 
 export default function updateFilter(d, element, draw = true) {
-    const checkbox = d3.select(element);
+    const checkbox = select(element);
     const checked = element.checked;
 
     //Update checkbox tooltip.

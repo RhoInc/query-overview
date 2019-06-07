@@ -1,3 +1,5 @@
+import { select } from 'd3';
+
 export default function setYAxisDomainLength() {
     const context = this;
 
@@ -14,7 +16,7 @@ export default function setYAxisDomainLength() {
     groupToggles.on('change', function() {
         var value = groupToggles
             .filter(function(f) {
-                return d3.select(this).property('checked');
+                return select(this).property('checked');
             })
             .property('value');
         context.config.cutoff = value == 'All' ? context.raw_data.length : +value;
