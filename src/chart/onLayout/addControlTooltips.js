@@ -16,7 +16,7 @@ export default function addControlTooltips() {
         'Query Age':
             'Open queries are broken down into how long they have been open. All other queries are classified by status (answered, closed, cancelled).',
         'Query Status':
-            'Open: site has not responded to the issue\nAnswered: site has responded to issue; DM needs to review\nClosed: issue resolved\nCancelled: query cancelled by DM',
+            'Open: site has not responded to the issue\nAnswered: site has responded to issue; individual opening query needs to review\nClosed: issue resolved\nCancelled: query cancelled by DM',
         'Query Recency':
             'Number of days a query has been open, regardless of its current status (applies only to queries opened in the past 30 days)',
         Form:
