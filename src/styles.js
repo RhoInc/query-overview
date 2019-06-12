@@ -29,6 +29,9 @@ export default function styles(document) {
             '}',
             '.qo-component--controls .wc-controls {' +
             '    margin-bottom: 0;' +
+            '    display: flex;' +
+            '    width: 90%;' +
+            '    justify-content: space-around;' +
             '}',
             '.qo-control-grouping {' +
             '    display: inline-block;' +
@@ -56,9 +59,13 @@ export default function styles(document) {
               Other controls
             \---------------------------------------------------------------------------------****/
 
+
                 '.qo-control-grouping--other-controls {' +
-                '    width: 20%;' +
-                '    float: right;' +
+                '    float: left;' +
+                '    display: flex;' +
+                '    flex-wrap: wrap;' +
+                '    justify-content: space-evenly;' +
+                '    width: 25%;' +
                 '}',
                 '.qo-control-grouping--other-controls .control-group {' +
                 '    width: 100%;' +
@@ -88,7 +95,7 @@ export default function styles(document) {
                 '    flex-wrap: wrap;' +
                 '}',
                 '.qo-radio .wc-control-label {' +
-                '    width: 100%;' +
+                '    width: 50%;' +
                 '}',
                 '.qo-radio .radio {' +
                 '    margin-top: 0 !important;' +
@@ -111,8 +118,8 @@ export default function styles(document) {
             \---------------------------------------------------------------------------------****/
 
                 '.qo-control-grouping--filters {' +
-                '    width: 20%;' +
                 '    float: left;' +
+                '    align-content: baseline;' +
                 (
                     typeof navigator !== 'undefined' && !/trident/i.test(navigator.userAgent)
                         ? '    display: flex;' +
@@ -123,7 +130,6 @@ export default function styles(document) {
                 '}',
                 '.qo-subsetter {' +
                 '    margin: 5px 2px !important;' +
-                '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
                 '    display: inline-block !important;' +
                 '    vertical-align: top;' +
@@ -143,8 +149,9 @@ export default function styles(document) {
         \--------------------------------------------------------------------------------------***/
 
             '.qo-component--chart {' +
-            '    width: 58%;' +
+            '    width: 100%;' +
             '    margin: 0 auto;' +
+            '    float: left;' +
             '    position: relative;' +
             '}',
             '.qo-button--reset-chart {' +

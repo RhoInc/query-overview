@@ -4,7 +4,7 @@ export default function groupControls() {
     //Group filters.
     this.controls.filters = {
         container: this.controls.wrap
-            .insert('div', '.qo-subsetter')
+            .insert('div', ':first-child') //placing filter controls first
             .classed('qo-control-grouping qo-control-grouping--filters', true)
     };
     this.controls.filters.container
@@ -27,7 +27,7 @@ export default function groupControls() {
     //Group other controls.
     this.controls.otherControls = {
         container: this.controls.wrap
-            .insert('div', ':first-child')
+            .insert('div', '.qo-dropdown')
             .classed('qo-control-grouping qo-control-grouping--other-controls', true)
     };
     this.controls.otherControls.label = this.controls.otherControls.container
