@@ -3,7 +3,7 @@ The most straightforward way to customize query-overview is by using a configura
 In addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to query-overview to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.
 
 # Renderer-specific settings
-The sections below describe each query-overview setting as of version 2.1.0.
+The sections below describe each query-overview setting as of version 2.1.2.
 
 ## settings.site_col
 `string`
@@ -447,7 +447,7 @@ cell text past this cutoff will be truncated and the full text will be captured 
 **default:** `100`
 
 # Webcharts settings
-The objects below contain Webcharts settings for each display as of version 2.1.0 of the Query Overview.
+The objects below contain Webcharts settings for each display as of version 2.1.2 of the Query Overview.
 
 ## Chart
 ```

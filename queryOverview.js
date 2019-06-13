@@ -692,7 +692,12 @@
         Controls
       \--------------------------------------------------------------------------------------***/
             '.qo-component--controls {' + '    width: 100%;' + '}',
-            '.qo-component--controls .wc-controls {' + '    margin-bottom: 0;' + '}',
+            '.qo-component--controls .wc-controls {' +
+                '    margin-bottom: 0;' +
+                '    display: flex;' +
+                '    width: 90%;' +
+                '    justify-content: space-around;' +
+                '}',
             '.qo-control-grouping {' + '    display: inline-block;' + '}',
             '.qo-button {' + '    float: left;' + '    display: block;' + '}',
             '.qo-control-grouping--label,' +
@@ -711,8 +716,11 @@
         Other controls
       \---------------------------------------------------------------------------------****/
             '.qo-control-grouping--other-controls {' +
-                '    width: 20%;' +
-                '    float: right;' +
+                '    float: left;' +
+                '    display: flex;' +
+                '    flex-wrap: wrap;' +
+                '    justify-content: space-evenly;' +
+                '    width: 25%;' +
                 '}',
             '.qo-control-grouping--other-controls .control-group {' +
                 '    width: 100%;' +
@@ -733,7 +741,7 @@
                 '    justify-content: center;' +
                 '    flex-wrap: wrap;' +
                 '}',
-            '.qo-radio .wc-control-label {' + '    width: 100%;' + '}',
+            '.qo-radio .wc-control-label {' + '    width: 50%;' + '}',
             '.qo-radio .radio {' + '    margin-top: 0 !important;' + '}', //checkboxes
             '.qo-checkbox {' +
                 '    display: flex !important;' +
@@ -745,8 +753,8 @@
         Filters
       \---------------------------------------------------------------------------------****/
             '.qo-control-grouping--filters {' +
-                '    width: 20%;' +
                 '    float: left;' +
+                '    align-content: baseline;' +
                 (typeof navigator !== 'undefined' && !/trident/i.test(navigator.userAgent)
                     ? '    display: flex;' +
                       '    flex-wrap: wrap;' +
@@ -755,7 +763,6 @@
                 '}',
             '.qo-subsetter {' +
                 '    margin: 5px 2px !important;' +
-                '    border-top: 1px solid #aaa;' +
                 '    padding-top: 5px;' +
                 '    display: inline-block !important;' +
                 '    vertical-align: top;' +
@@ -770,8 +777,9 @@
         Chart
       \--------------------------------------------------------------------------------------***/
             '.qo-component--chart {' +
-                '    width: 58%;' +
+                '    width: 100%;' +
                 '    margin: 0 auto;' +
+                '    float: left;' +
                 '    position: relative;' +
                 '}',
             '.qo-button--reset-chart {' +
@@ -1058,7 +1066,7 @@
 
         this.controls.filters = {
             container: this.controls.wrap
-                .insert('div', '.qo-subsetter')
+                .insert('div', ':first-child') //placing filter controls first
                 .classed('qo-control-grouping qo-control-grouping--filters', true)
         };
         this.controls.filters.container
@@ -1080,7 +1088,7 @@
 
         this.controls.otherControls = {
             container: this.controls.wrap
-                .insert('div', ':first-child')
+                .insert('div', '.qo-dropdown')
                 .classed('qo-control-grouping qo-control-grouping--other-controls', true)
         };
         this.controls.otherControls.label = this.controls.otherControls.container
@@ -1117,7 +1125,7 @@
             'Query Age':
                 'Open queries are broken down into how long they have been open. All other queries are classified by status (answered, closed, cancelled).',
             'Query Status':
-                'Open: site has not responded to the issue\nAnswered: site has responded to issue; DM needs to review\nClosed: issue resolved\nCancelled: query cancelled by DM',
+                'Open: site has not responded to the issue\nAnswered: site has responded to issue; individual opening query needs to review\nClosed: issue resolved\nCancelled: query cancelled by DM',
             'Query Recency':
                 'Number of days a query has been open, regardless of its current status (applies only to queries opened in the past 30 days)',
             Form:
