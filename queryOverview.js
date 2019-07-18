@@ -1725,6 +1725,14 @@
         this.svg.selectAll('.y.axis .tick').remove();
     }
 
+    function updateXAxisLabel$1() {
+        // Make sure that the Y axis Label is tucked safely beneath reset chart button
+        this.svg
+            .select('.y.axis')
+            .select('.axis-title')
+            .attr('transform', 'translate(15,0)rotate(-90)');
+    }
+
     function onDraw() {
         setLeftMargin.call(this);
         setXDomain.call(this);
@@ -1732,6 +1740,7 @@
         setChartHeight.call(this);
         updateXAxisLabel.call(this);
         resetYAxisTickLabels.call(this);
+        updateXAxisLabel$1.call(this);
     }
 
     function legendFilter() {
