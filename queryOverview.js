@@ -2305,6 +2305,21 @@
         onDestroy: onDestroy
     };
 
+    function removeHeaderlessColumns() {
+        var col_index = this.config.headers.indexOf('');
+
+        if (col_index !== -1) {
+            console.warn('Column(s) without headers were detected and removed from listing. '); // delete data for headerless column
+
+            this.data.raw.forEach(function(d) {
+                return delete d[''];
+            }); // remove headerless column placeholder from config too ... LEAVE NO TRACE
+
+            this.config.headers.splice(col_index, 1);
+            this.config.cols.splice(col_index, 1);
+        }
+    }
+
     function applyVariableMetadata() {
         var _this = this;
 
@@ -2435,6 +2450,7 @@
     }
 
     function onInit$1() {
+        removeHeaderlessColumns.call(this);
         applyVariableMetadata.call(this);
     }
 
