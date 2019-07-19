@@ -3,5 +3,5 @@ export default function updateXAxisLabel() {
     this.svg
         .select('.y.axis')
         .select('.axis-title')
-        .attr('transform', 'translate(15,0)rotate(-90)');
+        .attr('transform', 'translate(10,0)rotate(-90)');
 }

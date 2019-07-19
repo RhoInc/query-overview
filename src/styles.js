@@ -183,10 +183,6 @@ export default function styles(document) {
             '    padding-left: 8px;' +
             '    margin-right: 5px !important;' +
             '}',
-            '.qo-component--chart .y.axis .tick text {' +
-            '    font-family: "Lucida Console", "Courier New", "Monospace";' +
-            '    font-size: 14px;' +
-            '}',
             '.qo-footnote {' +
             '    width: 100%;' +
             '    text-align: center;' +

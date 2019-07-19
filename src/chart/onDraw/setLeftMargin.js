@@ -8,7 +8,7 @@ export default function setLeftMargin() {
 
     //Find maximum number of characters in the y-axis tick labels (minimum: 7 characters).
     this.config.maxYAxisTickLabelLength =
-        Math.max(7, max(this.y_dom, d => d.length)) * this.config.fontSize * 0.5 +
+        Math.max(7, max(this.y_dom, d => d.length)) * this.config.fontSize * 0.6 +
         this.config.fontSize * 1.5 * 1.5 +
         6;
 
