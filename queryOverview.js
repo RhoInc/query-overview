@@ -1730,7 +1730,7 @@
         this.svg
             .select('.y.axis')
             .select('.axis-title')
-            .attr('transform', 'translate(15,0)rotate(-90)');
+            .attr('transform', 'translate(5,0)rotate(-90)');
     }
 
     function onDraw() {
