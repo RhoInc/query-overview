@@ -30,8 +30,10 @@ export default function styles(document) {
             '.qo-component--controls .wc-controls {' +
             '    margin-bottom: 0;' +
             '    display: flex;' +
-            '    width: 90%;' +
+            '    width: 100%;' +
             '    justify-content: space-around;' +
+            '    border-bottom: 1px solid #aaa;' +
+            '    margin-bottom: 5px;' +
             '}',
             '.qo-control-grouping {' +
             '    display: inline-block;' +
@@ -59,17 +61,16 @@ export default function styles(document) {
               Other controls
             \---------------------------------------------------------------------------------****/
 
-
                 '.qo-control-grouping--other-controls {' +
-                '    float: left;' +
-                '    display: flex;' +
-                '    flex-wrap: wrap;' +
-                '    justify-content: space-evenly;' +
+                '    float: right;' +
+                //'    display: flex;' +
+                //'    flex-wrap: wrap;' +
+                //'    justify-content: space-evenly;' +
                 '    width: 25%;' +
                 '}',
                 '.qo-control-grouping--other-controls .control-group {' +
                 '    width: 100%;' +
-                '    margin-bottom: 15px;' +
+                '    margin-bottom: 5px;' +
                 '}',
                 '.qo-control-grouping--other-controls .control-group:nth-child(n+3) {' +
                 '    border-top: 1px solid #aaa;' +
@@ -77,6 +78,7 @@ export default function styles(document) {
                 '.qo-control-grouping--other-controls .control-group .wc-control-label {' +
                 '    text-align: center;' +
                 '    font-size: 110%;' +
+                '    width: 100%;' +
                 '}',
 
                 //dropdowns
@@ -151,8 +153,11 @@ export default function styles(document) {
             '.qo-component--chart {' +
             '    width: 100%;' +
             '    margin: 0 auto;' +
+            '    margin-bottom: 5px;' +
+            '    padding-bottom: 5px;' +
             '    float: left;' +
             '    position: relative;' +
+            '    border-bottom: 1px solid #aaa;' +
             '}',
             '.qo-button--reset-chart {' +
             '    position: absolute;' +
@@ -172,6 +177,9 @@ export default function styles(document) {
             '}',
             '.qo-component--chart .wc-chart {' +
             '    z-index: 1;' +
+            '}',
+            '.qo-component--chart .legend {' +
+            '    width: auto;' +
             '}',
             '.qo-component--chart .legend-title {' +
             '    cursor: help;' +
