@@ -1,6 +1,5 @@
 d3.csv(
-    // 'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/queries.csv',
-    './querytest.csv',
+    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/clinical-trials/data-cleaning/queries.csv',
     function(d,i) {
         return d;
     },
@@ -27,7 +26,7 @@ d3.csv(
                 const disabled = bootstrap.property('disabled');
                 bootstrap.property('disabled', !disabled);
                 bootstrapToggle.text((disabled ? 'Disable' : 'Enable') + ' bootstrap');
-  instance.draw();
+                instance.draw();
             });
 
 

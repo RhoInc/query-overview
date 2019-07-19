@@ -80,12 +80,6 @@ export default function applyVariableMetadata() {
                 'Number of days between query open date and data extraction date, regardless of query status.'
         },
         {
-            variable: this.chart.initialSettings.recency_category_col,
-            label: 'Query Recency',
-            description:
-                'Number of days by category between query open date and data extraction date, regardless of query status. Categories include last 7, 14, and 30 days.'
-        },
-        {
             variable: 'queryrecency',
             label: 'Query Recency',
             description:
