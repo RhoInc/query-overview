@@ -718,9 +718,7 @@
         Other controls
       \---------------------------------------------------------------------------------****/
             '.qo-control-grouping--other-controls {' +
-            '    float: right;' + //'    display: flex;' +
-                //'    flex-wrap: wrap;' +
-                //'    justify-content: space-evenly;' +
+                '    float: right;' +
                 '    width: 25%;' +
                 '}',
             '.qo-control-grouping--other-controls .control-group {' +
@@ -812,10 +810,6 @@
                 '    padding: 5px;' +
                 '    padding-left: 8px;' +
                 '    margin-right: 5px !important;' +
-                '}',
-            '.qo-component--chart .y.axis .tick text {' +
-                '    font-family: "Lucida Console", "Courier New", "Monospace";' +
-                '    font-size: 14px;' +
                 '}',
             '.qo-footnote {' +
                 '    width: 100%;' +
@@ -1645,7 +1639,7 @@
                 })
             ) *
                 this.config.fontSize *
-                0.5 +
+                0.6 +
             this.config.fontSize * 1.5 * 1.5 +
             6; //Set the left margin to the minimum of one quarter of the container width and the maximum number of characters in the y-axis tick labels (minimum: 100 pixels).
 

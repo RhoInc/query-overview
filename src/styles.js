@@ -63,9 +63,6 @@ export default function styles(document) {
 
                 '.qo-control-grouping--other-controls {' +
                 '    float: right;' +
-                //'    display: flex;' +
-                //'    flex-wrap: wrap;' +
-                //'    justify-content: space-evenly;' +
                 '    width: 25%;' +
                 '}',
                 '.qo-control-grouping--other-controls .control-group {' +
@@ -190,10 +187,6 @@ export default function styles(document) {
             '    padding: 5px;' +
             '    padding-left: 8px;' +
             '    margin-right: 5px !important;' +
-            '}',
-            '.qo-component--chart .y.axis .tick text {' +
-            '    font-family: "Lucida Console", "Courier New", "Monospace";' +
-            '    font-size: 14px;' +
             '}',
             '.qo-footnote {' +
             '    width: 100%;' +
