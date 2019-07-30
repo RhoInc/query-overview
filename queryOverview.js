@@ -695,8 +695,10 @@
             '.qo-component--controls .wc-controls {' +
                 '    margin-bottom: 0;' +
                 '    display: flex;' +
-                '    width: 90%;' +
+                '    width: 100%;' +
                 '    justify-content: space-around;' +
+                '    border-bottom: 1px solid #aaa;' +
+                '    margin-bottom: 5px;' +
                 '}',
             '.qo-control-grouping {' + '    display: inline-block;' + '}',
             '.qo-button {' + '    float: left;' + '    display: block;' + '}',
@@ -716,15 +718,12 @@
         Other controls
       \---------------------------------------------------------------------------------****/
             '.qo-control-grouping--other-controls {' +
-                '    float: left;' +
-                '    display: flex;' +
-                '    flex-wrap: wrap;' +
-                '    justify-content: space-evenly;' +
+                '    float: right;' +
                 '    width: 25%;' +
                 '}',
             '.qo-control-grouping--other-controls .control-group {' +
                 '    width: 100%;' +
-                '    margin-bottom: 15px;' +
+                '    margin-bottom: 5px;' +
                 '}',
             '.qo-control-grouping--other-controls .control-group:nth-child(n+3) {' +
                 '    border-top: 1px solid #aaa;' +
@@ -732,6 +731,7 @@
             '.qo-control-grouping--other-controls .control-group .wc-control-label {' +
                 '    text-align: center;' +
                 '    font-size: 110%;' +
+                '    width: 100%;' +
                 '}', //dropdowns
             '.qo-dropdown {' + '}',
             '.qo-dropdown .wc-control-label {' + '}',
@@ -779,8 +779,11 @@
             '.qo-component--chart {' +
                 '    width: 100%;' +
                 '    margin: 0 auto;' +
+                '    margin-bottom: 5px;' +
+                '    padding-bottom: 5px;' +
                 '    float: left;' +
                 '    position: relative;' +
+                '    border-bottom: 1px solid #aaa;' +
                 '}',
             '.qo-button--reset-chart {' +
                 '    position: absolute;' +
@@ -799,6 +802,7 @@
                 '    padding: 3px 0;' +
                 '}',
             '.qo-component--chart .wc-chart {' + '    z-index: 1;' + '}',
+            '.qo-component--chart .legend {' + '    width: auto;' + '}',
             '.qo-component--chart .legend-title {' + '    cursor: help;' + '}',
             '.qo-component--chart .legend-item {' +
                 '    cursor: pointer;' +
@@ -806,10 +810,6 @@
                 '    padding: 5px;' +
                 '    padding-left: 8px;' +
                 '    margin-right: 5px !important;' +
-                '}',
-            '.qo-component--chart .y.axis .tick text {' +
-                '    font-family: "Lucida Console", "Courier New", "Monospace";' +
-                '    font-size: 14px;' +
                 '}',
             '.qo-footnote {' +
                 '    width: 100%;' +
@@ -852,49 +852,37 @@
     }
 
     function defineListingSettings() {
+        var _this = this;
+
         this.listing.config.cols = this.config.details
             ? this.config.details.map(function(d) {
                   return d.value_col;
               })
             : Object.keys(this.raw_data[0]).filter(function(key) {
-                  return key !== 'Form: Field';
-              });
+                  return ['Form: Field', _this.config.recency_category_col].indexOf(key) < 0;
+              }); // remove derived variables (recency_category_col is captured in variable queryrecency, derived in ./defineNewVariables)
+
         this.listing.config.headers = this.config.details
             ? this.config.details.map(function(d) {
                   return d.label;
               })
             : Object.keys(this.raw_data[0]).filter(function(key) {
-                  return key !== 'Form: Field';
+                  return ['Form: Field', _this.config.recency_category_col].indexOf(key) < 0;
               });
     }
 
     function defineNewVariables() {
         var _this = this;
 
-        var queryAgeCol = this.config.status_groups.find(function(status_group) {
-            return status_group.label === 'Query Age';
-        }).value_col;
         var queryRecencyCol = this.config.filters.find(function(filter) {
             return filter.label === 'Query Recency';
         }).value_col;
+        var queryAgeCol = this.config.status_groups.find(function(status_group) {
+            return status_group.label === 'Query Age';
+        }).value_col;
         this.raw_data.forEach(function(d) {
             //Concatenate form and field to avoid duplicates across forms.
-            d['Form: Field'] = d[_this.config.form_col] + ': ' + d[_this.config.field_col]; //Define query age.
-
-            if (_this.config.age_statuses.indexOf(d[_this.config.status_col]) < 0)
-                d[queryAgeCol] = d[_this.config.status_col];
-            else {
-                var age = +d[_this.config.age_col];
-
-                _this.config.ageRanges.forEach(function(ageRange, i) {
-                    if (i === 0 && ageRange[0] <= age && age <= ageRange[1])
-                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
-                    else if (i === _this.config.ageRanges.length - 1 && ageRange[0] < age)
-                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
-                    else if (ageRange[0] < age && age <= ageRange[1])
-                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
-                });
-            } //Define query recency.
+            d['Form: Field'] = d[_this.config.form_col] + ': ' + d[_this.config.field_col]; //Define query recency.
 
             if (d.hasOwnProperty(_this.config.recency_category_col)) {
                 d[queryRecencyCol] = d[_this.config.recency_category_col] || 'N/A';
@@ -911,6 +899,21 @@
                         d[queryRecencyCol] = _this.config.recencyRangeCategories[i];
                     else if (recencyRange[0] < recency && recency <= recencyRange[1])
                         d[queryRecencyCol] = _this.config.recencyRangeCategories[i];
+                });
+            } //Define query age.
+
+            if (_this.config.age_statuses.indexOf(d[_this.config.status_col]) < 0)
+                d[queryAgeCol] = d[_this.config.status_col];
+            else {
+                var age = +d[_this.config.age_col];
+
+                _this.config.ageRanges.forEach(function(ageRange, i) {
+                    if (i === 0 && ageRange[0] <= age && age <= ageRange[1])
+                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
+                    else if (i === _this.config.ageRanges.length - 1 && ageRange[0] < age)
+                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
+                    else if (ageRange[0] < age && age <= ageRange[1])
+                        d[queryAgeCol] = _this.config.ageRangeCategories[i];
                 });
             }
         });
@@ -1636,7 +1639,7 @@
                 })
             ) *
                 this.config.fontSize *
-                0.5 +
+                0.6 +
             this.config.fontSize * 1.5 * 1.5 +
             6; //Set the left margin to the minimum of one quarter of the container width and the maximum number of characters in the y-axis tick labels (minimum: 100 pixels).
 
@@ -1725,6 +1728,14 @@
         this.svg.selectAll('.y.axis .tick').remove();
     }
 
+    function updateXAxisLabel$1() {
+        // Make sure that the Y axis Label is tucked safely beneath reset chart button
+        this.svg
+            .select('.y.axis')
+            .select('.axis-title')
+            .attr('transform', 'translate(5,0)rotate(-90)');
+    }
+
     function onDraw() {
         setLeftMargin.call(this);
         setXDomain.call(this);
@@ -1732,6 +1743,7 @@
         setChartHeight.call(this);
         updateXAxisLabel.call(this);
         resetYAxisTickLabels.call(this);
+        updateXAxisLabel$1.call(this);
     }
 
     function legendFilter() {
@@ -2380,12 +2392,6 @@
                     'Number of days between query open date and data extraction date, regardless of query status.'
             },
             {
-                variable: this.chart.initialSettings.recency_category_col,
-                label: 'Query Recency',
-                description:
-                    'Number of days by category between query open date and data extraction date, regardless of query status. Categories include last 7, 14, and 30 days.'
-            },
-            {
                 variable: 'queryrecency',
                 label: 'Query Recency',
                 description:
@@ -2646,7 +2652,33 @@
     }
 
     function onDraw$1() {
+        var _this = this;
+
+        //console.log(this.table.selectAll('thead tr th'));
+        //console.log(this.table.selectAll('tbody tr:first-child td'));
+        var variables = Object.keys(this.data.raw[0]) //.sort(d3.ascending)
+            .map(function(variable, i) {
+                return {
+                    variable: variable,
+                    column: _this.config.cols.find(function(col) {
+                        return col === variable;
+                    }),
+                    columnIndex: _this.config.cols.findIndex(function(col) {
+                        return col === variable;
+                    }),
+                    header:
+                        _this.config.headers[
+                            _this.config.cols.findIndex(function(col) {
+                                return col === variable;
+                            })
+                        ],
+                    headerIndex: _this.config.headers.findIndex(function(col) {
+                        return col === variable;
+                    })
+                };
+            }); //console.table(variables.sort((a,b) => a.index - b.index));
         //Add tooltips to column headers.
+
         addHeaderTooltips.call(this); //Update default Webcharts column sorting.
 
         updateColumnSorting.call(this); //Truncate cells with length greater than `settings.truncation_cutoff`.
